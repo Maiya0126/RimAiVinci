@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<ThingDef>
+		<defName>RAV_MaLiangStylus</defName>
+		<label>Ma Liang Stylus</label>
+		<description>A legendary stylus capable of materializing AI portraits.</description>
+
+		<thingClass>ThingWithComps</thingClass>
+		<category>Item</category>
+		<drawerType>MapMeshOnly</drawerType>
+		<resourceReadoutPriority>Middle</resourceReadoutPriority>
+		<useHitPoints>true</useHitPoints>
+		<selectable>true</selectable>
+
+		<graphicData>
+			<texPath>Things/Item/Resource/MaLiangStylus</texPath>
+			<graphicClass>Graphic_Single</graphicClass>
+		</graphicData>
+
+		<statBases>
+			<MaxHitPoints>100</MaxHitPoints>
+			<Mass>0.5</Mass>
+			<MarketValue>500</MarketValue>
+			<Flammability>1.0</Flammability>
+			<WorkToMake>3000</WorkToMake>
+		</statBases>
+
+		<recipeMaker>
+			<recipeUsers>
+				<li>TableSculpting</li>
+			</recipeUsers>
+			<workSkill>Artistic</workSkill>
+			<skillRequirements>
+				<Artistic>4</Artistic>
+			</skillRequirements>
+			<effectWorking>Sculpt</effectWorking>
+			<soundWorking>Recipe_Sculpt</soundWorking>
+			<defaultIngredientFilter>
+				<categories>
+					<li>Root</li>
+				</categories>
+			</defaultIngredientFilter>
+		</recipeMaker>
+
+		<costList>
+			<Steel>20</Steel>
+			<ComponentIndustrial>1</ComponentIndustrial>
+			<WoodLog>10</WoodLog>
+		</costList>
+
+		<techLevel>Industrial</techLevel>
+		<tradeTags>
+			<li>ExoticMisc</li>
+		</tradeTags>
+
+		<comps>
+			<li Class="CompProperties_Usable">
+				<useJob>UseItem</useJob>
+				<useLabel>Materialize Portrait</useLabel>
+				<useDuration>60</useDuration>
+			</li>
+			<li Class="CompProperties_UseEffect">
+				<compClass>RimAiVinci.CompUseEffect_PaintPortrait</compClass>
+			</li>
+		</comps>
+	</ThingDef>
+
+</Defs>

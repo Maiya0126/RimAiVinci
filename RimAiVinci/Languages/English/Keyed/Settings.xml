@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<RAV_Tip_SiliconFlow>Free generation has time limits. Use invite code hazSLAR1 on SiliconFlow to get credits for ~100 fast generations.</RAV_Tip_SiliconFlow>
+
+	<RAV_Group_API>API Settings</RAV_Group_API>
+	<RAV_Desc_API>Supports all OpenAI-compatible APIs.\nRecommended: SiliconFlow, DeepSeek, or local ComfyUI/SD-WebUI.</RAV_Desc_API>
+	<RAV_Label_APIKey>API Key:</RAV_Label_APIKey>
+	<RAV_Label_APIUrl>API URL:</RAV_Label_APIUrl>
+
+	<RAV_Group_Model>Model Settings</RAV_Group_Model>
+	<RAV_Desc_Txt2Img>Txt2Img: Qwen models need '-Image' suffix. Flux/SD use model name directly.</RAV_Desc_Txt2Img>
+	<RAV_Label_Txt2Img>Model Name: </RAV_Label_Txt2Img>
+	<RAV_Desc_Img2Img>Img2Img: Qwen models need '-Edit' suffix. Flux/SD use model name directly.</RAV_Desc_Img2Img>
+	<RAV_Label_Img2Img>Model Name: </RAV_Label_Img2Img>
+	<RAV_Btn_Reset>Reset to Default</RAV_Btn_Reset>
+
+	<RAV_Label_Strength>Img2Img Denoising Strength: {0}</RAV_Label_Strength>
+	<RAV_Desc_Strength>Recommended: 0.6 - 0.75. Higher values mean more changes; lower values keep original look.</RAV_Desc_Strength>
+
+	<RAV_Group_UI>UI and Display</RAV_Group_UI>
+	<RAV_Check_ShowPortrait>Show Portrait (Bottom-Left when pawn selected)</RAV_Check_ShowPortrait>
+	<RAV_Label_PortraitScale>Portrait Scale: {0}</RAV_Label_PortraitScale>
+	<RAV_Check_ShowTab>Show Bottom Gallery Tab (Requires Restart)</RAV_Check_ShowTab>
+
+	<RAV_Btn_OpenGallery>📂 Open Gallery</RAV_Btn_OpenGallery>
+	<RAV_Btn_OpenFolder>📥 Open Import Folder</RAV_Btn_OpenFolder>
+
+	<RimAiVinci_ProcessingAIImage>AI is painting your portrait in the cloud, please wait...</RimAiVinci_ProcessingAIImage>
+	<RimAiVinci_FreeCooldown>Free server cooldown. Please wait {0} seconds.</RimAiVinci_FreeCooldown>
+	<RimAiVinci_FreeServerBusy>Free server is busy (Global Traffic). Please try again later or use API Key.</RimAiVinci_FreeServerBusy>
+	<RimAiVinci_AIError>AI Error</RimAiVinci_AIError>
+	
+</LanguageData>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8849119E-1FDA-4751-B26E-612779046AED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RimAiVinci</RootNamespace>
+    <AssemblyName>RimAiVinci</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\Games\steamapps\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Building\Building_PhotoFrame.cs" />
+    <Compile Include="Source\Comp\CompUseEffect_PaintPortrait.cs" />
+    <Compile Include="Source\Core\ArtData.cs" />
+    <Compile Include="Source\Core\ArtDataStore.cs" />
+    <Compile Include="Source\Core\ArtFileSystem.cs" />
+    <Compile Include="Source\Core\ColorLibrary.cs" />
+    <Compile Include="Source\Core\DataController.cs" />
+    <Compile Include="Source\Core\DebugActions.cs" />
+    <Compile Include="Source\Core\PawnPromptBuilder.cs" />
+    <Compile Include="Source\Core\PlaceWorker_WallArt.cs" />
+    <Compile Include="Source\Core\PollinationsClient.cs" />
+    <Compile Include="Source\Core\RaceDescriptionMapper.cs" />
+    <Compile Include="Source\Core\RimAiVinciMod.cs" />
+    <Compile Include="Source\Core\RimAiVinciStartup.cs" />
+    <Compile Include="Source\Core\SiliconClient.cs" />
+    <Compile Include="Source\Core\RimAiVinciSettings.cs" />
+    <Compile Include="Source\Patches\HarmonyInit.cs" />
+    <Compile Include="Source\Patches\HarmonyPatches.cs" />
+    <Compile Include="Source\Patches\Patch_PortraitDisplay.cs" />
+    <Compile Include="Source\UI\Dialog_ShowImage.cs" />
+    <Compile Include="Source\UI\MainButtonWorker_Gallery.cs" />
+    <Compile Include="Source\UI\Gizmo_ArtScale.cs" />
+    <Compile Include="Source\UI\Window_ArtCreator.cs" />
+    <Compile Include="Source\UI\Window_Gallery.cs" />
+    <Compile Include="Source\UI\Window_ImageViewer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assemblies\" />
+    <Folder Include="Textures\Things\Building\Art\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="About\About.xml" />
+    <Content Include="About\Preview.png" />
+    <Content Include="Defs\MainButtonDef.xml" />
+    <Content Include="Defs\ThingDef_MaLiangStylus.xml" />
+    <Content Include="Defs\ThingDef_PhotoFrame.xml" />
+    <Content Include="Defs\Thoughts\ThoughtDefs.xml" />
+    <Content Include="Languages\ChineseSimplified\DefInjected\MainButtonDef\UI.xml" />
+    <Content Include="Languages\ChineseSimplified\DefInjected\ThingDef\Items.xml" />
+    <Content Include="Languages\ChineseSimplified\DefInjected\ThoughtDef\Thoughts.xml" />
+    <Content Include="Languages\ChineseSimplified\Keyed\Settings.xml" />
+    <Content Include="Languages\English\DefInjected\MainButtonDef\UI.xml" />
+    <Content Include="Languages\English\DefInjected\ThingDef\Items.xml" />
+    <Content Include="Languages\English\DefInjected\ThoughtDef\Thoughts.xml" />
+    <Content Include="Languages\English\Keyed\Settings.xml" />
+    <Content Include="Textures\Things\Item\Resource\MaLiangStylus.png" />
+    <Content Include="Textures\UI\Icons\GalleryIcon.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>REM 设置您的 RimWorld Mod 安装路径 (请根据实际情况修改盘符和路径)
+set MOD_DIR="D:\Games\steamapps\common\RimWorld\Mods\MaiyaMod04 Rim AiVinci 边缘智绘芬奇"
+
+REM ========================================================
+REM 1. 强制清理 (关键步骤：彻底删除旧文件夹，防止残留)
+REM ========================================================
+if exist %25MOD_DIR%25\Defs rmdir /s /q %25MOD_DIR%25\Defs
+if exist %25MOD_DIR%25\Assemblies rmdir /s /q %25MOD_DIR%25\Assemblies
+REM ✨✨ 新增：清理旧的语言包，防止改名后的废弃文件残留 ✨✨
+if exist %25MOD_DIR%25\Languages rmdir /s /q %25MOD_DIR%25\Languages
+
+REM 如果您修改了 About 或 Textures，也可以加上下面这两行：
+REM if exist %25MOD_DIR%25\About rmdir /s /q %25MOD_DIR%25\About
+REM if exist %25MOD_DIR%25\Textures rmdir /s /q %25MOD_DIR%25\Textures
+
+REM ========================================================
+REM 2. 复制 DLL (程序集)
+REM ========================================================
+if not exist %25MOD_DIR%25\Assemblies mkdir %25MOD_DIR%25\Assemblies
+copy /y "$(TargetPath)" %25MOD_DIR%25\Assemblies\
+
+REM ========================================================
+REM 3. 复制资源文件 (Defs, About, Textures, Languages 等)
+REM ========================================================
+REM 注意：$(ProjectDir) 是您项目文件的目录。
+
+xcopy /s /y /i "$(ProjectDir)Defs" %25MOD_DIR%25\Defs
+xcopy /s /y /i "$(ProjectDir)About" %25MOD_DIR%25\About
+xcopy /s /y /i "$(ProjectDir)Textures" %25MOD_DIR%25\Textures
+
+REM ✨✨ 新增：复制语言包 ✨✨
+xcopy /s /y /i "$(ProjectDir)Languages" %25MOD_DIR%25\Languages
+
+REM xcopy /s /y /i "$(ProjectDir)Patches" %25MOD_DIR%25\Patches
+
+REM ========================================================
+REM 4. 输出完成信息
+REM ========================================================
+echo [MaiyaMod] 部署完成！Languages 及其他文件已同步。</PostBuildEvent>
+  </PropertyGroup>
+</Project>

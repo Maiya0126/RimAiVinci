@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<RAV_MaLiangStylus.label>马良绘笔</RAV_MaLiangStylus.label>
+	<RAV_MaLiangStylus.description>一支闪烁着量子光辉的古老绘笔。\n\n用法：选中一名殖民者 -> 右键点击绘笔 -> 选择“具现化肖像”。\n(前提：该殖民者必须在【AiVinci 画廊】中设定了“展示中”的立绘)。</RAV_MaLiangStylus.description>
+	<RAV_MaLiangStylus.comps.CompProperties_Usable.useLabel>具现化肖像</RAV_MaLiangStylus.comps.CompProperties_Usable.useLabel>
+
+	<RimDigital_PhotoFrame.label>量子立绘</RimDigital_PhotoFrame.label>
+	<RimDigital_PhotoFrame.description>一幅被量子静滞场包裹的具现化AI艺术品。它展示了殖民者独一无二的魅力。可以放置在任何地方装饰基地。</RimDigital_PhotoFrame.description>
+
+</LanguageData>

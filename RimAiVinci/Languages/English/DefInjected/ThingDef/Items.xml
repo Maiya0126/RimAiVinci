@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<RAV_MaLiangStylus.label>Ma Liang's Stylus</RAV_MaLiangStylus.label>
+
+	<RAV_MaLiangStylus.description>A legendary stylus shimmering with quantum radiance.\n\nUsage: Select a colonist -> Right-click the stylus -> Select "Materialize Portrait".\n(Prerequisite: The colonist must have an active portrait set in the [AiVinci Gallery]).</RAV_MaLiangStylus.description>
+
+	<RAV_MaLiangStylus.comps.CompProperties_Usable.useLabel>Materialize Portrait</RAV_MaLiangStylus.comps.CompProperties_Usable.useLabel>
+
+	<RimDigital_PhotoFrame.label>Quantum Portrait</RimDigital_PhotoFrame.label>
+	<RimDigital_PhotoFrame.description>A materialized AI artwork encased in a quantum stasis field. It displays the unique charm of a colonist. Can be placed anywhere to decorate the colony.</RimDigital_PhotoFrame.description>
+
+</LanguageData>

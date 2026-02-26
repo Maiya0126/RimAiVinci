@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<name>Rim AiVinci 边缘智绘</name>
+	<author>Maiya0126</author>
+	<packageId>Maiya.RimAiVinci</packageId>
+	<supportedVersions>
+		<li>1.6</li>
+	</supportedVersions>
+	<description>
+		[h1]Rim AiVinci - 边缘智绘 (AI Art Generator)[/h1]
+
+		[b]拒绝千篇一律的像素小人，赋予你的殖民者独一无二的灵魂与容颜！
+		与大叔交流反馈吹水神秘代码：一五六八四五五 （啾啾裙）[/b]
+
+		本模组利用先进的生成式 AI 技术，能够深度读取游戏内角色的种族、基因、外貌、服装、特性、年龄等数据，一键生成高质量的二次元或写实风格立绘。生成的立绘不仅能作为 UI 界面的一部分无缝展示，更能“具现化”为游戏内的实体摆件，装饰你的基地！
+
+		[hr][/hr]
+
+		[h1]✨ 核心功能 (Features)[/h1]
+
+		[list]
+		[*] [b]🎨 智能一键生图[/b]
+		不再需要复杂的提示词！模组会自动分析殖民者的所有特征（包括 Mod 添加的种族和服装），自动生成精准的 AI 绘画指令。
+		[list]
+		[*] [b]文生图 (Txt2Img)[/b]：从零创造，根据角色设定生成全新形象。
+		[*] [b]图生图 (Img2Img)[/b]：基于游戏截图进行“二次元化”或“写实化”重绘，保留神韵。
+		[/list]
+
+		[*] [b]🖼️ 沉浸式 UI 立绘[/b]
+		选中角色时，其高清立绘会自动显示在屏幕左下角的信息面板上方。
+		[list]
+		[*] [b]智能避让[/b]：立绘位置经过精确计算，完美贴合 UI 边缘，不会遮挡操作按钮。
+		[*] [b]自由调节[/b]：在 Mod 设置中还可以自由调节显示的缩放比例。
+		[*] [b]动态刷新[/b]：角色换装或整容后，重新生成即可实时更新。
+		[/list]
+
+		[*] [b]🗿 量子立绘实体化[/b]
+		生成的立绘不只是张图片，它能变成游戏内的实体物品——[b]「量子立绘」[/b]！
+		[list]
+		[*] [b]自由摆放[/b]：可以像雕塑一样装饰在卧室、大厅或广场。
+		[*] [b]无级缩放[/b]：支持从 [b]10% 到 1000%[/b] 的自由缩放。它既可以是床头温馨的 4 寸相框，也可以是广场上 5 米高的巨型看板！
+		[/list]
+
+		[*] [b]💖 情绪与社交互动[/b]
+		[list]
+		[*] 拥有个人立绘的殖民者会获得专属心情增益：“[i]科技与艺术的完美结合！我要向所有人炫耀！[/i]”
+		[*] 这种炫耀欲望会促使他们与其他殖民者发起特殊的闲聊话题（需 RimTalk 等模组支持效果更佳）。
+		[/list]
+
+		[*] [b]📂 智绘艺廊[/b]
+		内置画廊管理界面，方便你随时浏览、导出或删除所有的 AI 艺术作品。
+		[/list]
+
+		[hr][/hr]
+
+		[h1]🎮 玩法指南 (How to Play)[/h1]
+
+		1. [b]获取神器[/b]：通过任务、贸易或在艺术台制作[b]「马良绘笔」[/b] (Ma Liang's Stylus)。
+		2. [b]开启创作[/b]：选中一名殖民者，右键点击绘笔，选择“具现化肖像”。
+		3. [b]调整风格[/b]：在弹出的窗口中选择画风（标准/写实/Q版等），点击生成。
+		4. [b]保存具现[/b]：满意后点击“保存到相册”。
+		此时，一个[b]「量子立绘」[/b]物品会掉落在地上，左下角的信息栏也会同步显示这张立绘。
+		5. [b]装饰基地[/b]：选中地上的立绘，使用下方的滑动条调整大小，然后安装在你想展示的地方。
+
+		[hr][/hr]
+
+		[h1]⚙️ API 配置与免费额度 (API Setup)[/h1]
+
+		本模组需要连接 AI 绘画服务才能工作。支持所有 OpenAI 格式的接口（如 SiliconFlow, DeepSeek, 或本地 ComfyUI）。
+
+		[h3]🚀 推荐使用：硅基流动 (SiliconFlow)[/h3]
+		国内访问速度极快，支持 Flux、Qwen、Stable Diffusion 3 等顶尖模型。
+
+		[quote]
+		[b]🎁 免费白嫖福利：[/b]
+		在 Mod 设置中填写 API Key 即可使用。
+		如果你还没有账号，前往硅基流动官网注册时使用邀请码 [b][color=orange]hazSLAR1[/color][/b]，注册即可获得 [b]2000万 Token[/b]（相当于可免费生成 [b]100多张[/b] 高清图片）！
+		[/quote]
+
+		[b]配置步骤：[/b]
+		1. 进入 游戏选项 -> Mod 选项 -> [b]Rim AiVinci[/b]。
+		2. 填入你的 API Key 和 URL。
+		3. 设置模型名称（推荐文生图使用 `Qwen/Qwen-Image`，图生图使用 `Qwen/Qwen-Image-Edit-2509`）。
+
+		[hr][/hr]
+
+		[h1]❓ 常见问题 (FAQ)[/h1]
+
+		[b]Q: 立绘图片保存在哪里？[/b]
+		A: 保存在你的存档文件夹下的 `RimAiVinci/Gallery` 目录中。即使删除游戏，图片也不会丢失。
+
+		[b]Q: 我觉得立绘太大了/太小了怎么办？[/b]
+		A: 进入 Mod 设置页面，有一个“立绘展示大小”的滑动条，可以全局调整左下角立绘的显示比例。
+
+		[b]Q: 我不想显示底部的“智绘艺廊”图标怎么办？[/b]
+		A: 在 Mod 设置里取消勾选“显示底部功能标签”，重启游戏后即可隐藏图标。
+
+		[hr][/hr]
+		[h1]English Description[/h1]
+		[hr][/hr]
+
+		[b]Say goodbye to generic pixel pawns and give your colonists unique souls and faces![/b]
+
+		This mod utilizes advanced Generative AI technology to deeply analyze your colonists' race, genes, appearance, apparel, traits, and age. With one click, it generates high-quality anime or realistic portraits. These portraits seamlessly integrate into the UI and can even be "materialized" into physical furniture to decorate your base!
+
+		[h1]✨ Core Features[/h1]
+
+		[list]
+		[*] [b]🎨 One-Click AI Generation[/b]
+		No complex prompts needed! The mod automatically analyzes all colonist features (including modded races and apparel) to generate precise AI prompts.
+		[list]
+		[*] [b]Txt2Img[/b]: Create brand new images from scratch based on character data.
+		[*] [b]Img2Img[/b]: Redraw existing game screenshots into "Anime" or "Realistic" styles while preserving the original vibe.
+		[/list]
+
+		[*] [b]🖼️ Immersive UI Portrait[/b]
+		When a pawn is selected, their HD portrait automatically appears above the bottom-left info panel.
+		[list]
+		[*] [b]Smart Positioning[/b]: Perfectly calculated to sit atop the UI edge without blocking any interaction buttons.
+		[*] [b]Adjustable Scale[/b]: You can freely adjust the display size in Mod Settings.
+		[*] [b]Dynamic Refresh[/b]: Changed clothes or appearance? Just regenerate to update instantly.
+		[/list]
+
+		[*] [b]🗿 Quantum Portrait Materialization[/b]
+		The generated portrait isn't just a file—it can become a physical item in the game: the [b]"Quantum Portrait"[/b]!
+		[list]
+		[*] [b]Free Placement[/b]: Decorate bedrooms, halls, or plazas like a sculpture.
+		[*] [b]Seamless Scaling[/b]: Supports scaling from [b]10% to 1000%[/b]. It can be a tiny 4-inch bedside photo frame or a massive 5-meter billboard in the town square!
+		[/list]
+
+		[*] [b]💖 Mood and Social Interaction[/b]
+		[list]
+		[*] Colonists with a personal portrait get an exclusive mood buff: "[i]A perfect combination of technology and art! I need to show this off to everyone![/i]"
+		[*] This desire to show off triggers special social chat topics with other colonists (works best with mods like RimTalk).
+		[/list]
+
+		[*] [b]📂 AiVinci Gallery[/b]
+		Built-in gallery UI to browse, export, or manage your AI artwork collection at any time.
+		[/list]
+
+		[h1]🎮 How to Play[/h1]
+
+		1. [b]Get the Artifact[/b]: Obtain [b]"Ma Liang's Stylus"[/b] via quests, trading, or crafting at an Art Bench.
+		2. [b]Start Creating[/b]: Select a colonist -> Right-click the Stylus -> Select "Materialize Portrait".
+		3. [b]Adjust Style[/b]: Choose your preferred style (Standard/Realistic/Chibi) in the window and click Generate.
+		4. [b]Save and Materialize[/b]: Click "Save to Album".
+		A [b]"Quantum Portrait"[/b] item will drop on the ground, and the bottom-left UI will update synchronously.
+		5. [b]Decorate[/b]: Select the portrait on the ground, use the slider to adjust its size, and install it wherever you like.
+
+		[h1]⚙️ API Setup[/h1]
+
+		This mod requires an AI service connection to work. It supports all OpenAI-compatible APIs (SiliconFlow, DeepSeek, or local ComfyUI).
+
+		[h3]🚀 Recommended: SiliconFlow[/h3]
+		Fast speed and supports top-tier models like Flux, Qwen, and Stable Diffusion 3.
+
+		[quote]
+		[b]🎁 Free Credits:[/b]
+		Enter your API Key in Mod Settings to start.
+		If you don't have an account, use invite code [b][color=orange]hazSLAR1[/color][/b] when registering on SiliconFlow to get [b]20 Million Tokens[/b] (enough for ~100 fast generations)!
+		[/quote]
+
+		[b]Setup Steps:[/b]
+		1. Go to Options -> Mod Options -> [b]Rim AiVinci[/b].
+		2. Enter your API Key and URL.
+		3. Set Model Names (e.g., `Qwen/Qwen-Image` for Txt2Img).
+
+		[h1]❓ FAQ[/h1]
+
+		[b]Q: Where are the images saved?[/b]
+		A: They are saved in `RimAiVinci/Gallery` inside your save data folder. They persist even if you uninstall the game.
+
+		[b]Q: The UI portrait is too big/small?[/b]
+		A: Go to Mod Settings; there is a "Portrait Scale" slider to adjust the global display size.
+
+		[b]Q: How do I hide the "Gallery" icon at the bottom?[/b]
+		A: Uncheck "Show Bottom Gallery Tab" in Mod Settings and restart the game.
+
+		[hr][/hr]
+
+		If you enjoy what I do, consider supporting me on Ko-fi! Every little bit means the world!
+		[url=https://ko-fi.com/maiya0126]☕ Buy Maiya a Coffee[/url]
+	</description>
+</ModMetaData>

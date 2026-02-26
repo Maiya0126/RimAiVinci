@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<ThoughtDef>
+		<defName>RAV_Thought_PortraitGenerated</defName>
+		<durationDays>1</durationDays>
+		<stackLimit>3</stackLimit>
+		<stages>
+			<li>
+				<label>获得个人立绘</label>
+				<description>我用马良神笔为自己画了一张像。科技与艺术的完美结合！这简直是杰作，我迫不及待想向基地的每一个人炫耀它！</description>
+				<baseMoodEffect>5</baseMoodEffect>
+			</li>
+		</stages>
+	</ThoughtDef>
+
+	<ThoughtDef>
+		<defName>RAV_Thought_FrameCreated</defName>
+		<durationDays>15</durationDays>
+		<stackLimit>1</stackLimit>
+		<stages>
+			<li>
+				<label>立绘展示中</label>
+				<description>我的量子立绘被实体化并展示在基地里。看着那个完美的自己伫立在那里，我感觉自己就像是个超级巨星。</description>
+				<baseMoodEffect>10</baseMoodEffect>
+			</li>
+		</stages>
+	</ThoughtDef>
+
+</Defs>

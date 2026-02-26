@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<RAV_Tip_SiliconFlow>免费做图有时间间隔限制，在硅基流动网站使用邀请码 hazSLAR1 注册最多可获得100多张快速作图额度。</RAV_Tip_SiliconFlow>
+
+	<RAV_Group_API>API 接入设置</RAV_Group_API>
+	<RAV_Desc_API>本 Mod 支持所有【OpenAI 格式】的接口。\n推荐使用：硅基流动 (SiliconFlow)、DeepSeek、或者本地部署的 ComfyUI/SD-WebUI (需插件支持)。</RAV_Desc_API>
+	<RAV_Label_APIKey>API Key (密钥):</RAV_Label_APIKey>
+	<RAV_Label_APIUrl>API URL (接口地址):</RAV_Label_APIUrl>
+
+	<RAV_Group_Model>模型设置</RAV_Group_Model>
+	<RAV_Desc_Txt2Img>文生图 (Txt2Img): Qwen系列需 '-Image' 结尾，Flux/SD 直接填名称。</RAV_Desc_Txt2Img>
+	<RAV_Label_Txt2Img>模型名: </RAV_Label_Txt2Img>
+	<RAV_Desc_Img2Img>图生图 (Img2Img): Qwen系列需 '-Edit' 结尾，Flux/SD 同上。</RAV_Desc_Img2Img>
+	<RAV_Label_Img2Img>模型名: </RAV_Label_Img2Img>
+	<RAV_Btn_Reset>重置为默认 (SiliconFlow / Qwen)</RAV_Btn_Reset>
+
+	<RAV_Label_Strength>图生图 - 重绘幅度: {0}</RAV_Label_Strength>
+	<RAV_Desc_Strength>推荐值: 0.6 - 0.75。数值越大改动越大；数值越小越接近原图。</RAV_Desc_Strength>
+
+	<RAV_Group_UI>UI 界面与显示</RAV_Group_UI>
+	<RAV_Check_ShowPortrait>立绘显示 (选中角色时在左下角展示)</RAV_Check_ShowPortrait>
+	<RAV_Label_PortraitScale>立绘展示大小: {0}</RAV_Label_PortraitScale>
+	<RAV_Check_ShowTab>显示底部功能标签 (需重启游戏或重新加载生效)</RAV_Check_ShowTab>
+
+	<RAV_Btn_OpenGallery>📂 打开珍藏画廊</RAV_Btn_OpenGallery>
+	<RAV_Btn_OpenFolder>📥 打开导入文件夹</RAV_Btn_OpenFolder>
+
+	<RimAiVinci_ProcessingAIImage>AI 正在云端绘制您的画作，请稍候...</RimAiVinci_ProcessingAIImage>
+	<RimAiVinci_FreeCooldown>免费通道冷却中，请等待 {0} 秒后再试。</RimAiVinci_FreeCooldown>
+	<RimAiVinci_FreeServerBusy>免费服务器繁忙（全球拥堵）。请稍后再试，或在设置中填入 API Key 使用极速通道。</RimAiVinci_FreeServerBusy>
+	<RimAiVinci_AIError>AI 生成错误</RimAiVinci_AIError>
+
+</LanguageData>

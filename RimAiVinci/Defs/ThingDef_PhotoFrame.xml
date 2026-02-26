@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<ThingDef ParentName="BuildingBase">
+		<defName>RimDigital_PhotoFrame</defName>
+		<label>Quantum Portrait</label>
+		<description>A materialized AI artwork encased in a quantum stasis field.</description>
+
+		<thingClass>RimAiVinci.Building_PhotoFrame</thingClass>
+
+		<graphicData>
+			<texPath>Things/Mote/Transparent</texPath>
+			<graphicClass>Graphic_Single</graphicClass>
+			<drawSize>(1, 1)</drawSize>
+		</graphicData>
+
+		<minifiedDef>MinifiedThing</minifiedDef>
+		<thingCategories>
+			<li>BuildingsArt</li>
+		</thingCategories>
+
+		<statBases>
+			<MaxHitPoints>100</MaxHitPoints>
+			<Flammability>0</Flammability>
+			<Beauty>200</Beauty>
+			<Mass>1.0</Mass>
+			<MarketValue>650</MarketValue>
+			<WorkToBuild>5000</WorkToBuild>
+		</statBases>
+
+		<category>Building</category>
+		<altitudeLayer>Building</altitudeLayer>
+
+		<passability>PassThroughOnly</passability>
+		<pathCost>0</pathCost>
+		<fillPercent>0.1</fillPercent>
+		<clearBuildingArea>false</clearBuildingArea>
+
+		<building>
+			<isEdifice>true</isEdifice>
+			<ai_chillDestination>false</ai_chillDestination>
+		</building>
+
+		<rotatable>false</rotatable>
+		<size>(1,1)</size>
+
+		<comps>
+			<li Class="CompProperties_MeditationFocus">
+				<statDef>MeditationFocusStrength</statDef>
+				<focusTypes>
+					<li>Artistic</li>
+				</focusTypes>
+				<offsets>
+					<li Class="FocusStrengthOffset_Quality">
+						<curve>
+							<points>
+								<li>(0, 0.12)</li>
+								<li>(1, 0.22)</li>
+							</points>
+						</curve>
+					</li>
+				</offsets>
+			</li>
+		</comps>
+	</ThingDef>
+
+</Defs>
