@@ -38,13 +38,9 @@ namespace RimAiVinci
             SendRequest(json, callback);
         }
 
-        // ✨ 改动：增加 isImageToImage 参数来决定用哪个模型
         private static string BuildJson(string prompt, string base64Image, float strength, bool isImageToImage)
         {
-            // 根据模式读取对应的模型设置
             string model = isImageToImage ? RimAiVinciMod.settings.modelNameI2I : RimAiVinciMod.settings.modelName;
-
-            // 兜底默认值
             if (string.IsNullOrEmpty(model)) model = "black-forest-labs/FLUX.1-schnell";
 
             string safePrompt = prompt.Replace("\"", "\\\"").Replace("\n", " ");
@@ -66,13 +62,13 @@ namespace RimAiVinci
             sb.Append("}");
             return sb.ToString();
         }
-
         private static void SendRequest(string jsonBody, Action<Texture2D> callback)
         {
             string apiKey = RimAiVinciMod.settings.apiKey;
             string url = RimAiVinciMod.settings.apiUrl;
             if (string.IsNullOrEmpty(url)) url = "https://api.siliconflow.cn/v1/images/generations";
 
+            // 这段还在主线程，直接调用没问题
             if (string.IsNullOrEmpty(apiKey))
             {
                 Messages.Message("请先在 Mod 设置中填写 API Key。", MessageTypeDefOf.RejectInput);
@@ -83,6 +79,7 @@ namespace RimAiVinci
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 
+            // 开启后台线程
             Task.Run(async () =>
             {
                 try
@@ -96,33 +93,55 @@ namespace RimAiVinci
                         if (!string.IsNullOrEmpty(imageUrl))
                         {
                             byte[] imageBytes = await client.GetByteArrayAsync(imageUrl);
+
+                            // 成功获取图片，回到主线程处理贴图
                             LongEventHandler.QueueLongEvent(() =>
                             {
-                                Texture2D tex = new Texture2D(2, 2);
-                                tex.LoadImage(imageBytes);
-                                tex.name = "AI_Gen_" + DateTime.Now.Ticks;
-                                callback?.Invoke(tex);
+                                if (imageBytes != null && imageBytes.Length > 0)
+                                {
+                                    Texture2D tex = new Texture2D(2, 2);
+                                    tex.LoadImage(imageBytes);
+                                    tex.name = "AI_Gen_" + DateTime.Now.Ticks;
+                                    callback?.Invoke(tex);
+                                }
+                                else
+                                {
+                                    // ✨ 修复：将后台报错和回调打包进主线程
+                                    Log.Error($"[Rim AiVinci] 无法从返回中提取 URL: {responseBody}");
+                                    callback?.Invoke(null);
+                                }
                             }, "ProcessingAIImage", false, null);
                         }
                         else
                         {
-                            // 即使 JSON 解析失败也要回调，防止 UI 卡死
-                            Log.Error($"[Rim AiVinci] 无法从返回中提取 URL: {responseBody}");
-                            LongEventHandler.QueueLongEvent(() => callback?.Invoke(null), "AIError", false, null);
+                            // ✨ 修复：JSON 解析失败时的报错和回调打包进主线程
+                            LongEventHandler.QueueLongEvent(() =>
+                            {
+                                Log.Error($"[Rim AiVinci] 无法从返回中提取 URL: {responseBody}");
+                                callback?.Invoke(null);
+                            }, "AIError", false, null);
                         }
                     }
                     else
                     {
-                        Log.Error($"[Rim AiVinci] API 请求失败: {response.StatusCode}\n{responseBody}");
-                        Messages.Message($"生成失败: {response.StatusCode}。请检查设置。", MessageTypeDefOf.RejectInput);
-                        LongEventHandler.QueueLongEvent(() => callback?.Invoke(null), "AIError", false, null);
+                        // ✨ 修复：API 请求失败（如欠费、限流）时的日志和左上角红字提示，必须在主线程执行
+                        LongEventHandler.QueueLongEvent(() =>
+                        {
+                            Log.Error($"[Rim AiVinci] API 请求失败: {response.StatusCode}\n{responseBody}");
+                            Messages.Message($"生成失败: {response.StatusCode}。请检查设置。", MessageTypeDefOf.RejectInput);
+                            callback?.Invoke(null);
+                        }, "AIError", false, null);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"[Rim AiVinci] 网络异常: {ex.Message}");
-                    Messages.Message("网络连接出错，请检查 URL 设置。", MessageTypeDefOf.RejectInput);
-                    LongEventHandler.QueueLongEvent(() => callback?.Invoke(null), "AIError", false, null);
+                    // ✨ 修复：网络异常（如断网）时的提示，必须在主线程执行
+                    LongEventHandler.QueueLongEvent(() =>
+                    {
+                        Log.Error($"[Rim AiVinci] 网络异常: {ex.Message}");
+                        Messages.Message("网络连接出错，请检查 URL 设置。", MessageTypeDefOf.RejectInput);
+                        callback?.Invoke(null);
+                    }, "AIError", false, null);
                 }
             });
         }
