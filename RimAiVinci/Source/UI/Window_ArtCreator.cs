@@ -15,6 +15,7 @@ namespace RimAiVinci
         private PromptOptions options = new PromptOptions();
         private Texture2D generatedTexture = null;
         private Texture2D referenceTexture = null;
+        private Texture2D uploadedTexture = null;
         private bool isGenerating = false;
         private bool hasSavedCurrent = false;
         private GenerationMode currentMode = GenerationMode.TextToImage;
@@ -39,10 +40,21 @@ namespace RimAiVinci
             base.PostClose();
             if (generatedTexture != null) { UnityEngine.Object.Destroy(generatedTexture); generatedTexture = null; }
             if (referenceTexture != null) { UnityEngine.Object.Destroy(referenceTexture); referenceTexture = null; }
+            if (uploadedTexture != null) { UnityEngine.Object.Destroy(uploadedTexture); uploadedTexture = null; }
         }
+
+        private bool IsUploadOnlyMode => !PawnPortraitTypeHelper.CanAIGenerate(targetPawn);
 
         public override void DoWindowContents(Rect inRect)
         {
+            string pawnName = targetPawn.Name != null ? targetPawn.Name.ToStringShort : targetPawn.def.label;
+
+            if (IsUploadOnlyMode)
+            {
+                DrawUploadOnlyWindow(inRect);
+                return;
+            }
+
             if (options.style != lastStyle)
             {
                 if (options.style == ArtStyle.Custom)
@@ -57,7 +69,7 @@ namespace RimAiVinci
 
             Rect headerRect = new Rect(0, 0, inRect.width, 40);
             Text.Font = GameFont.Medium;
-            Widgets.Label(headerRect, $"AI 创作工坊 - {targetPawn.Name.ToStringShort}");
+            Widgets.Label(headerRect, "RAV_ArtCreator_Title".Translate(pawnName));
             Text.Font = GameFont.Small;
 
             float modeBtnWidth = 150f;
@@ -65,7 +77,7 @@ namespace RimAiVinci
             Rect btnModeImg = new Rect(inRect.width - modeBtnWidth, 0, modeBtnWidth, 30);
 
             if (currentMode == GenerationMode.TextToImage) GUI.color = Color.green;
-            if (Widgets.ButtonText(btnModeTxt, "文生图 (Txt2Img)"))
+            if (Widgets.ButtonText(btnModeTxt, "RAV_Mode_Txt2Img".Translate()))
             {
                 currentMode = GenerationMode.TextToImage;
                 if (options.style == ArtStyle.CharacterSheet) options.style = ArtStyle.Standard;
@@ -73,7 +85,7 @@ namespace RimAiVinci
             GUI.color = Color.white;
 
             if (currentMode == GenerationMode.ImageToImage) GUI.color = Color.green;
-            if (Widgets.ButtonText(btnModeImg, "图生图 (Img2Img)"))
+            if (Widgets.ButtonText(btnModeImg, "RAV_Mode_Img2Img".Translate()))
             {
                 currentMode = GenerationMode.ImageToImage;
                 options.isImg2ImgMode = true;
@@ -100,8 +112,6 @@ namespace RimAiVinci
             Rect imgRect = rect.ContractedBy(10); imgRect.height = imgRect.width;
 
             Texture2D displayTex = generatedTexture;
-
-            // 显示逻辑优化：如果有生成图，优先显示。否则如果有底图，显示底图。否则显示实时预览。
             bool showLivePreview = (displayTex == null);
             if (currentMode == GenerationMode.ImageToImage && referenceTexture != null && displayTex == null)
             {
@@ -111,7 +121,6 @@ namespace RimAiVinci
 
             if (showLivePreview)
             {
-                // 实时预览模式：可以旋转
                 RenderTexture portrait = PortraitsCache.Get(targetPawn, new Vector2(512, 512), currentRotation);
                 GUI.DrawTexture(imgRect, portrait, ScaleMode.ScaleToFit);
 
@@ -134,53 +143,72 @@ namespace RimAiVinci
             }
             else
             {
-                // 静态图模式（底图或生成结果）
                 Widgets.DrawTextureFitted(imgRect, displayTex, 1.0f);
             }
 
-            if (isGenerating) { Widgets.DrawBoxSolid(imgRect, new Color(0, 0, 0, 0.5f)); Text.Anchor = TextAnchor.MiddleCenter; Widgets.Label(imgRect, "AI 绘制中..."); Text.Anchor = TextAnchor.UpperLeft; }
+            if (isGenerating) { Widgets.DrawBoxSolid(imgRect, new Color(0, 0, 0, 0.5f)); Text.Anchor = TextAnchor.MiddleCenter; Widgets.Label(imgRect, "RAV_ArtCreator_Generating".Translate()); Text.Anchor = TextAnchor.UpperLeft; }
 
-            // 下方按钮区
+            float y = imgRect.yMax + 6;
+
+            int provIdx = RimAiVinciMod.settings.providerIndex;
+            bool isLocal = ApiProviders.IsLocalProvider(provIdx);
+            string provName = ApiProviders.TranslationKeys[provIdx].Translate();
+            float sw = rect.width - 20;
+
+            GUI.color = new Color(0.7f, 0.85f, 1f);
+            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), "RAV_ArtCreator_Provider".Translate() + " " + provName);
+            GUI.color = Color.white;
+            y += 22;
+
+            string currentModel = currentMode == GenerationMode.ImageToImage ? RimAiVinciMod.settings.modelNameI2I : RimAiVinciMod.settings.modelName;
+            string modelLabel = isLocal ? "RAV_Label_ModelFile".Translate() : "RAV_Label_ModelName".Translate();
+            if (provIdx == ApiProviders.ComfyUI && RimAiVinciMod.settings.comfyWorkflowMode == 1) modelLabel = "RAV_Label_ComfyUNET".Translate();
+            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), modelLabel);
+            y += 18;
+            string modelDisplay = currentModel;
+            if (string.IsNullOrEmpty(modelDisplay)) modelDisplay = isLocal ? "" : "Flux";
+            if (modelDisplay.Length > 28) modelDisplay = modelDisplay.Substring(0, 26) + "..";
+            Text.Font = GameFont.Tiny;
+            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), modelDisplay);
+            Text.Font = GameFont.Small;
+            y += 20;
+
             if (currentMode == GenerationMode.ImageToImage && !isGenerating)
             {
-                float btnY = imgRect.yMax + 10;
-
-                // ✨✨✨ 核心交互修改 ✨✨✨
                 if (referenceTexture != null)
                 {
-                    // 如果已经有底图，显示“重置”按钮，点击后清空底图，回到实时预览（即可旋转）
-                    if (Widgets.ButtonText(new Rect(rect.x + 10, btnY, rect.width - 20, 28), "🔄 重置底图 (重新抓取)"))
+                    if (Widgets.ButtonText(new Rect(rect.x + 10, y, rect.width - 20, 26), "RAV_ArtCreator_ResetReference".Translate()))
                     {
                         referenceTexture = null;
-                        generatedTexture = null; // 同时清空生成结果，避免逻辑混乱
+                        generatedTexture = null;
                         SoundDefOf.Click.PlayOneShotOnCamera();
                     }
                 }
                 else
                 {
-                    // 如果没有底图，显示“设为底图”按钮
-                    if (Widgets.ButtonText(new Rect(rect.x + 10, btnY, rect.width - 20, 28), "使用当前游戏立绘 (设为底图)"))
+                    if (Widgets.ButtonText(new Rect(rect.x + 10, y, rect.width - 20, 26), "RAV_ArtCreator_SetReference".Translate()))
                     {
                         RenderTexture rt = PortraitsCache.Get(targetPawn, new Vector2(512, 512), currentRotation);
-                        SetReferenceImage(AdjustRenderTextureToTexture2D(rt));
+                        Texture2D rawTex = AdjustRenderTextureToTexture2D(rt);
+                        SetReferenceImage(PadToSquare1024(rawTex));
+                        UnityEngine.Object.Destroy(rawTex);
                         generatedTexture = null;
                         SoundDefOf.Click.PlayOneShotOnCamera();
                     }
                 }
+                y += 30;
 
-                btnY += 32;
-                if (Widgets.ButtonText(new Rect(rect.x + 10, btnY, rect.width - 20, 28), "从剪贴板粘贴路径")) { PasteFromClipboard(); generatedTexture = null; }
-                btnY += 32;
-                if (Widgets.ButtonText(new Rect(rect.x + 10, btnY, (rect.width - 25) / 2, 28), "📂 打开文件夹")) Application.OpenURL(ArtFileSystem.GetImportDir());
-                if (Widgets.ButtonText(new Rect(rect.x + 15 + (rect.width - 25) / 2, btnY, (rect.width - 25) / 2, 28), "⬇️ 选择文件")) OpenImportFloatMenu();
-                btnY += 35;
-                Widgets.Label(new Rect(rect.x + 10, btnY, rect.width - 20, 30), $"当前重绘幅度: {RimAiVinciMod.settings.i2iStrength:P0}");
-            }
-            else
-            {
-                var store = Find.World.GetComponent<ArtDataStore>();
-                int count = store != null ? store.GetArtForPawn(targetPawn).Count : 0;
-                Widgets.Label(new Rect(rect.x + 10, imgRect.yMax + 10, rect.width - 20, 30), $"已拥有画像: {count} 张");
+                if (Widgets.ButtonText(new Rect(rect.x + 10, y, rect.width - 20, 26), "RAV_ArtCreator_PastePath".Translate())) { PasteFromClipboard(); generatedTexture = null; }
+                y += 30;
+
+                if (Widgets.ButtonText(new Rect(rect.x + 10, y, (rect.width - 25) / 2, 26), "RAV_Btn_OpenFolder".Translate())) Application.OpenURL(ArtFileSystem.GetImportDir());
+                if (Widgets.ButtonText(new Rect(rect.x + 15 + (rect.width - 25) / 2, y, (rect.width - 25) / 2, 26), "RAV_ArtCreator_PickFile".Translate())) OpenImportFloatMenu();
+                y += 32;
+
+                Widgets.Label(new Rect(rect.x + 10, y, sw, 18), "RAV_Label_Strength".Translate(RimAiVinciMod.settings.i2iStrength.ToString("P0")));
+                y += 20;
+                RimAiVinciMod.settings.i2iStrength = Widgets.HorizontalSlider(new Rect(rect.x + 10, y, sw, 18), RimAiVinciMod.settings.i2iStrength, 0.1f, 1.0f);
+                y += 24;
             }
         }
 
@@ -192,57 +220,59 @@ namespace RimAiVinci
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
 
-            listing.Label("<b>1. 预装艺术风格:</b>");
-            if (listing.RadioButton("标准风格 (Standard)", options.style == ArtStyle.Standard)) options.style = ArtStyle.Standard;
-            if (listing.RadioButton("废土写实 (Realistic)", options.style == ArtStyle.Realistic)) options.style = ArtStyle.Realistic;
-            if (listing.RadioButton("宫崎骏风 (Miyazaki)", options.style == ArtStyle.Miyazaki)) options.style = ArtStyle.Miyazaki;
-            if (listing.RadioButton("Q版萌系 (Chibi)", options.style == ArtStyle.Chibi)) options.style = ArtStyle.Chibi;
+            listing.Label("<b>" + "RAV_ArtCreator_PresetStyles".Translate() + "</b>");
+            if (listing.RadioButton("RAV_Style_Standard".Translate(), options.style == ArtStyle.Standard)) options.style = ArtStyle.Standard;
+            if (listing.RadioButton("RAV_Style_Realistic".Translate(), options.style == ArtStyle.Realistic)) options.style = ArtStyle.Realistic;
+            if (listing.RadioButton("RAV_Style_Miyazaki".Translate(), options.style == ArtStyle.Miyazaki)) options.style = ArtStyle.Miyazaki;
+            if (listing.RadioButton("RAV_Style_Chibi".Translate(), options.style == ArtStyle.Chibi)) options.style = ArtStyle.Chibi;
 
             if (currentMode == GenerationMode.ImageToImage)
             {
-                if (listing.RadioButton("<b>设定集模式 (Character Sheet)</b>", options.style == ArtStyle.CharacterSheet)) options.style = ArtStyle.CharacterSheet;
+                if (listing.RadioButton("<b>" + "RAV_Style_CharacterSheet".Translate() + "</b>", options.style == ArtStyle.CharacterSheet)) options.style = ArtStyle.CharacterSheet;
             }
 
-            if (listing.RadioButton("<b>自定义/大师模式 (Custom)</b>", options.style == ArtStyle.Custom)) options.style = ArtStyle.Custom;
+            if (listing.RadioButton("<b>" + "RAV_Style_Custom".Translate() + "</b>", options.style == ArtStyle.Custom)) options.style = ArtStyle.Custom;
             listing.GapLine();
 
-            string constraintLabel = options.style == ArtStyle.Custom ? "<b>2. 画面约束 (大师模式可选):</b>" : "<b>2. 画面约束:</b>";
+            string constraintLabel = options.style == ArtStyle.Custom
+                ? "<b>" + "RAV_ArtCreator_ConstraintCustom".Translate() + "</b>"
+                : "<b>" + "RAV_ArtCreator_Constraint".Translate() + "</b>";
             listing.Label(constraintLabel);
-            listing.CheckboxLabeled("强制全身站立", ref options.forceFullBody);
-            listing.CheckboxLabeled("统一电影光影", ref options.useCinematicLighting);
+            listing.CheckboxLabeled("RAV_Constraint_FullBody".Translate(), ref options.forceFullBody);
+            listing.CheckboxLabeled("RAV_Constraint_CinematicLighting".Translate(), ref options.useCinematicLighting);
             listing.GapLine();
 
-            listing.Label("<b>3. 信息读取:</b>");
+            listing.Label("<b>" + "RAV_ArtCreator_InfoRead".Translate() + "</b>");
             Rect row1 = listing.GetRect(24);
-            Widgets.CheckboxLabeled(new Rect(row1.x, row1.y, row1.width / 2, 24), "读取种族 (Race)", ref options.readRace);
-            Widgets.CheckboxLabeled(new Rect(row1.x + row1.width / 2, row1.y, row1.width / 2, 24), "读取年龄 (Age)", ref options.readAge);
-            if (options.readRace) { string rd = RaceDescriptionMapper.GetRaceVisuals(targetPawn); if (!string.IsNullOrEmpty(rd) && rd != "human") { GUI.color = Color.cyan; listing.Label($"    ↳ 识别: {rd}"); GUI.color = Color.white; } }
+            Widgets.CheckboxLabeled(new Rect(row1.x, row1.y, row1.width / 2, 24), "RAV_Read_Race".Translate(), ref options.readRace);
+            Widgets.CheckboxLabeled(new Rect(row1.x + row1.width / 2, row1.y, row1.width / 2, 24), "RAV_Read_Age".Translate(), ref options.readAge);
+            if (options.readRace) { string rd = RaceDescriptionMapper.GetRaceVisuals(targetPawn); if (!string.IsNullOrEmpty(rd) && rd != "human") { GUI.color = Color.cyan; listing.Label("    " + "RAV_Read_Detected".Translate(rd)); GUI.color = Color.white; } }
 
             Rect row2 = listing.GetRect(24);
-            Widgets.CheckboxLabeled(new Rect(row2.x, row2.y, row2.width / 2, 24), "读取伤病 (Health)", ref options.readHealth);
-            Widgets.CheckboxLabeled(new Rect(row2.x + row2.width / 2, row2.y, row2.width / 2, 24), "读取服装 (Apparel)", ref options.readApparel);
+            Widgets.CheckboxLabeled(new Rect(row2.x, row2.y, row2.width / 2, 24), "RAV_Read_Health".Translate(), ref options.readHealth);
+            Widgets.CheckboxLabeled(new Rect(row2.x + row2.width / 2, row2.y, row2.width / 2, 24), "RAV_Read_Apparel".Translate(), ref options.readApparel);
 
             Rect row3 = listing.GetRect(24);
-            if (options.readApparel) Widgets.CheckboxLabeled(new Rect(row3.x, row3.y, row3.width / 2, 24), "读取耐久 (Quality)", ref options.readQuality);
-            Widgets.CheckboxLabeled(new Rect(row3.x + row3.width / 2, row3.y, row3.width / 2, 24), "读取特性 (Traits)", ref options.readTraits);
+            if (options.readApparel) Widgets.CheckboxLabeled(new Rect(row3.x, row3.y, row3.width / 2, 24), "RAV_Read_Quality".Translate(), ref options.readQuality);
+            Widgets.CheckboxLabeled(new Rect(row3.x + row3.width / 2, row3.y, row3.width / 2, 24), "RAV_Read_Traits".Translate(), ref options.readTraits);
 
             Rect row4 = listing.GetRect(24);
-            Widgets.CheckboxLabeled(new Rect(row4.x, row4.y, row4.width / 2, 24), "读取肤色 (Skin)", ref options.readSkinColor);
-            Widgets.CheckboxLabeled(new Rect(row4.x + row4.width / 2, row4.y, row4.width / 2, 24), "读取发型 (Hair)", ref options.readHair);
+            Widgets.CheckboxLabeled(new Rect(row4.x, row4.y, row4.width / 2, 24), "RAV_Read_Skin".Translate(), ref options.readSkinColor);
+            Widgets.CheckboxLabeled(new Rect(row4.x + row4.width / 2, row4.y, row4.width / 2, 24), "RAV_Read_Hair".Translate(), ref options.readHair);
 
             listing.Gap(5);
-            listing.CheckboxLabeled("读取背景故事 (Background)", ref options.readBackground);
+            listing.CheckboxLabeled("RAV_Read_Background".Translate(), ref options.readBackground);
 
             listing.GapLine();
 
-            if (options.style == ArtStyle.Custom) { GUI.color = Color.yellow; listing.Label("<b>4. 大师提示词 (Master Prompt):</b>"); GUI.color = Color.white; }
-            else if (options.style == ArtStyle.CharacterSheet) { GUI.color = Color.cyan; listing.Label("<b>4. 额外细节 (追加描述):</b>"); GUI.color = Color.white; }
-            else { listing.Label("<b>4. 额外细节 (Extra Details):</b>"); }
+            if (options.style == ArtStyle.Custom) { GUI.color = Color.yellow; listing.Label("<b>" + "RAV_ArtCreator_MasterPrompt".Translate() + "</b>"); GUI.color = Color.white; }
+            else if (options.style == ArtStyle.CharacterSheet) { GUI.color = Color.cyan; listing.Label("<b>" + "RAV_ArtCreator_ExtraDetailCS".Translate() + "</b>"); GUI.color = Color.white; }
+            else { listing.Label("<b>" + "RAV_ArtCreator_ExtraDetail".Translate() + "</b>"); }
 
             options.extraPrompt = Widgets.TextArea(listing.GetRect(80), options.extraPrompt);
 
             listing.Gap(5);
-            listing.Label("<b>最终指令预览 (Final Prompt):</b>");
+            listing.Label("<b>" + "RAV_ArtCreator_FinalPrompt".Translate() + "</b>");
 
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
             string preview = PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
@@ -254,42 +284,122 @@ namespace RimAiVinci
 
         private void DrawBottomButtons(Rect inRect, float btnX)
         {
-            float btnWidth = 170f; float btnHeight = 40f;
+            float btnHeight = 40f;
             float bottomY = inRect.height - 50f;
+            float totalBtnWidth = inRect.width - btnX;
+            float gap = 6f;
+            float btnWidth = (totalBtnWidth - gap * 2) / 3f;
 
             Rect btnFree = new Rect(btnX, bottomY, btnWidth, btnHeight);
-            Rect btnPro = new Rect(inRect.width - btnWidth, bottomY, btnWidth, btnHeight);
+            Rect btnP2 = new Rect(btnX + btnWidth + gap, bottomY, btnWidth, btnHeight);
+            Rect btnPro = new Rect(btnX + (btnWidth + gap) * 2, bottomY, btnWidth, btnHeight);
 
-            if (isGenerating) { GUI.color = Color.gray; Widgets.Label(btnFree, "绘制中..."); Widgets.Label(btnPro, "绘制中..."); GUI.color = Color.white; }
+            if (isGenerating)
+            {
+                    GUI.color = Color.gray;
+                    Widgets.Label(btnFree, "RAV_ArtCreator_Generating".Translate());
+                    Widgets.Label(btnP2, "RAV_ArtCreator_Generating".Translate());
+                    Widgets.Label(btnPro, "RAV_ArtCreator_Generating".Translate());
+                GUI.color = Color.white;
+            }
             else
             {
-                if (currentMode == GenerationMode.ImageToImage) { GUI.color = Color.gray; Widgets.ButtonText(btnFree, "免费通道\n不支持图生图"); GUI.color = Color.white; }
+                if (currentMode == GenerationMode.ImageToImage && !PollinationsClient.HasUserKey)
+                {
+                    GUI.color = Color.gray;
+                    Widgets.ButtonText(btnFree, "RAV_ArtCreator_FreeNoImg2Img".Translate());
+                    GUI.color = Color.white;
+                }
                 else
                 {
-                    int cooldown; bool isCoolingDown = PollinationsClient.IsCoolingDown(out cooldown);
-                    if (isCoolingDown) { GUI.color = Color.gray; Widgets.ButtonText(btnFree, $"冷却中 ({cooldown}s)"); GUI.color = Color.white; }
-                    else { GUI.color = Color.cyan; if (Widgets.ButtonText(btnFree, "✨ 免费试用")) StartGeneration(true); GUI.color = Color.white; }
+                    if (PollinationsClient.HasUserKey)
+                    {
+                        GUI.color = new Color(0.3f, 1f, 0.6f);
+                        if (Widgets.ButtonText(btnFree, "RAV_ArtCreator_PollinationsKey".Translate())) StartGeneration(true, false);
+                        GUI.color = Color.white;
+                    }
+                    else
+                    {
+                        int cooldown; bool isCoolingDown = PollinationsClient.IsCoolingDown(out cooldown);
+                        if (isCoolingDown) { GUI.color = Color.gray; Widgets.ButtonText(btnFree, "RAV_ArtCreator_Cooldown".Translate(cooldown)); GUI.color = Color.white; }
+                        else { GUI.color = Color.cyan; if (Widgets.ButtonText(btnFree, "RAV_ArtCreator_FreeTrial".Translate())) StartGeneration(true, false); GUI.color = Color.white; }
+                    }
                 }
 
+                if (!Player2Client.IsAvailable)
+                {
+                    GUI.color = Color.gray;
+                    Widgets.ButtonText(btnP2, "RAV_Player2_BtnOffline".Translate());
+                    GUI.color = Color.white;
+                }
+                else
+                {
+                    GUI.color = new Color(0.4f, 0.8f, 1f);
+                    string p2ModeLabel = currentMode == GenerationMode.ImageToImage
+                        ? "RAV_Player2_BtnImg2Img".Translate()
+                        : "RAV_Player2_BtnTxt2Img".Translate();
+                    if (Widgets.ButtonText(btnP2, p2ModeLabel)) StartGeneration(false, true);
+                    GUI.color = Color.white;
+                }
+
+                int provIdx = RimAiVinciMod.settings.providerIndex;
+                string provLabel = ApiProviders.IsLocalProvider(provIdx) ? "RAV_Provider_Local".Translate() : "RAV_ArtCreator_ProGen".Translate();
                 string currentModel = currentMode == GenerationMode.ImageToImage ? RimAiVinciMod.settings.modelNameI2I : RimAiVinciMod.settings.modelName;
-                if (string.IsNullOrEmpty(currentModel)) currentModel = "Flux";
-                if (currentModel.Length > 20) currentModel = currentModel.Substring(0, 18) + "..";
-                if (Widgets.ButtonText(btnPro, $"Pro生图\n({currentModel})")) StartGeneration(false);
+                if (string.IsNullOrEmpty(currentModel)) currentModel = ApiProviders.IsLocalProvider(provIdx) ? "Local" : "Flux";
+                if (currentModel.Length > 18) currentModel = currentModel.Substring(0, 16) + "..";
+                if (Widgets.ButtonText(btnPro, provLabel + "\n(" + currentModel + ")")) StartGeneration(false, false);
             }
 
             bool canSave = generatedTexture != null || (currentMode == GenerationMode.ImageToImage && referenceTexture != null);
             if (canSave && !isGenerating)
             {
-                Rect btnSave = new Rect(inRect.width - btnWidth * 2 - 60, bottomY, btnWidth, btnHeight);
-                if (hasSavedCurrent) { GUI.color = Color.green; Widgets.ButtonText(btnSave, "已保存"); GUI.color = Color.white; }
-                else if (Widgets.ButtonText(btnSave, "保存到相册")) SaveCurrentArt();
+                Rect btnSave = new Rect(btnX - btnWidth - gap, bottomY, btnWidth, btnHeight);
+                if (hasSavedCurrent) { GUI.color = Color.green; Widgets.ButtonText(btnSave, "RAV_ArtCreator_Saved".Translate()); GUI.color = Color.white; }
+                else if (Widgets.ButtonText(btnSave, "RAV_ArtCreator_SaveToAlbum".Translate())) SaveCurrentArt();
             }
         }
 
-        private void OpenImportFloatMenu() { var files = ArtFileSystem.GetImportFiles(); List<FloatMenuOption> opts = new List<FloatMenuOption>(); if (files.Count == 0) opts.Add(new FloatMenuOption("文件夹是空的", null)); else { foreach (var f in files) { string path = f.FullName; opts.Add(new FloatMenuOption(f.Name, () => { Texture2D tex = ArtFileSystem.LoadTextureFromDisk(path); if (tex != null) SetReferenceImage(tex); })); } } Find.WindowStack.Add(new FloatMenu(opts)); }
-        private void PasteFromClipboard() { string path = GUIUtility.systemCopyBuffer; if (string.IsNullOrEmpty(path)) { Find.WindowStack.Add(new Dialog_MessageBox("剪贴板为空")); return; } path = path.Trim().Trim('"'); Texture2D loaded = ArtFileSystem.LoadTextureFromDisk(path); if (loaded != null) { SetReferenceImage(loaded); Messages.Message("加载成功", MessageTypeDefOf.TaskCompletion); } else Find.WindowStack.Add(new Dialog_MessageBox($"无法加载：{path}")); }
+        private void OpenImportFloatMenu()
+        {
+            var files = ArtFileSystem.GetImportFiles();
+            List<FloatMenuOption> opts = new List<FloatMenuOption>();
+            if (files.Count == 0)
+                opts.Add(new FloatMenuOption("RAV_ArtCreator_ImportEmpty".Translate(), null));
+            else
+            {
+                foreach (var f in files)
+                {
+                    string path = f.FullName;
+                    opts.Add(new FloatMenuOption(f.Name, () =>
+                    {
+                        Texture2D tex = ArtFileSystem.LoadTextureFromDisk(path);
+                        if (tex != null) SetReferenceImage(tex);
+                    }));
+                }
+            }
+            Find.WindowStack.Add(new FloatMenu(opts));
+        }
 
-        private void StartGeneration(bool free)
+        private void PasteFromClipboard()
+        {
+            string path = GUIUtility.systemCopyBuffer;
+            if (string.IsNullOrEmpty(path))
+            {
+                Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_ClipboardEmpty".Translate()));
+                return;
+            }
+            path = path.Trim().Trim('"');
+            Texture2D loaded = ArtFileSystem.LoadTextureFromDisk(path);
+            if (loaded != null)
+            {
+                SetReferenceImage(loaded);
+                Messages.Message("RAV_ArtCreator_LoadSuccess".Translate(), MessageTypeDefOf.TaskCompletion);
+            }
+            else
+                Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_LoadFail".Translate(path)));
+        }
+
+        private void StartGeneration(bool free, bool player2 = false)
         {
             if (generatedTexture != null) { UnityEngine.Object.Destroy(generatedTexture); generatedTexture = null; }
             isGenerating = true;
@@ -299,25 +409,114 @@ namespace RimAiVinci
 
             if (free)
             {
-                PollinationsClient.GenerateFreeImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(RimAiVinciMod.settings.apiKey)) { Find.WindowStack.Add(new Dialog_MessageBox("请设置 API Key")); isGenerating = false; return; }
-                if (currentMode == GenerationMode.ImageToImage)
+                if (currentMode == GenerationMode.ImageToImage && PollinationsClient.HasUserKey)
                 {
-                    if (referenceTexture == null) { Find.WindowStack.Add(new Dialog_MessageBox("请设置底图")); isGenerating = false; return; }
+                    if (referenceTexture == null) { Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_NeedReference".Translate())); isGenerating = false; return; }
                     SiliconClient.GenerateImageToImageAsync(finalPrompt, referenceTexture, RimAiVinciMod.settings.i2iStrength, (tex) => { generatedTexture = tex; isGenerating = false; });
                 }
                 else
                 {
-                    SiliconClient.GenerateImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    PollinationsClient.GenerateFreeImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
+                }
+            }
+            else if (player2)
+            {
+                if (!Player2Client.IsAvailable)
+                {
+                    Find.WindowStack.Add(new Dialog_MessageBox("RAV_Player2_NoApp".Translate()));
+                    isGenerating = false;
+                    return;
+                }
+                if (currentMode == GenerationMode.ImageToImage)
+                {
+                    if (referenceTexture == null) { Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_NeedReference".Translate())); isGenerating = false; return; }
+                    Player2Client.EditImageAsync(finalPrompt, referenceTexture, (tex) => { generatedTexture = tex; isGenerating = false; });
+                }
+                else
+                {
+                    Player2Client.GenerateImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
+                }
+            }
+            else
+            {
+                int provIdx = RimAiVinciMod.settings.providerIndex;
+
+                if (provIdx == ApiProviders.ComfyUI)
+                {
+                    if (currentMode == GenerationMode.ImageToImage)
+                    {
+                        if (referenceTexture == null) { Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_NeedReference".Translate())); isGenerating = false; return; }
+                        ComfyUIClient.GenerateImageToImageAsync(finalPrompt, referenceTexture, RimAiVinciMod.settings.i2iStrength, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    }
+                    else
+                    {
+                        ComfyUIClient.GenerateImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    }
+                }
+                else if (provIdx == ApiProviders.SDWebUI)
+                {
+                    if (currentMode == GenerationMode.ImageToImage)
+                    {
+                        if (referenceTexture == null) { Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_NeedReference".Translate())); isGenerating = false; return; }
+                        SDWebUIClient.GenerateImageToImageAsync(finalPrompt, referenceTexture, RimAiVinciMod.settings.i2iStrength, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    }
+                    else
+                    {
+                        SDWebUIClient.GenerateImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(RimAiVinciMod.settings.apiKey)) { Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_NeedApiKey".Translate())); isGenerating = false; return; }
+                    if (currentMode == GenerationMode.ImageToImage)
+                    {
+                        if (referenceTexture == null) { Find.WindowStack.Add(new Dialog_MessageBox("RAV_ArtCreator_NeedReference".Translate())); isGenerating = false; return; }
+                        SiliconClient.GenerateImageToImageAsync(finalPrompt, referenceTexture, RimAiVinciMod.settings.i2iStrength, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    }
+                    else
+                    {
+                        SiliconClient.GenerateImageAsync(finalPrompt, (tex) => { generatedTexture = tex; isGenerating = false; });
+                    }
                 }
             }
         }
 
         private void SetReferenceImage(Texture2D t) { if (referenceTexture != null && referenceTexture != t) UnityEngine.Object.Destroy(referenceTexture); referenceTexture = t; }
         private Texture2D AdjustRenderTextureToTexture2D(RenderTexture r) { RenderTexture currentActive = RenderTexture.active; RenderTexture.active = r; Texture2D tex = new Texture2D(r.width, r.height, TextureFormat.ARGB32, false); tex.ReadPixels(new Rect(0, 0, r.width, r.height), 0, 0); tex.Apply(); RenderTexture.active = currentActive; return tex; }
+
+        private Texture2D PadToSquare1024(Texture2D source)
+        {
+            int targetSize = 1024;
+            int srcW = source.width;
+            int srcH = source.height;
+            float scale = Mathf.Min((float)targetSize / srcW, (float)targetSize / srcH);
+            int scaledW = Mathf.RoundToInt(srcW * scale);
+            int scaledH = Mathf.RoundToInt(srcH * scale);
+
+            Color[] srcPixels = source.GetPixels();
+            Color[] dstPixels = new Color[targetSize * targetSize];
+
+            int offsetX = (targetSize - scaledW) / 2;
+            int offsetY = (targetSize - scaledH) / 2;
+
+            for (int dy = 0; dy < scaledH; dy++)
+            {
+                float srcYf = (float)dy / scaledH * srcH;
+                int srcY = Mathf.Min(Mathf.FloorToInt(srcYf), srcH - 1);
+                for (int dx = 0; dx < scaledW; dx++)
+                {
+                    float srcXf = (float)dx / scaledW * srcW;
+                    int srcX = Mathf.Min(Mathf.FloorToInt(srcXf), srcW - 1);
+                    dstPixels[(offsetY + dy) * targetSize + (offsetX + dx)] = srcPixels[srcY * srcW + srcX];
+                }
+            }
+
+            Texture2D result = new Texture2D(targetSize, targetSize, TextureFormat.ARGB32, false);
+            result.SetPixels(dstPixels);
+            result.Apply();
+            return result;
+        }
+
         private void SaveCurrentArt()
         {
             Texture2D texToSave = generatedTexture != null ? generatedTexture : referenceTexture;
@@ -338,11 +537,111 @@ namespace RimAiVinci
                     relativePath = relPath,
                     prompt = finalPrompt,
                     timestamp = System.DateTime.Now.Ticks,
-                    authorName = targetPawn.Name.ToStringShort
+                    authorName = targetPawn.Name != null ? targetPawn.Name.ToStringShort : targetPawn.def.label,
+                    pawnType = PawnPortraitTypeHelper.GetPawnType(targetPawn)
                 };
                 Find.World.GetComponent<ArtDataStore>().AddArt(newData);
                 hasSavedCurrent = true;
-                Messages.Message("保存成功", MessageTypeDefOf.TaskCompletion);
+                Messages.Message("RAV_ArtCreator_SaveSuccess".Translate(), MessageTypeDefOf.TaskCompletion);
+
+                if (targetPawn.needs?.mood != null)
+                {
+                    ThoughtDef thought = DefDatabase<ThoughtDef>.GetNamedSilentFail("RAV_Thought_PortraitGenerated");
+                    if (thought != null)
+                    {
+                        targetPawn.needs.mood.thoughts.memories.TryGainMemory(thought);
+                    }
+                }
+            }
+        }
+
+        private void DrawUploadOnlyWindow(Rect inRect)
+        {
+            string pawnLabel = targetPawn.Name != null ? targetPawn.Name.ToStringShort : targetPawn.def.label;
+            Text.Font = GameFont.Medium;
+            Widgets.Label(new Rect(0, 0, inRect.width, 40), "RAV_UploadOnly_Title".Translate(pawnLabel));
+            Text.Font = GameFont.Small;
+
+            GUI.color = Color.cyan;
+            Widgets.Label(new Rect(0, 45, inRect.width, 40), "RAV_UploadOnly_Desc".Translate());
+            GUI.color = Color.white;
+
+            float imgSize = Mathf.Min(350f, inRect.width * 0.4f);
+            Rect imgRect = new Rect(20, 100, imgSize, imgSize);
+            Widgets.DrawMenuSection(imgRect);
+
+            Texture2D displayTex = uploadedTexture;
+            if (displayTex == null && referenceTexture != null) displayTex = referenceTexture;
+
+            if (displayTex != null)
+            {
+                Widgets.DrawTextureFitted(imgRect, displayTex, 1.0f);
+            }
+            else
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = Color.gray;
+                Widgets.Label(imgRect, "RAV_UploadOnly_Placeholder".Translate());
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.UpperLeft;
+            }
+
+            float btnX = imgRect.xMax + 20;
+            float btnW = inRect.width - btnX - 20;
+            float btnY = 100;
+
+            if (Widgets.ButtonText(new Rect(btnX, btnY, btnW, 30), "RAV_UploadOnly_PastePath".Translate()))
+            {
+                PasteFromClipboard();
+                uploadedTexture = referenceTexture;
+                generatedTexture = null;
+            }
+            btnY += 38;
+
+            if (Widgets.ButtonText(new Rect(btnX, btnY, btnW, 30), "RAV_UploadOnly_PickFile".Translate()))
+            {
+                OpenImportFloatMenu();
+                uploadedTexture = referenceTexture;
+                generatedTexture = null;
+            }
+            btnY += 38;
+
+            if (Widgets.ButtonText(new Rect(btnX, btnY, btnW, 30), "RAV_Btn_OpenFolder".Translate()))
+            {
+                Application.OpenURL(ArtFileSystem.GetImportDir());
+            }
+            btnY += 50;
+
+            if (displayTex != null)
+            {
+                GUI.color = Color.green;
+                if (Widgets.ButtonText(new Rect(btnX, btnY, btnW, 40), "RAV_UploadOnly_Save".Translate()))
+                {
+                    SaveUploadedArt(displayTex);
+                }
+                GUI.color = Color.white;
+            }
+        }
+
+        private void SaveUploadedArt(Texture2D tex)
+        {
+            if (tex == null) return;
+            string relPath = ArtFileSystem.SaveTextureToDisk(tex, targetPawn, "User Uploaded");
+            if (!string.IsNullOrEmpty(relPath))
+            {
+                ArtData newData = new ArtData
+                {
+                    artID = System.Guid.NewGuid().ToString(),
+                    pawnID = targetPawn.ThingID,
+                    relativePath = relPath,
+                    prompt = "User Uploaded",
+                    timestamp = System.DateTime.Now.Ticks,
+                    authorName = targetPawn.Name != null ? targetPawn.Name.ToStringShort : targetPawn.def.label,
+                    pawnType = PawnPortraitTypeHelper.GetPawnType(targetPawn)
+                };
+                Find.World.GetComponent<ArtDataStore>().AddArt(newData);
+                hasSavedCurrent = true;
+                Messages.Message("RAV_ArtCreator_SaveSuccess".Translate(), MessageTypeDefOf.TaskCompletion);
 
                 if (targetPawn.needs?.mood != null)
                 {

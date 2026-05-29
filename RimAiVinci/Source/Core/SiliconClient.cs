@@ -71,7 +71,7 @@ namespace RimAiVinci
             // 这段还在主线程，直接调用没问题
             if (string.IsNullOrEmpty(apiKey))
             {
-                Messages.Message("请先在 Mod 设置中填写 API Key。", MessageTypeDefOf.RejectInput);
+                Messages.Message("RAV_ArtCreator_NeedApiKey".Translate(), MessageTypeDefOf.RejectInput);
                 callback?.Invoke(null); // 失败回调
                 return;
             }
@@ -128,7 +128,7 @@ namespace RimAiVinci
                         LongEventHandler.QueueLongEvent(() =>
                         {
                             Log.Error($"[Rim AiVinci] API 请求失败: {response.StatusCode}\n{responseBody}");
-                            Messages.Message($"生成失败: {response.StatusCode}。请检查设置。", MessageTypeDefOf.RejectInput);
+                            Messages.Message("RAV_GenFail_CheckSettings".Translate(((int)response.StatusCode).ToString()), MessageTypeDefOf.RejectInput);
                             callback?.Invoke(null);
                         }, "AIError", false, null);
                     }
@@ -139,7 +139,7 @@ namespace RimAiVinci
                     LongEventHandler.QueueLongEvent(() =>
                     {
                         Log.Error($"[Rim AiVinci] 网络异常: {ex.Message}");
-                        Messages.Message("网络连接出错，请检查 URL 设置。", MessageTypeDefOf.RejectInput);
+                        Messages.Message("RAV_NetError_CheckUrl".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
                     }, "AIError", false, null);
                 }
@@ -161,6 +161,66 @@ namespace RimAiVinci
                 return json.Substring(quoteStart + 1, quoteEnd - quoteStart - 1);
             }
             catch { return null; }
+        }
+
+        public static void TestConnection(Action<string, bool> resultCallback)
+        {
+            string apiKey = RimAiVinciMod.settings.apiKey;
+            string url = RimAiVinciMod.settings.apiUrl;
+            string model = RimAiVinciMod.settings.modelName;
+
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                resultCallback("RAV_Test_NoKey".Translate(), false);
+                return;
+            }
+            if (string.IsNullOrEmpty(url))
+            {
+                resultCallback("RAV_Test_NoUrl".Translate(), false);
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    string safePrompt = "test connection".Replace("\"", "\\\"");
+                    string json = $"{{\"model\": \"{model ?? "test"}\", \"prompt\": \"{safePrompt}\", \"image_size\": \"1024x1024\", \"num_inference_steps\": 1, \"seed\": 1}}";
+
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+
+                    HttpResponseMessage response = await client.PostAsync(url, content);
+                    string responseBody = await response.Content.ReadAsStringAsync();
+
+                    LongEventHandler.QueueLongEvent(() =>
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            resultCallback("RAV_Test_Success".Translate(), true);
+                        }
+                        else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                        {
+                            resultCallback("RAV_Test_AuthFail".Translate((int)response.StatusCode, responseBody.Length > 200 ? responseBody.Substring(0, 200) : responseBody), false);
+                        }
+                        else if (response.StatusCode == System.Net.HttpStatusCode.PaymentRequired)
+                        {
+                            resultCallback("RAV_Test_NoCredits".Translate(), false);
+                        }
+                        else
+                        {
+                            resultCallback("RAV_Test_HttpError".Translate((int)response.StatusCode, responseBody.Length > 300 ? responseBody.Substring(0, 300) : responseBody), false);
+                        }
+                    }, "RimAiVinci_AIError", false, null);
+                }
+                catch (Exception ex)
+                {
+                    LongEventHandler.QueueLongEvent(() =>
+                    {
+                        resultCallback("RAV_Test_NetError".Translate(ex.Message), false);
+                    }, "RimAiVinci_AIError", false, null);
+                }
+            });
         }
     }
 }

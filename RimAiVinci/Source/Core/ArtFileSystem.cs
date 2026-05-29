@@ -27,16 +27,18 @@ namespace RimAiVinci
 
         private static string GetPawnFolder(Pawn pawn)
         {
-            string cleanName = Sanitize(pawn.Name.ToStringShort);
+            var pType = PawnPortraitTypeHelper.GetPawnType(pawn);
+            string subFolder = PawnPortraitTypeHelper.GetSubFolder(pType);
+
+            string cleanName = Sanitize(pawn.Name != null ? pawn.Name.ToStringShort : pawn.def.label);
             string race = Sanitize(pawn.def.label);
             string gender = pawn.gender.ToString();
             string age = pawn.ageTracker.AgeBiologicalYears.ToString();
             string saveName = Sanitize(Find.World?.info?.name ?? "UnknownSave");
             string id = pawn.ThingID;
 
-            // 格式：Maiya_Human_Female_18_Save1_Human123
             string folderName = $"{cleanName}_{race}_{gender}_{age}_{saveName}_{id}";
-            return Path.Combine(BasePath, folderName);
+            return Path.Combine(BasePath, subFolder, folderName);
         }
 
         private static string Sanitize(string input)
@@ -51,6 +53,8 @@ namespace RimAiVinci
             if (tex == null) return null;
             try
             {
+                var pType = PawnPortraitTypeHelper.GetPawnType(pawn);
+                string subFolder = PawnPortraitTypeHelper.GetSubFolder(pType);
                 string folderPath = GetPawnFolder(pawn);
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
@@ -58,7 +62,7 @@ namespace RimAiVinci
                 string fullPath = Path.Combine(folderPath, fileName);
                 File.WriteAllBytes(fullPath, tex.EncodeToPNG());
 
-                return Path.Combine(new DirectoryInfo(folderPath).Name, fileName);
+                return Path.Combine(subFolder, new DirectoryInfo(folderPath).Name, fileName);
             }
             catch (Exception ex) { Log.Error($"[Rim AiVinci] Save Error: {ex.Message}"); return null; }
         }
@@ -69,6 +73,14 @@ namespace RimAiVinci
             {
                 string fullPath = relativeOrFullPath;
                 if (!Path.IsPathRooted(fullPath)) fullPath = Path.Combine(BasePath, relativeOrFullPath);
+                if (!File.Exists(fullPath))
+                {
+                    foreach (string sub in new[] { "Human", "Animal", "Mechanoid" })
+                    {
+                        string altPath = Path.Combine(BasePath, sub, relativeOrFullPath);
+                        if (File.Exists(altPath)) { fullPath = altPath; break; }
+                    }
+                }
                 if (!File.Exists(fullPath)) return null;
                 byte[] bytes = File.ReadAllBytes(fullPath);
                 Texture2D tex = new Texture2D(2, 2);
@@ -88,9 +100,8 @@ namespace RimAiVinci
             HashSet<string> knownPaths = new HashSet<string>();
             foreach (var list in store.GetAllArts()) foreach (var art in list) knownPaths.Add(art.relativePath);
 
-            string[] directories = Directory.GetDirectories(BasePath);
+            string[] directories = Directory.GetDirectories(BasePath, "*", SearchOption.AllDirectories);
 
-            // 获取当前所有地图的所有小人，建立缓存
             List<Pawn> allPawns = new List<Pawn>();
             if (Current.Game != null)
             {
@@ -100,11 +111,11 @@ namespace RimAiVinci
 
             foreach (string folderPath in directories)
             {
+                if (!Directory.GetFiles(folderPath, "*.png").Any()) continue;
+
                 string folderName = new DirectoryInfo(folderPath).Name;
                 string matchedPawnID = "Unknown";
 
-                // 尝试匹配：文件夹名是否以某个小人的 ThingID 结尾？
-                // 例如 "xxx_Milira_Race40292" EndsWith "Milira_Race40292" -> 匹配成功
                 Pawn match = allPawns.FirstOrDefault(p => folderName.EndsWith(p.ThingID));
                 if (match != null)
                 {
@@ -112,20 +123,27 @@ namespace RimAiVinci
                 }
                 else
                 {
-                    // 兜底策略：如果实在匹配不到活人，尝试按最后一个下划线分割
                     int lastIdx = folderName.LastIndexOf('_');
                     if (lastIdx != -1 && lastIdx < folderName.Length - 1)
                         matchedPawnID = folderName.Substring(lastIdx + 1);
                 }
 
+                string relDir = folderPath.Substring(BasePath.Length).TrimStart(Path.DirectorySeparatorChar);
+
                 string[] files = Directory.GetFiles(folderPath, "*.png");
                 foreach (string file in files)
                 {
                     string fileName = Path.GetFileName(file);
-                    string relPath = Path.Combine(folderName, fileName).Replace('\\', '/');
+                    string relPath = Path.Combine(relDir, fileName).Replace('\\', '/');
 
                     if (!knownPaths.Contains(relPath) && !knownPaths.Contains(relPath.Replace('/', '\\')))
                     {
+                        var pType = matchedPawnID != "Unknown"
+                            ? allPawns.FirstOrDefault(p => p.ThingID == matchedPawnID) is Pawn mp
+                                ? PawnPortraitTypeHelper.GetPawnType(mp)
+                                : PawnPortraitType.Human
+                            : PawnPortraitType.Human;
+
                         ArtData recovered = new ArtData
                         {
                             artID = Guid.NewGuid().ToString(),
@@ -133,7 +151,8 @@ namespace RimAiVinci
                             relativePath = relPath,
                             prompt = "本地找回 (Recovered)",
                             timestamp = File.GetCreationTime(file).Ticks,
-                            authorName = "Unknown"
+                            authorName = "Unknown",
+                            pawnType = pType
                         };
                         store.AddArt(recovered);
                         recoveredCount++;

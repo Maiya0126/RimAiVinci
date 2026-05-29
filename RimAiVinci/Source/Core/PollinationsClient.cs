@@ -13,37 +13,47 @@ namespace RimAiVinci
         public static DateTime LastFreeUseTime { get; private set; } = DateTime.MinValue;
         public const double CooldownMinutes = 3.0;
 
-        // Generate a random session ID to mimic a unique user session
-        private static readonly string SessionID = Guid.NewGuid().ToString().Substring(0, 8);
+        public static bool HasUserKey
+        {
+            get
+            {
+                var s = RimAiVinciMod.settings;
+                return s != null && s.providerIndex == ApiProviders.Pollinations && !string.IsNullOrEmpty(s.apiKey);
+            }
+        }
 
         static PollinationsClient()
         {
             client.Timeout = TimeSpan.FromMinutes(4);
+            ApplyFreeHeaders();
+            Log.Message("[Rim AiVinci] Pollinations Initialized.");
+        }
 
-            // ✨✨ Core Update: Random User Agent & Headers to bypass "We Have Moved" ✨✨
-            string randomUA = GetRandomUserAgent();
+        private static void ApplyFreeHeaders()
+        {
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(GetRandomUserAgent());
+            client.DefaultRequestHeaders.Add("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
+        }
 
-            // 1. Set a random User-Agent
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(randomUA);
-
-            // 2. ✨ CRITICAL FIX: Add Referer and Origin headers to mimic the official site
-            // This tells the server the request is coming from their own frontend
+        private static void ApplyAuthHeaders(string apiKey)
+        {
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(GetRandomUserAgent());
+            client.DefaultRequestHeaders.Add("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8");
             client.DefaultRequestHeaders.Add("Referer", "https://enter.pollinations.ai/");
             client.DefaultRequestHeaders.Add("Origin", "https://enter.pollinations.ai");
-
-            // 3. Add standard browser headers
-            client.DefaultRequestHeaders.Add("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
-            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
-
-            // 4. Anti-caching headers
-            client.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
-            client.DefaultRequestHeaders.Add("Pragma", "no-cache");
-
-            Log.Message($"[Rim AiVinci] Network Initialized. Session: {SessionID}, UA: {randomUA}");
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
         }
 
         public static bool IsCoolingDown(out int secondsRemaining)
         {
+            if (HasUserKey)
+            {
+                secondsRemaining = 0;
+                return false;
+            }
             TimeSpan diff = DateTime.Now - LastFreeUseTime;
             if (diff.TotalMinutes < CooldownMinutes)
             {
@@ -62,34 +72,32 @@ namespace RimAiVinci
                 callback?.Invoke(null);
                 return;
             }
-
             LastFreeUseTime = DateTime.Now;
 
             int seed = UnityEngine.Random.Range(0, 999999);
             string encodedPrompt = Uri.EscapeDataString(prompt);
 
-            // ✨ URL Update: Removed some parameters that might trigger old API checks
-            // Added 'nologo=true' and 'safe=true' which are standard for the new endpoint
-            string url = $"https://image.pollinations.ai/prompt/{encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&seed={seed}&safe=true";
-
             Task.Run(async () =>
             {
                 try
                 {
-                    Log.Message($"[Rim AiVinci] Free Generation Request (Seed: {seed})...");
+                    if (!HasUserKey) await Task.Delay(UnityEngine.Random.Range(300, 2000));
 
-                    HttpResponseMessage response = await client.GetAsync(url);
-                    if (!response.IsSuccessStatusCode) throw new Exception($"Server Error {response.StatusCode}");
+                    bool useNewEndpoint = HasUserKey;
+                    string userKey = useNewEndpoint ? RimAiVinciMod.settings.apiKey : "";
 
-                    byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
+                    if (useNewEndpoint)
+                        ApplyAuthHeaders(userKey);
+                    else
+                        ApplyFreeHeaders();
 
-                    // ✨ Check for the "We Have Moved" placeholder image
-                    // That specific error image is usually small (around 20-30KB), but valid images are much larger
-                    // A simple length check can filter out obvious bad responses
-                    if (imageBytes.Length < 5000)
-                    {
-                        Log.Warning("[Rim AiVinci] Received suspicious small file. Might be the error placeholder.");
-                    }
+                    string url = useNewEndpoint
+                        ? $"https://gen.pollinations.ai/image/{encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&seed={seed}&safe=true&key={userKey}"
+                        : $"https://image.pollinations.ai/prompt/{encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&seed={seed}&safe=true";
+
+                    Log.Message($"[Rim AiVinci] Pollinations Request (Seed: {seed}, Endpoint: {(useNewEndpoint ? "gen+key" : "image/free")})...");
+
+                    byte[] imageBytes = await FetchWithRetryAsync(url);
 
                     LongEventHandler.QueueLongEvent(() =>
                     {
@@ -109,34 +117,71 @@ namespace RimAiVinci
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning($"[Rim AiVinci] Free API Failed: {ex.Message}");
-
+                    Log.Warning($"[Rim AiVinci] Pollinations Failed: {ex.Message}");
                     LongEventHandler.QueueLongEvent(() =>
                     {
-                        Messages.Message("RimAiVinci_FreeServerBusy".Translate(), MessageTypeDefOf.RejectInput, false);
+                        if (ex.Message.Contains("401"))
+                            Messages.Message("RAV_Pollinations_Unauthorized".Translate(), MessageTypeDefOf.RejectInput, false);
+                        else if (ex.Message.Contains("402"))
+                            Messages.Message("RAV_Pollinations_NoCredits".Translate(), MessageTypeDefOf.RejectInput, false);
+                        else
+                            Messages.Message("RimAiVinci_FreeServerBusy".Translate(), MessageTypeDefOf.RejectInput, false);
                         callback?.Invoke(null);
                     }, "RimAiVinci_AIError", false, null);
                 }
             });
         }
 
-        // ✨✨✨ Random Browser Fingerprint Generator ✨✨✨
+        private static async Task<byte[]> FetchWithRetryAsync(string url, int maxRetries = 2)
+        {
+            for (int attempt = 0; attempt <= maxRetries; attempt++)
+            {
+                HttpResponseMessage response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    byte[] data = await response.Content.ReadAsByteArrayAsync();
+                    if (data != null && data.Length > 5000) return data;
+                    if (attempt < maxRetries)
+                    {
+                        if (HasUserKey) ApplyAuthHeaders(RimAiVinciMod.settings.apiKey);
+                        else ApplyFreeHeaders();
+                        await Task.Delay(UnityEngine.Random.Range(2000, 5000));
+                        continue;
+                    }
+                    return data;
+                }
+                if ((int)response.StatusCode == 429 || response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                {
+                    if (attempt < maxRetries)
+                    {
+                        if (HasUserKey) ApplyAuthHeaders(RimAiVinciMod.settings.apiKey);
+                        else ApplyFreeHeaders();
+                        await Task.Delay((attempt + 1) * 5000);
+                        continue;
+                    }
+                    throw new Exception($"Rate limited after {maxRetries + 1} attempts");
+                }
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    throw new Exception("401 Unauthorized");
+                if (response.StatusCode == System.Net.HttpStatusCode.PaymentRequired)
+                    throw new Exception("402 PaymentRequired");
+                throw new Exception($"Server Error {response.StatusCode}");
+            }
+            return null;
+        }
+
         private static string GetRandomUserAgent()
         {
-            // Updated to newer Chrome versions to look more like a modern browser
-            int majorVer = UnityEngine.Random.Range(124, 128);
+            int majorVer = UnityEngine.Random.Range(124, 131);
             int buildVer = UnityEngine.Random.Range(0, 5000);
-
-            bool isWin = UnityEngine.Random.value > 0.5f;
-
-            if (isWin)
-            {
+            float roll = UnityEngine.Random.value;
+            if (roll < 0.5f)
                 return $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{majorVer}.0.{buildVer}.0 Safari/537.36";
-            }
-            else
-            {
+            if (roll < 0.75f)
                 return $"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{majorVer}.0.{buildVer}.0 Safari/537.36";
-            }
+            if (roll < 0.88f)
+                return $"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{majorVer}.0) Gecko/20100101 Firefox/{majorVer}.0";
+            return $"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15";
         }
     }
 }

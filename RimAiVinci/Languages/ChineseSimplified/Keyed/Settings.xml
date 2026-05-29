@@ -1,19 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<RAV_Tip_SiliconFlow>免费做图有时间间隔限制，在硅基流动网站使用邀请码 hazSLAR1 注册最多可获得100多张快速作图额度。</RAV_Tip_SiliconFlow>
+	<RAV_Group_Player2>Player2 (免费 AI 助手)</RAV_Group_Player2>
+	<RAV_Player2_Connected>已连接 - Player2 App 在线</RAV_Player2_Connected>
+	<RAV_Player2_Disconnected>未连接 - 请启动 Player2 App 并登录</RAV_Player2_Disconnected>
+	<RAV_Player2_InstallTip>安装 Player2 App (player2.game) 并登录，即可获得每日免费 AI 生成额度\n文生图 3 焦耳/次，图生图 10 焦耳/次</RAV_Player2_InstallTip>
+	<RAV_Player2_RetryConnect>重新连接 Player2</RAV_Player2_RetryConnect>
+	<RAV_Player2_NoApp>无法连接 Player2，请启动 Player2 App 并登录</RAV_Player2_NoApp>
+	<RAV_Player2_NoCredits>Player2 积分不足，请前往 Player2 App 充值或等待每日额度刷新</RAV_Player2_NoCredits>
+	<RAV_Player2_RateLimit>Player2 请求过于频繁，请稍后再试</RAV_Player2_RateLimit>
+	<RAV_Player2_Unauthorized>Player2 未登录，请在 Player2 App 中登录账号</RAV_Player2_Unauthorized>
+	<RAV_Player2_BtnOffline>Player2\n未连接</RAV_Player2_BtnOffline>
+	<RAV_Player2_BtnTxt2Img>Player2\n文生图</RAV_Player2_BtnTxt2Img>
+	<RAV_Player2_BtnImg2Img>Player2\n图生图</RAV_Player2_BtnImg2Img>
+	<RimAiVinci_Player2Processing>Player2 正在绘制您的画作，请稍候...</RimAiVinci_Player2Processing>
 
-	<RAV_Group_API>API 接入设置</RAV_Group_API>
-	<RAV_Desc_API>本 Mod 支持所有【OpenAI 格式】的接口。\n推荐使用：硅基流动 (SiliconFlow)、DeepSeek、或者本地部署的 ComfyUI/SD-WebUI (需插件支持)。</RAV_Desc_API>
+	<RAV_Group_ProAPI>生图 API 设置</RAV_Group_ProAPI>
+	<RAV_Desc_ProAPI>选择供应商并填写 API Key 即可使用 Pro 生图。\n推荐使用 Player2 免费生图，或在硅基流动用邀请码 hazSLAR1 注册领取免费额度。\n云端供应商使用 OpenAI 兼容格式接口；本地供应商 (ComfyUI/SD-WebUI) 无需 API Key。</RAV_Desc_ProAPI>
+	<RAV_Label_Provider>供应商:</RAV_Label_Provider>
+	<RAV_Provider_SiliconFlow>硅基流动 (SiliconFlow)</RAV_Provider_SiliconFlow>
+	<RAV_Provider_Pollinations>Pollinations</RAV_Provider_Pollinations>
+	<RAV_Provider_OpenAI>OpenAI</RAV_Provider_OpenAI>
+	<RAV_Provider_ZhipuAI>智谱 AI (ZhipuAI)</RAV_Provider_ZhipuAI>
+	<RAV_Provider_TogetherAI>Together AI</RAV_Provider_TogetherAI>
+	<RAV_Provider_FireworksAI>Fireworks AI</RAV_Provider_FireworksAI>
+	<RAV_Provider_ComfyUI>ComfyUI (本地)</RAV_Provider_ComfyUI>
+	<RAV_Provider_SDWebUI>SD-WebUI (本地)</RAV_Provider_SDWebUI>
+	<RAV_Provider_Custom>自定义 (Custom)</RAV_Provider_Custom>
+	<RAV_Provider_Local>本地生图</RAV_Provider_Local>
+
+	<RAV_Tip_Doc_SiliconFlow>硅基流动 - 国内推荐，支持 Qwen/Flux 等模型\n文档: siliconflow.cn/docs\n使用邀请码 hazSLAR1 注册可获免费额度</RAV_Tip_Doc_SiliconFlow>
+	<RAV_Tip_Doc_Pollinations>Pollinations - GitHub 注册获每周 $1.5 免费额度\n文档: pollinations.ai 或 enter.pollinations.ai\n填写个人 API Key 后免费按钮也将走稳定新端点（无冷却+支持图生图）</RAV_Tip_Doc_Pollinations>
+	<RAV_Tip_Doc_OpenAI>OpenAI - DALL-E 3，需海外账号\n文档: platform.openai.com/docs\n注意: DALL-E 3 仅文生图，不支持图生图</RAV_Tip_Doc_OpenAI>
+	<RAV_Tip_Doc_ZhipuAI>智谱 AI - 国内 CogView-4 模型\n文档: open.bigmodel.cn/dev/api\n仅支持文生图，不支持图生图</RAV_Tip_Doc_ZhipuAI>
+	<RAV_Tip_Doc_TogetherAI>Together AI - FLUX.1-schnell 等开源模型\n文档: docs.together.ai\n请在官方文档确认接口地址和模型名称</RAV_Tip_Doc_TogetherAI>
+	<RAV_Tip_Doc_FireworksAI>Fireworks AI - FLUX 系列快速推理\n文档: fireworks.ai/docs\n请在官方文档确认接口地址和模型名称</RAV_Tip_Doc_FireworksAI>
+	<RAV_Tip_Doc_ComfyUI>ComfyUI 本地生图 - 无需 API Key，完全免费\n需先启动 ComfyUI (默认端口 8188)\n模型名填写 checkpoint 文件名 (如 v1-5-pruned-emaonly.safetensors)\n支持文生图和图生图</RAV_Tip_Doc_ComfyUI>
+	<RAV_Tip_Doc_SDWebUI>SD-WebUI 本地生图 - 无需 API Key，完全免费\n需先启动 SD-WebUI 并加 --api 参数 (默认端口 7860)\n模型名填写 checkpoint 文件名 (可选，留空则用当前加载的模型)\n支持文生图和图生图</RAV_Tip_Doc_SDWebUI>
+	<RAV_Tip_Doc_Custom>自定义 - 填入任意 OpenAI 兼容格式的 API 地址\n支持: 其他兼容服务</RAV_Tip_Doc_Custom>
+
 	<RAV_Label_APIKey>API Key (密钥):</RAV_Label_APIKey>
 	<RAV_Label_APIUrl>API URL (接口地址):</RAV_Label_APIUrl>
-
-	<RAV_Group_Model>模型设置</RAV_Group_Model>
-	<RAV_Desc_Txt2Img>文生图 (Txt2Img): Qwen系列需 '-Image' 结尾，Flux/SD 直接填名称。</RAV_Desc_Txt2Img>
-	<RAV_Label_Txt2Img>模型名: </RAV_Label_Txt2Img>
-	<RAV_Desc_Img2Img>图生图 (Img2Img): Qwen系列需 '-Edit' 结尾，Flux/SD 同上。</RAV_Desc_Img2Img>
-	<RAV_Label_Img2Img>模型名: </RAV_Label_Img2Img>
-	<RAV_Btn_Reset>重置为默认 (SiliconFlow / Qwen)</RAV_Btn_Reset>
+	<RAV_Label_Txt2ImgModel>文生图模型名:</RAV_Label_Txt2ImgModel>
+	<RAV_Label_Img2ImgModel>图生图模型名:</RAV_Label_Img2ImgModel>
+	<RAV_Label_CheckpointName>模型文件名 (Checkpoint):</RAV_Label_CheckpointName>
+	<RAV_Btn_Reset>重置为默认</RAV_Btn_Reset>
+	<RAV_Btn_TestConnection>测试连接</RAV_Btn_TestConnection>
+	<RAV_Test_Running>正在测试连接...</RAV_Test_Running>
+	<RAV_Test_NoKey>测试失败: 未填写 API Key</RAV_Test_NoKey>
+	<RAV_Test_NoUrl>测试失败: 未填写 API URL</RAV_Test_NoUrl>
+	<RAV_Test_Success>连接成功! API 可用。</RAV_Test_Success>
+	<RAV_Test_AuthFail>认证失败 (HTTP {0}): API Key 无效或已过期。\n{1}</RAV_Test_AuthFail>
+	<RAV_Test_NoCredits>余额不足，请充值后重试。</RAV_Test_NoCredits>
+	<RAV_Test_HttpError>请求失败 (HTTP {0}):\n{1}</RAV_Test_HttpError>
+	<RAV_Test_NetError>网络错误: {0}\n请检查 URL 地址是否正确。</RAV_Test_NetError>
 
 	<RAV_Label_Strength>图生图 - 重绘幅度: {0}</RAV_Label_Strength>
 	<RAV_Desc_Strength>推荐值: 0.6 - 0.75。数值越大改动越大；数值越小越接近原图。</RAV_Desc_Strength>
@@ -23,12 +63,123 @@
 	<RAV_Label_PortraitScale>立绘展示大小: {0}</RAV_Label_PortraitScale>
 	<RAV_Check_ShowTab>显示底部功能标签 (需重启游戏或重新加载生效)</RAV_Check_ShowTab>
 
-	<RAV_Btn_OpenGallery>📂 打开珍藏画廊</RAV_Btn_OpenGallery>
-	<RAV_Btn_OpenFolder>📥 打开导入文件夹</RAV_Btn_OpenFolder>
+	<RAV_Btn_OpenGallery>打开珍藏画廊</RAV_Btn_OpenGallery>
+	<RAV_Btn_OpenFolder>打开导入文件夹</RAV_Btn_OpenFolder>
 
 	<RimAiVinci_ProcessingAIImage>AI 正在云端绘制您的画作，请稍候...</RimAiVinci_ProcessingAIImage>
 	<RimAiVinci_FreeCooldown>免费通道冷却中，请等待 {0} 秒后再试。</RimAiVinci_FreeCooldown>
-	<RimAiVinci_FreeServerBusy>免费服务器繁忙（全球拥堵）。请稍后再试，或在设置中填入 API Key 使用极速通道。</RimAiVinci_FreeServerBusy>
+	<RimAiVinci_FreeServerBusy>免费服务器繁忙，备选方案：\n① 点击 Player2 按钮（安装 Player2 App 即可免费使用）\n② 在硅基流动使用邀请码 hazSLAR1 注册，免费领取 100+ 次额度</RimAiVinci_FreeServerBusy>
 	<RimAiVinci_AIError>AI 生成错误</RimAiVinci_AIError>
+
+	<RAV_Pollinations_Unauthorized>Pollinations API Key 无效或已过期，请在设置中更新</RAV_Pollinations_Unauthorized>
+	<RAV_Pollinations_NoCredits>Pollinations 余额不足，请前往 enter.pollinations.ai 查看额度</RAV_Pollinations_NoCredits>
+
+	<RAV_UploadOnly_Desc>动物和机械体暂不支持 AI 生图，但可以上传本地图片作为立绘。\n将图片放入导入文件夹或从剪贴板粘贴路径均可。</RAV_UploadOnly_Desc>
+	<RAV_UploadOnly_Placeholder>暂无立绘\n请上传图片</RAV_UploadOnly_Placeholder>
+	<RAV_UploadOnly_PastePath>从剪贴板粘贴路径</RAV_UploadOnly_PastePath>
+	<RAV_UploadOnly_PickFile>从导入文件夹选择</RAV_UploadOnly_PickFile>
+	<RAV_UploadOnly_Save>保存为立绘</RAV_UploadOnly_Save>
+
+	<RAV_Gallery_TabHuman>人类</RAV_Gallery_TabHuman>
+	<RAV_Gallery_TabAnimal>动物</RAV_Gallery_TabAnimal>
+	<RAV_Gallery_TabMechanoid>机械体</RAV_Gallery_TabMechanoid>
+	<RAV_Gallery_ScanRecover>扫描找回丢失画像</RAV_Gallery_ScanRecover>
+	<RAV_Gallery_CreateNew>为 {0} 创作新画像</RAV_Gallery_CreateNew>
+	<RAV_Gallery_SelectPawn>请先在左侧选择一位角色...</RAV_Gallery_SelectPawn>
+	<RAV_Gallery_NoArt>暂无画像，点击上方按钮开始创作！</RAV_Gallery_NoArt>
+	<RAV_Gallery_Active>展示中</RAV_Gallery_Active>
+	<RAV_Gallery_InUse>当前使用中</RAV_Gallery_InUse>
+	<RAV_Gallery_SetActive>设为展示立绘</RAV_Gallery_SetActive>
+	<RAV_Gallery_PortraitUpdated>已更新展示画像！</RAV_Gallery_PortraitUpdated>
+	<RAV_Gallery_Delete>删除</RAV_Gallery_Delete>
+	<RAV_Gallery_FileLost>文件丢失</RAV_Gallery_FileLost>
+	<RAV_Gallery_Title>AiVinci 艺术画廊</RAV_Gallery_Title>
+	<RAV_Gallery_Recovered>找回了 {0} 张画像。</RAV_Gallery_Recovered>
+	<RAV_Gallery_NoLost>本地未发现丢失的画像记录。</RAV_Gallery_NoLost>
+	<RAV_Gallery_ShowAll>点击显示全部</RAV_Gallery_ShowAll>
+	<RAV_Gallery_ShowColony>点击显示当前地图</RAV_Gallery_ShowColony>
+	<RAV_Gallery_Filter_AllWithCaravan>全部角色（含远征队） ▸</RAV_Gallery_Filter_AllWithCaravan>
+	<RAV_Gallery_Filter_MapOnly>仅当前地图 ▸</RAV_Gallery_Filter_MapOnly>
+	<RAV_Gallery_ShowMapOnly>仅显示当前地图</RAV_Gallery_ShowMapOnly>
+	<RAV_Gallery_ShowAllPawns>显示全部角色</RAV_Gallery_ShowAllPawns>
+
+	<RAV_ArtCreator_Title>AI 创作工坊 - {0}</RAV_ArtCreator_Title>
+	<RAV_ArtCreator_Generating>AI 绘制中...</RAV_ArtCreator_Generating>
+	<RAV_ArtCreator_SetReference>使用当前游戏立绘 (设为底图)</RAV_ArtCreator_SetReference>
+	<RAV_ArtCreator_ResetReference>重置底图 (重新抓取)</RAV_ArtCreator_ResetReference>
+	<RAV_ArtCreator_PastePath>从剪贴板粘贴路径</RAV_ArtCreator_PastePath>
+	<RAV_ArtCreator_PickFile>选择文件</RAV_ArtCreator_PickFile>
+	<RAV_ArtCreator_PortraitCount>已拥有画像: {0} 张</RAV_ArtCreator_PortraitCount>
+	<RAV_ArtCreator_Cooldown>冷却中 ({0}s)</RAV_ArtCreator_Cooldown>
+	<RAV_ArtCreator_FreeTrial>免费试用\n(Pollinations)</RAV_ArtCreator_FreeTrial>
+	<RAV_ArtCreator_FreeNoImg2Img>免费通道\n不支持图生图</RAV_ArtCreator_FreeNoImg2Img>
+	<RAV_ArtCreator_PollinationsKey>Pollinations\n(个人Key)</RAV_ArtCreator_PollinationsKey>
+	<RAV_ArtCreator_ProGen>Pro生图</RAV_ArtCreator_ProGen>
+	<RAV_ArtCreator_Saved>已保存</RAV_ArtCreator_Saved>
+	<RAV_ArtCreator_SaveToAlbum>保存到相册</RAV_ArtCreator_SaveToAlbum>
+	<RAV_ArtCreator_NeedReference>请设置底图</RAV_ArtCreator_NeedReference>
+	<RAV_ArtCreator_NeedApiKey>请设置 API Key</RAV_ArtCreator_NeedApiKey>
+	<RAV_ArtCreator_ClipboardEmpty>剪贴板为空</RAV_ArtCreator_ClipboardEmpty>
+	<RAV_ArtCreator_LoadSuccess>加载成功</RAV_ArtCreator_LoadSuccess>
+	<RAV_ArtCreator_LoadFail>无法加载：{0}</RAV_ArtCreator_LoadFail>
+	<RAV_ArtCreator_ImportEmpty>文件夹是空的</RAV_ArtCreator_ImportEmpty>
+	<RAV_ArtCreator_SaveSuccess>保存成功</RAV_ArtCreator_SaveSuccess>
+	<RAV_Mode_Txt2Img>文生图 (Txt2Img)</RAV_Mode_Txt2Img>
+	<RAV_Mode_Img2Img>图生图 (Img2Img)</RAV_Mode_Img2Img>
+	<RAV_UploadOnly_Title>立绘上传 - {0}</RAV_UploadOnly_Title>
+
+	<RAV_ArtCreator_PresetStyles>1. 预装艺术风格:</RAV_ArtCreator_PresetStyles>
+	<RAV_Style_Standard>标准风格 (Standard)</RAV_Style_Standard>
+	<RAV_Style_Realistic>废土写实 (Realistic)</RAV_Style_Realistic>
+	<RAV_Style_Miyazaki>宫崎骏风 (Miyazaki)</RAV_Style_Miyazaki>
+	<RAV_Style_Chibi>Q版萌系 (Chibi)</RAV_Style_Chibi>
+	<RAV_Style_CharacterSheet>设定集模式 (Character Sheet)</RAV_Style_CharacterSheet>
+	<RAV_Style_Custom>自定义/大师模式 (Custom)</RAV_Style_Custom>
+	<RAV_ArtCreator_Constraint>2. 画面约束:</RAV_ArtCreator_Constraint>
+	<RAV_ArtCreator_ConstraintCustom>2. 画面约束 (大师模式可选):</RAV_ArtCreator_ConstraintCustom>
+	<RAV_Constraint_FullBody>强制全身站立</RAV_Constraint_FullBody>
+	<RAV_Constraint_CinematicLighting>统一电影光影</RAV_Constraint_CinematicLighting>
+	<RAV_ArtCreator_InfoRead>3. 信息读取:</RAV_ArtCreator_InfoRead>
+	<RAV_Read_Race>读取种族 (Race)</RAV_Read_Race>
+	<RAV_Read_Age>读取年龄 (Age)</RAV_Read_Age>
+	<RAV_Read_Health>读取伤病 (Health)</RAV_Read_Health>
+	<RAV_Read_Apparel>读取服装 (Apparel)</RAV_Read_Apparel>
+	<RAV_Read_Quality>读取耐久 (Quality)</RAV_Read_Quality>
+	<RAV_Read_Traits>读取特性 (Traits)</RAV_Read_Traits>
+	<RAV_Read_Skin>读取肤色 (Skin)</RAV_Read_Skin>
+	<RAV_Read_Hair>读取发型 (Hair)</RAV_Read_Hair>
+	<RAV_Read_Background>读取背景故事 (Background)</RAV_Read_Background>
+	<RAV_Read_Detected>识别: {0}</RAV_Read_Detected>
+	<RAV_ArtCreator_MasterPrompt>4. 大师提示词 (Master Prompt):</RAV_ArtCreator_MasterPrompt>
+	<RAV_ArtCreator_ExtraDetailCS>4. 额外细节 (追加描述):</RAV_ArtCreator_ExtraDetailCS>
+	<RAV_ArtCreator_ExtraDetail>4. 额外细节 (Extra Details):</RAV_ArtCreator_ExtraDetail>
+	<RAV_ArtCreator_FinalPrompt>最终指令预览 (Final Prompt):</RAV_ArtCreator_FinalPrompt>
+
+	<RAV_ComfyUI_UploadFail>ComfyUI: 图片上传失败</RAV_ComfyUI_UploadFail>
+	<RAV_ComfyUI_NetError>ComfyUI 网络错误，请检查 ComfyUI 是否运行</RAV_ComfyUI_NetError>
+	<RAV_ComfyUI_SubmitFail>ComfyUI 提交失败: {0}</RAV_ComfyUI_SubmitFail>
+	<RAV_ComfyUI_Timeout>ComfyUI 生成超时或无图片输出</RAV_ComfyUI_Timeout>
+	<RAV_SDWebUI_NoImageData>SD-WebUI: 生成失败，无法提取图片数据</RAV_SDWebUI_NoImageData>
+	<RAV_SDWebUI_GenFail>SD-WebUI 生成失败: {0}</RAV_SDWebUI_GenFail>
+	<RAV_SDWebUI_NetError>SD-WebUI 网络错误，请检查 URL 和 SD-WebUI 是否运行</RAV_SDWebUI_NetError>
+	<RAV_GenFail_CheckSettings>生成失败: {0}。请检查设置。</RAV_GenFail_CheckSettings>
+	<RAV_NetError_CheckUrl>网络连接出错，请检查 URL 设置。</RAV_NetError_CheckUrl>
+	<RAV_Frame_NoPortrait>{0} 未设置展示立绘！</RAV_Frame_NoPortrait>
+	<RAV_Frame_Created>具现化成功！</RAV_Frame_Created>
+	<RAV_Debug_QuickGen>[快速测试] 正在为 {0} 生图...</RAV_Debug_QuickGen>
+	<RAV_Debug_GenDone>生成完成</RAV_Debug_GenDone>
+	<RAV_Comfy_Standard>标准 (SD1.5/SDXL)</RAV_Comfy_Standard>
+	<RAV_Comfy_Flux>Flux</RAV_Comfy_Flux>
+	<RAV_Label_ComfyWorkflow>工作流模式:</RAV_Label_ComfyWorkflow>
+	<RAV_Label_ComfyUNET>UNET 模型文件名:</RAV_Label_ComfyUNET>
+	<RAV_Label_ComfyCLIP>CLIP 模型名 (clip1,clip2):</RAV_Label_ComfyCLIP>
+	<RAV_Label_ComfyVAE>VAE 模型文件名:</RAV_Label_ComfyVAE>
+	<RAV_Label_ModelFile>模型文件:</RAV_Label_ModelFile>
+	<RAV_Label_ModelName>模型名:</RAV_Label_ModelName>
+	<RAV_ArtCreator_Provider>服务商:</RAV_ArtCreator_Provider>
+	<RAV_ShowImage_Size>尺寸: {0}x{1}</RAV_ShowImage_Size>
+	<RAV_ShowImage_LoadFail>图像加载失败或为空。</RAV_ShowImage_LoadFail>
+	<RAV_Gizmo_CurrentScale>当前尺寸: {0}</RAV_Gizmo_CurrentScale>
+	<RAV_Gizmo_ResetScale>重置大小</RAV_Gizmo_ResetScale>
 
 </LanguageData>

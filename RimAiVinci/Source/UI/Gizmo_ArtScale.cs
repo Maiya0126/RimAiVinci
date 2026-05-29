@@ -30,7 +30,7 @@ namespace RimAiVinci
             Rect labelRect = new Rect(rect.x, rect.y + 5, rect.width, 20);
             Text.Anchor = TextAnchor.UpperCenter;
             Text.Font = GameFont.Tiny;
-            Widgets.Label(labelRect, $"当前尺寸: {frame.ImageScale:P0}");
+            Widgets.Label(labelRect, "RAV_Gizmo_CurrentScale".Translate(frame.ImageScale.ToString("P0")));
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
 
@@ -60,7 +60,7 @@ namespace RimAiVinci
 
             // 4. 重置按钮
             Rect resetRect = new Rect(rect.x + (rect.width - 80) / 2, rect.y + 50, 80, 20);
-            if (Widgets.ButtonText(resetRect, "重置大小"))
+            if (Widgets.ButtonText(resetRect, "RAV_Gizmo_ResetScale".Translate()))
             {
                 frame.SetScale(1.0f);
             }

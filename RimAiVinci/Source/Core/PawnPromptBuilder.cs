@@ -45,6 +45,14 @@ namespace RimAiVinci
             string safeExtra = SanitizePrompt(opt.extraPrompt);
             if (pawn == null) return "A mysterious figure";
 
+            if (pawn.story == null)
+            {
+                string raceLabel = pawn.def?.label ?? "creature";
+                string pawnGender = pawn.gender != Gender.None ? pawn.gender.ToString() : "";
+                string age = GetAgeDescription(pawn);
+                return $"{safeExtra} {pawnGender} {raceLabel}, {age}, RimWorld style, digital art";
+            }
+
             if (opt.style == ArtStyle.CharacterSheet)
                 return BuildCharacterSheetPrompt(pawn, opt);
 

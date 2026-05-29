@@ -75,9 +75,13 @@
     <Compile Include="Source\Core\ColorLibrary.cs" />
     <Compile Include="Source\Core\DataController.cs" />
     <Compile Include="Source\Core\DebugActions.cs" />
+    <Compile Include="Source\Core\ApiProviders.cs" />
     <Compile Include="Source\Core\PawnPromptBuilder.cs" />
     <Compile Include="Source\Core\PlaceWorker_WallArt.cs" />
     <Compile Include="Source\Core\PollinationsClient.cs" />
+    <Compile Include="Source\Core\Player2Client.cs" />
+    <Compile Include="Source\Core\ComfyUIClient.cs" />
+    <Compile Include="Source\Core\SDWebUIClient.cs" />
     <Compile Include="Source\Core\RaceDescriptionMapper.cs" />
     <Compile Include="Source\Core\RimAiVinciMod.cs" />
     <Compile Include="Source\Core\RimAiVinciStartup.cs" />

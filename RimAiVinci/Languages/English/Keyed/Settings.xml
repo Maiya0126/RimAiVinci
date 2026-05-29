@@ -1,19 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<RAV_Tip_SiliconFlow>Free generation has time limits. Use invite code hazSLAR1 on SiliconFlow to get credits for ~100 fast generations.</RAV_Tip_SiliconFlow>
+	<RAV_Group_Player2>Player2 (Free AI Assistant)</RAV_Group_Player2>
+	<RAV_Player2_Connected>Connected - Player2 App Online</RAV_Player2_Connected>
+	<RAV_Player2_Disconnected>Offline - Please launch Player2 App and sign in</RAV_Player2_Disconnected>
+	<RAV_Player2_InstallTip>Install Player2 App (player2.game) and sign in to get daily free AI credits\nTxt2Img: 3 joules/generation, Img2Img: 10 joules/edit</RAV_Player2_InstallTip>
+	<RAV_Player2_RetryConnect>Reconnect Player2</RAV_Player2_RetryConnect>
+	<RAV_Player2_NoApp>Cannot connect to Player2. Please launch Player2 App and sign in.</RAV_Player2_NoApp>
+	<RAV_Player2_NoCredits>Player2 insufficient credits. Top up in Player2 App or wait for daily renewal.</RAV_Player2_NoCredits>
+	<RAV_Player2_RateLimit>Player2 rate limited. Please try again later.</RAV_Player2_RateLimit>
+	<RAV_Player2_Unauthorized>Player2 not signed in. Please log in to Player2 App.</RAV_Player2_Unauthorized>
+	<RAV_Player2_BtnOffline>Player2\nOffline</RAV_Player2_BtnOffline>
+	<RAV_Player2_BtnTxt2Img>Player2\nTxt2Img</RAV_Player2_BtnTxt2Img>
+	<RAV_Player2_BtnImg2Img>Player2\nImg2Img</RAV_Player2_BtnImg2Img>
+	<RimAiVinci_Player2Processing>Player2 is painting your portrait, please wait...</RimAiVinci_Player2Processing>
 
-	<RAV_Group_API>API Settings</RAV_Group_API>
-	<RAV_Desc_API>Supports all OpenAI-compatible APIs.\nRecommended: SiliconFlow, DeepSeek, or local ComfyUI/SD-WebUI.</RAV_Desc_API>
+	<RAV_Group_ProAPI>Image API Settings</RAV_Group_ProAPI>
+	<RAV_Desc_ProAPI>Select a provider and enter your API Key for Pro generation.\nTip: Use Player2 for free generation, or register on SiliconFlow with invite code hazSLAR1 for free credits.\nCloud providers use OpenAI-compatible format; Local providers (ComfyUI/SD-WebUI) need no API Key.</RAV_Desc_ProAPI>
+	<RAV_Label_Provider>Provider:</RAV_Label_Provider>
+	<RAV_Provider_SiliconFlow>SiliconFlow</RAV_Provider_SiliconFlow>
+	<RAV_Provider_Pollinations>Pollinations</RAV_Provider_Pollinations>
+	<RAV_Provider_OpenAI>OpenAI</RAV_Provider_OpenAI>
+	<RAV_Provider_ZhipuAI>ZhipuAI</RAV_Provider_ZhipuAI>
+	<RAV_Provider_TogetherAI>Together AI</RAV_Provider_TogetherAI>
+	<RAV_Provider_FireworksAI>Fireworks AI</RAV_Provider_FireworksAI>
+	<RAV_Provider_ComfyUI>ComfyUI (Local)</RAV_Provider_ComfyUI>
+	<RAV_Provider_SDWebUI>SD-WebUI (Local)</RAV_Provider_SDWebUI>
+	<RAV_Provider_Custom>Custom</RAV_Provider_Custom>
+	<RAV_Provider_Local>Local Gen</RAV_Provider_Local>
+
+	<RAV_Tip_Doc_SiliconFlow>SiliconFlow - Recommended for Chinese users. Supports Qwen/Flux models.\nDocs: siliconflow.cn/docs\nUse invite code hazSLAR1 for free credits</RAV_Tip_Doc_SiliconFlow>
+	<RAV_Tip_Doc_Pollinations>Pollinations - Register with GitHub for $1.5/week free credits\nDocs: pollinations.ai or enter.pollinations.ai\nWith a personal API Key, the Free button also uses the stable new endpoint (no cooldown + Img2Img)</RAV_Tip_Doc_Pollinations>
+	<RAV_Tip_Doc_OpenAI>OpenAI - DALL-E 3 image model. Requires overseas account.\nDocs: platform.openai.com/docs\nNote: DALL-E 3 supports Txt2Img only, no Img2Img</RAV_Tip_Doc_OpenAI>
+	<RAV_Tip_Doc_ZhipuAI>ZhipuAI - Chinese CogView-4 model.\nDocs: open.bigmodel.cn/dev/api\nTxt2Img only, no Img2Img support</RAV_Tip_Doc_ZhipuAI>
+	<RAV_Tip_Doc_TogetherAI>Together AI - FLUX.1-schnell and other open-source models.\nDocs: docs.together.ai\nPlease verify endpoint URL and model names in their docs</RAV_Tip_Doc_TogetherAI>
+	<RAV_Tip_Doc_FireworksAI>Fireworks AI - FLUX series fast inference.\nDocs: fireworks.ai/docs\nPlease verify endpoint URL and model names in their docs</RAV_Tip_Doc_FireworksAI>
+	<RAV_Tip_Doc_ComfyUI>ComfyUI Local Generation - No API Key needed, completely free\nStart ComfyUI first (default port 8188)\nEnter checkpoint filename as model name (e.g. v1-5-pruned-emaonly.safetensors)\nSupports Txt2Img and Img2Img</RAV_Tip_Doc_ComfyUI>
+	<RAV_Tip_Doc_SDWebUI>SD-WebUI Local Generation - No API Key needed, completely free\nStart SD-WebUI with --api flag (default port 7860)\nEnter checkpoint filename as model name (optional, leave empty to use current model)\nSupports Txt2Img and Img2Img</RAV_Tip_Doc_SDWebUI>
+	<RAV_Tip_Doc_Custom>Custom - Enter any OpenAI-compatible API endpoint.\nSupports: Other compatible services</RAV_Tip_Doc_Custom>
+
 	<RAV_Label_APIKey>API Key:</RAV_Label_APIKey>
 	<RAV_Label_APIUrl>API URL:</RAV_Label_APIUrl>
-
-	<RAV_Group_Model>Model Settings</RAV_Group_Model>
-	<RAV_Desc_Txt2Img>Txt2Img: Qwen models need '-Image' suffix. Flux/SD use model name directly.</RAV_Desc_Txt2Img>
-	<RAV_Label_Txt2Img>Model Name: </RAV_Label_Txt2Img>
-	<RAV_Desc_Img2Img>Img2Img: Qwen models need '-Edit' suffix. Flux/SD use model name directly.</RAV_Desc_Img2Img>
-	<RAV_Label_Img2Img>Model Name: </RAV_Label_Img2Img>
+	<RAV_Label_Txt2ImgModel>Txt2Img Model Name:</RAV_Label_Txt2ImgModel>
+	<RAV_Label_Img2ImgModel>Img2Img Model Name:</RAV_Label_Img2ImgModel>
+	<RAV_Label_CheckpointName>Model Filename (Checkpoint):</RAV_Label_CheckpointName>
 	<RAV_Btn_Reset>Reset to Default</RAV_Btn_Reset>
+	<RAV_Btn_TestConnection>Test Connection</RAV_Btn_TestConnection>
+	<RAV_Test_Running>Testing connection...</RAV_Test_Running>
+	<RAV_Test_NoKey>Test failed: No API Key provided</RAV_Test_NoKey>
+	<RAV_Test_NoUrl>Test failed: No API URL provided</RAV_Test_NoUrl>
+	<RAV_Test_Success>Connection successful! API is working.</RAV_Test_Success>
+	<RAV_Test_AuthFail>Authentication failed (HTTP {0}): API Key is invalid or expired.\n{1}</RAV_Test_AuthFail>
+	<RAV_Test_NoCredits>Insufficient credits. Please top up and try again.</RAV_Test_NoCredits>
+	<RAV_Test_HttpError>Request failed (HTTP {0}):\n{1}</RAV_Test_HttpError>
+	<RAV_Test_NetError>Network error: {0}\nPlease check the URL is correct.</RAV_Test_NetError>
 
 	<RAV_Label_Strength>Img2Img Denoising Strength: {0}</RAV_Label_Strength>
 	<RAV_Desc_Strength>Recommended: 0.6 - 0.75. Higher values mean more changes; lower values keep original look.</RAV_Desc_Strength>
@@ -23,12 +63,123 @@
 	<RAV_Label_PortraitScale>Portrait Scale: {0}</RAV_Label_PortraitScale>
 	<RAV_Check_ShowTab>Show Bottom Gallery Tab (Requires Restart)</RAV_Check_ShowTab>
 
-	<RAV_Btn_OpenGallery>📂 Open Gallery</RAV_Btn_OpenGallery>
-	<RAV_Btn_OpenFolder>📥 Open Import Folder</RAV_Btn_OpenFolder>
+	<RAV_Btn_OpenGallery>Open Gallery</RAV_Btn_OpenGallery>
+	<RAV_Btn_OpenFolder>Open Import Folder</RAV_Btn_OpenFolder>
 
 	<RimAiVinci_ProcessingAIImage>AI is painting your portrait in the cloud, please wait...</RimAiVinci_ProcessingAIImage>
 	<RimAiVinci_FreeCooldown>Free server cooldown. Please wait {0} seconds.</RimAiVinci_FreeCooldown>
-	<RimAiVinci_FreeServerBusy>Free server is busy (Global Traffic). Please try again later or use API Key.</RimAiVinci_FreeServerBusy>
+	<RimAiVinci_FreeServerBusy>Free server busy. Alternatives:\n① Use the Player2 button (install Player2 App for free credits)\n② Register on SiliconFlow with invite code hazSLAR1 for 100+ free credits</RimAiVinci_FreeServerBusy>
 	<RimAiVinci_AIError>AI Error</RimAiVinci_AIError>
-	
+
+	<RAV_Pollinations_Unauthorized>Pollinations API Key invalid or expired. Please update in settings.</RAV_Pollinations_Unauthorized>
+	<RAV_Pollinations_NoCredits>Pollinations insufficient credits. Check your balance at enter.pollinations.ai</RAV_Pollinations_NoCredits>
+
+	<RAV_UploadOnly_Desc>Animals and mechanoids don't support AI generation yet, but you can upload a local image as their portrait.\nPlace images in the import folder or paste a file path from clipboard.</RAV_UploadOnly_Desc>
+	<RAV_UploadOnly_Placeholder>No portrait yet\nPlease upload an image</RAV_UploadOnly_Placeholder>
+	<RAV_UploadOnly_PastePath>Paste path from clipboard</RAV_UploadOnly_PastePath>
+	<RAV_UploadOnly_PickFile>Pick from import folder</RAV_UploadOnly_PickFile>
+	<RAV_UploadOnly_Save>Save as portrait</RAV_UploadOnly_Save>
+
+	<RAV_Gallery_TabHuman>Human</RAV_Gallery_TabHuman>
+	<RAV_Gallery_TabAnimal>Animal</RAV_Gallery_TabAnimal>
+	<RAV_Gallery_TabMechanoid>Mechanoid</RAV_Gallery_TabMechanoid>
+	<RAV_Gallery_ScanRecover>Recover Lost Portraits</RAV_Gallery_ScanRecover>
+	<RAV_Gallery_CreateNew>Create New Portrait for {0}</RAV_Gallery_CreateNew>
+	<RAV_Gallery_SelectPawn>Select a character from the left...</RAV_Gallery_SelectPawn>
+	<RAV_Gallery_NoArt>No portraits yet. Click the button above to create one!</RAV_Gallery_NoArt>
+	<RAV_Gallery_Active>Active</RAV_Gallery_Active>
+	<RAV_Gallery_InUse>Currently in use</RAV_Gallery_InUse>
+	<RAV_Gallery_SetActive>Set as Portrait</RAV_Gallery_SetActive>
+	<RAV_Gallery_PortraitUpdated>Portrait updated!</RAV_Gallery_PortraitUpdated>
+	<RAV_Gallery_Delete>Delete</RAV_Gallery_Delete>
+	<RAV_Gallery_FileLost>File missing</RAV_Gallery_FileLost>
+	<RAV_Gallery_Title>AiVinci Art Gallery</RAV_Gallery_Title>
+	<RAV_Gallery_Recovered>Recovered {0} portraits.</RAV_Gallery_Recovered>
+	<RAV_Gallery_NoLost>No lost portraits found locally.</RAV_Gallery_NoLost>
+	<RAV_Gallery_ShowAll>Click to Show All</RAV_Gallery_ShowAll>
+	<RAV_Gallery_ShowColony>Click to Show Current Map</RAV_Gallery_ShowColony>
+	<RAV_Gallery_Filter_AllWithCaravan>All Pawns (incl. Caravans) ▸</RAV_Gallery_Filter_AllWithCaravan>
+	<RAV_Gallery_Filter_MapOnly>Current Map Only ▸</RAV_Gallery_Filter_MapOnly>
+	<RAV_Gallery_ShowMapOnly>Current Map Only</RAV_Gallery_ShowMapOnly>
+	<RAV_Gallery_ShowAllPawns>Show All Pawns</RAV_Gallery_ShowAllPawns>
+
+	<RAV_ArtCreator_Title>AI Art Studio - {0}</RAV_ArtCreator_Title>
+	<RAV_ArtCreator_Generating>AI generating...</RAV_ArtCreator_Generating>
+	<RAV_ArtCreator_SetReference>Use in-game portrait (set as reference)</RAV_ArtCreator_SetReference>
+	<RAV_ArtCreator_ResetReference>Reset reference (recapture)</RAV_ArtCreator_ResetReference>
+	<RAV_ArtCreator_PastePath>Paste path from clipboard</RAV_ArtCreator_PastePath>
+	<RAV_ArtCreator_PickFile>Select file</RAV_ArtCreator_PickFile>
+	<RAV_ArtCreator_PortraitCount>Portraits owned: {0}</RAV_ArtCreator_PortraitCount>
+	<RAV_ArtCreator_Cooldown>Cooldown ({0}s)</RAV_ArtCreator_Cooldown>
+	<RAV_ArtCreator_FreeTrial>Free Trial\n(Pollinations)</RAV_ArtCreator_FreeTrial>
+	<RAV_ArtCreator_FreeNoImg2Img>Free Tier\nNo Img2Img</RAV_ArtCreator_FreeNoImg2Img>
+	<RAV_ArtCreator_PollinationsKey>Pollinations\n(Personal Key)</RAV_ArtCreator_PollinationsKey>
+	<RAV_ArtCreator_ProGen>Pro Gen</RAV_ArtCreator_ProGen>
+	<RAV_ArtCreator_Saved>Saved</RAV_ArtCreator_Saved>
+	<RAV_ArtCreator_SaveToAlbum>Save to Album</RAV_ArtCreator_SaveToAlbum>
+	<RAV_ArtCreator_NeedReference>Please set a reference image</RAV_ArtCreator_NeedReference>
+	<RAV_ArtCreator_NeedApiKey>Please set an API Key</RAV_ArtCreator_NeedApiKey>
+	<RAV_ArtCreator_ClipboardEmpty>Clipboard is empty</RAV_ArtCreator_ClipboardEmpty>
+	<RAV_ArtCreator_LoadSuccess>Loaded successfully</RAV_ArtCreator_LoadSuccess>
+	<RAV_ArtCreator_LoadFail>Cannot load: {0}</RAV_ArtCreator_LoadFail>
+	<RAV_ArtCreator_ImportEmpty>Import folder is empty</RAV_ArtCreator_ImportEmpty>
+	<RAV_ArtCreator_SaveSuccess>Saved</RAV_ArtCreator_SaveSuccess>
+	<RAV_Mode_Txt2Img>Txt2Img</RAV_Mode_Txt2Img>
+	<RAV_Mode_Img2Img>Img2Img</RAV_Mode_Img2Img>
+	<RAV_UploadOnly_Title>Portrait Upload - {0}</RAV_UploadOnly_Title>
+
+	<RAV_ArtCreator_PresetStyles>1. Preset Art Styles:</RAV_ArtCreator_PresetStyles>
+	<RAV_Style_Standard>Standard</RAV_Style_Standard>
+	<RAV_Style_Realistic>Wasteland Realistic</RAV_Style_Realistic>
+	<RAV_Style_Miyazaki>Miyazaki Style</RAV_Style_Miyazaki>
+	<RAV_Style_Chibi>Chibi Kawaii</RAV_Style_Chibi>
+	<RAV_Style_CharacterSheet>Character Sheet Mode</RAV_Style_CharacterSheet>
+	<RAV_Style_Custom>Custom / Master Mode</RAV_Style_Custom>
+	<RAV_ArtCreator_Constraint>2. Composition Constraints:</RAV_ArtCreator_Constraint>
+	<RAV_ArtCreator_ConstraintCustom>2. Composition Constraints (Master Optional):</RAV_ArtCreator_ConstraintCustom>
+	<RAV_Constraint_FullBody>Force full-body standing</RAV_Constraint_FullBody>
+	<RAV_Constraint_CinematicLighting>Unified cinematic lighting</RAV_Constraint_CinematicLighting>
+	<RAV_ArtCreator_InfoRead>3. Info Reading:</RAV_ArtCreator_InfoRead>
+	<RAV_Read_Race>Read Race</RAV_Read_Race>
+	<RAV_Read_Age>Read Age</RAV_Read_Age>
+	<RAV_Read_Health>Read Health</RAV_Read_Health>
+	<RAV_Read_Apparel>Read Apparel</RAV_Read_Apparel>
+	<RAV_Read_Quality>Read Quality</RAV_Read_Quality>
+	<RAV_Read_Traits>Read Traits</RAV_Read_Traits>
+	<RAV_Read_Skin>Read Skin Color</RAV_Read_Skin>
+	<RAV_Read_Hair>Read Hair</RAV_Read_Hair>
+	<RAV_Read_Background>Read Background</RAV_Read_Background>
+	<RAV_Read_Detected>Detected: {0}</RAV_Read_Detected>
+	<RAV_ArtCreator_MasterPrompt>4. Master Prompt:</RAV_ArtCreator_MasterPrompt>
+	<RAV_ArtCreator_ExtraDetailCS>4. Extra Details (Character Sheet):</RAV_ArtCreator_ExtraDetailCS>
+	<RAV_ArtCreator_ExtraDetail>4. Extra Details:</RAV_ArtCreator_ExtraDetail>
+	<RAV_ArtCreator_FinalPrompt>Final Prompt Preview:</RAV_ArtCreator_FinalPrompt>
+
+	<RAV_ComfyUI_UploadFail>ComfyUI: Image upload failed</RAV_ComfyUI_UploadFail>
+	<RAV_ComfyUI_NetError>ComfyUI network error. Please check ComfyUI is running.</RAV_ComfyUI_NetError>
+	<RAV_ComfyUI_SubmitFail>ComfyUI submit failed: {0}</RAV_ComfyUI_SubmitFail>
+	<RAV_ComfyUI_Timeout>ComfyUI generation timeout or no image output</RAV_ComfyUI_Timeout>
+	<RAV_SDWebUI_NoImageData>SD-WebUI: Generation failed, cannot extract image data</RAV_SDWebUI_NoImageData>
+	<RAV_SDWebUI_GenFail>SD-WebUI generation failed: {0}</RAV_SDWebUI_GenFail>
+	<RAV_SDWebUI_NetError>SD-WebUI network error. Please check URL and SD-WebUI is running.</RAV_SDWebUI_NetError>
+	<RAV_GenFail_CheckSettings>Generation failed: {0}. Please check settings.</RAV_GenFail_CheckSettings>
+	<RAV_NetError_CheckUrl>Network error. Please check URL settings.</RAV_NetError_CheckUrl>
+	<RAV_Frame_NoPortrait>{0} has no portrait set!</RAV_Frame_NoPortrait>
+	<RAV_Frame_Created>Frame created successfully!</RAV_Frame_Created>
+	<RAV_Debug_QuickGen>[Quick Test] Generating for {0}...</RAV_Debug_QuickGen>
+	<RAV_Debug_GenDone>Generation complete</RAV_Debug_GenDone>
+	<RAV_Comfy_Standard>Standard (SD1.5/SDXL)</RAV_Comfy_Standard>
+	<RAV_Comfy_Flux>Flux</RAV_Comfy_Flux>
+	<RAV_Label_ComfyWorkflow>Workflow Mode:</RAV_Label_ComfyWorkflow>
+	<RAV_Label_ComfyUNET>UNET Model Filename:</RAV_Label_ComfyUNET>
+	<RAV_Label_ComfyCLIP>CLIP Names (clip1,clip2):</RAV_Label_ComfyCLIP>
+	<RAV_Label_ComfyVAE>VAE Model Filename:</RAV_Label_ComfyVAE>
+	<RAV_Label_ModelFile>Model File:</RAV_Label_ModelFile>
+	<RAV_Label_ModelName>Model Name:</RAV_Label_ModelName>
+	<RAV_ArtCreator_Provider>Provider:</RAV_ArtCreator_Provider>
+	<RAV_ShowImage_Size>Size: {0}x{1}</RAV_ShowImage_Size>
+	<RAV_ShowImage_LoadFail>Image load failed or empty.</RAV_ShowImage_LoadFail>
+	<RAV_Gizmo_CurrentScale>Scale: {0}</RAV_Gizmo_CurrentScale>
+	<RAV_Gizmo_ResetScale>Reset Size</RAV_Gizmo_ResetScale>
+
 </LanguageData>

@@ -3,43 +3,49 @@ using RimWorld;
 
 namespace RimAiVinci
 {
-    // 这个类用来保存每一幅生成的画作数据结构
-    // 它会被 ArtDataStore 存入存档文件中
-    public class ArtData : IExposable
+    public enum PawnPortraitType { Human, Animal, Mechanoid }
+
+    public static class PawnPortraitTypeHelper
     {
-        // 唯一ID (GUID)
-        public string artID;
-
-        // 🌟 核心字段：关联的小人 ThingID (例如 "Human123")
-        // 我们通过这个字段把画和人对应起来
-        public string pawnID;
-
-        // 🌟 核心字段：图片的相对路径 (例如 "Human123/982734.png")
-        // 我们不存绝对路径，因为玩家可能会移动游戏文件夹
-        public string relativePath;
-
-        // 生成时使用的提示词 (方便以后查看)
-        public string prompt;
-
-        // 生成时间 (Ticks)
-        public long timestamp;
-
-        // 当时的小人名字 (快照，防止小人改名后对不上)
-        public string authorName;
-
-        // 画作标题 (预留功能，以后可以让玩家改名)
-        public string title;
-
-        // ==========================================
-        // 构造函数
-        // ==========================================
-
-        // 1. 无参构造函数 (Scribe 保存/加载系统必须需要这个)
-        public ArtData()
+        public static PawnPortraitType GetPawnType(Pawn pawn)
         {
+            if (pawn == null) return PawnPortraitType.Human;
+            if (pawn.RaceProps == null) return PawnPortraitType.Human;
+            if (pawn.RaceProps.IsMechanoid) return PawnPortraitType.Mechanoid;
+            if (pawn.RaceProps.Animal) return PawnPortraitType.Animal;
+            if (pawn.story == null) return PawnPortraitType.Animal;
+            return PawnPortraitType.Human;
         }
 
-        // 2. 方便代码里调用的构造函数 (可选)
+        public static bool CanAIGenerate(Pawn pawn)
+        {
+            return GetPawnType(pawn) == PawnPortraitType.Human;
+        }
+
+        public static string GetSubFolder(PawnPortraitType type)
+        {
+            switch (type)
+            {
+                case PawnPortraitType.Animal: return "Animal";
+                case PawnPortraitType.Mechanoid: return "Mechanoid";
+                default: return "Human";
+            }
+        }
+    }
+
+    public class ArtData : IExposable
+    {
+        public string artID;
+        public string pawnID;
+        public string relativePath;
+        public string prompt;
+        public long timestamp;
+        public string authorName;
+        public string title;
+        public PawnPortraitType pawnType = PawnPortraitType.Human;
+
+        public ArtData() { }
+
         public ArtData(string artId, string pId, string path, string pText, string pName)
         {
             this.artID = artId;
@@ -48,12 +54,9 @@ namespace RimAiVinci
             this.prompt = pText;
             this.authorName = pName;
             this.timestamp = System.DateTime.Now.Ticks;
-            this.title = "Untitled"; // 默认为无题
+            this.title = "Untitled";
         }
 
-        // ==========================================
-        // 保存逻辑
-        // ==========================================
         public void ExposeData()
         {
             Scribe_Values.Look(ref artID, "artID");
@@ -63,6 +66,7 @@ namespace RimAiVinci
             Scribe_Values.Look(ref timestamp, "timestamp");
             Scribe_Values.Look(ref authorName, "authorName");
             Scribe_Values.Look(ref title, "title", "Untitled");
+            Scribe_Values.Look(ref pawnType, "pawnType", PawnPortraitType.Human);
         }
     }
 }

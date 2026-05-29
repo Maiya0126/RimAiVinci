@@ -41,12 +41,12 @@ namespace RimAiVinci
             PromptOptions opt = new PromptOptions(); // 使用默认设置
             string prompt = PawnPromptBuilder.BuildPromptFromPawn(p, opt);
 
-            Messages.Message($"[快速测试] 正在为 {p.Name.ToStringShort} 生图...", MessageTypeDefOf.NeutralEvent, false);
+            Messages.Message("RAV_Debug_QuickGen".Translate(p.Name != null ? p.Name.ToStringShort : p.def.label), MessageTypeDefOf.NeutralEvent, false);
 
             SiliconClient.GenerateImageAsync(prompt, (texture) =>
             {
                 Find.WindowStack.Add(new Dialog_ShowImage(texture));
-                Messages.Message("生成完成", MessageTypeDefOf.TaskCompletion, false);
+                Messages.Message("RAV_Debug_GenDone".Translate(), MessageTypeDefOf.TaskCompletion, false);
             });
         }
     }

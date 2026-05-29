@@ -15,7 +15,7 @@ namespace RimAiVinci
 
             if (string.IsNullOrEmpty(activePath))
             {
-                Messages.Message($"【失败】{usedBy.Name.ToStringShort} 未设置展示立绘！", MessageTypeDefOf.RejectInput);
+                Messages.Message("RAV_Frame_NoPortrait".Translate(usedBy.Name != null ? usedBy.Name.ToStringShort : usedBy.def.label), MessageTypeDefOf.RejectInput);
                 return;
             }
 
@@ -30,7 +30,7 @@ namespace RimAiVinci
                     MinifiedThing minifiedFrame = frameThing.MakeMinified();
                     GenPlace.TryPlaceThing(minifiedFrame, usedBy.Position, usedBy.Map, ThingPlaceMode.Near);
 
-                    Messages.Message("具现化成功！", MessageTypeDefOf.PositiveEvent);
+                    Messages.Message("RAV_Frame_Created".Translate(), MessageTypeDefOf.PositiveEvent);
 
                     // ✨✨ 新增：添加心情 "量子相框展示" ✨✨
                     if (usedBy.needs?.mood != null)

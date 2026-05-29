@@ -10,8 +10,8 @@ namespace RimAiVinci
     public class Window_Gallery : MainTabWindow
     {
         private ArtDataStore dataStore;
-        private List<Pawn> allColonists = new List<Pawn>(); // 所有的殖民者
-        private List<Pawn> displayColonists = new List<Pawn>(); // ✨ 用于显示的（过滤后的）殖民者列表
+        private List<Pawn> allPawns = new List<Pawn>();
+        private List<Pawn> displayPawns = new List<Pawn>();
 
         private Pawn selectedPawn = null;
         private List<ArtData> currentGallery = new List<ArtData>();
@@ -20,11 +20,13 @@ namespace RimAiVinci
         private Vector2 scrollPosRight = Vector2.zero;
         private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
 
-        // 缓存当前的激活路径，避免每帧去查字典
         private string currentActivePath = null;
-
-        // ✨✨✨ 新增：搜索关键词 ✨✨✨
         private string searchKeyword = "";
+        private int selectedTab = 0;
+        private bool showAllPawns = false;
+        private static readonly string[] TabKeys = { "RAV_Gallery_TabHuman", "RAV_Gallery_TabAnimal", "RAV_Gallery_TabMechanoid" };
+        private static readonly Color TabSelectedBg = new Color(0.3f, 0.3f, 0.2f, 0.6f);
+        private static readonly Color TabSelectedText = new Color(1f, 0.85f, 0.3f);
 
         public override Vector2 InitialSize => new Vector2(900f, 700f);
 
@@ -33,39 +35,95 @@ namespace RimAiVinci
         public override void PostClose() { base.PostClose(); ClearCache(); }
         private void ClearCache() { foreach (var tex in textureCache.Values) if (tex != null) UnityEngine.Object.Destroy(tex); textureCache.Clear(); }
 
+        private PawnPortraitType CurrentFilterType
+        {
+            get
+            {
+                switch (selectedTab)
+                {
+                    case 1: return PawnPortraitType.Animal;
+                    case 2: return PawnPortraitType.Mechanoid;
+                    default: return PawnPortraitType.Human;
+                }
+            }
+        }
+
         private void RefreshData()
         {
             dataStore = Find.World.GetComponent<ArtDataStore>();
-            allColonists.Clear();
+            allPawns.Clear();
+            HashSet<int> added = new HashSet<int>();
+
             if (Find.CurrentMap != null)
             {
-                // ✨ 优化：按名字排序，找人更方便
-                allColonists.AddRange(Find.CurrentMap.mapPawns.FreeColonists.OrderBy(p => p.Name.ToStringShort));
+                var mapPawns = Find.CurrentMap.mapPawns;
+                if (showAllPawns)
+                {
+                    foreach (Pawn p in mapPawns.AllPawns)
+                    {
+                        if (added.Add(p.thingIDNumber))
+                            allPawns.Add(p);
+                    }
+                }
+                else
+                {
+                    foreach (Pawn p in mapPawns.FreeColonistsAndPrisoners)
+                    {
+                        if (added.Add(p.thingIDNumber))
+                            allPawns.Add(p);
+                    }
+                    foreach (Pawn p in mapPawns.AllPawns)
+                    {
+                        if (PawnPortraitTypeHelper.GetPawnType(p) != PawnPortraitType.Human &&
+                            (p.Faction == Faction.OfPlayer || p.Faction == null) &&
+                            added.Add(p.thingIDNumber))
+                            allPawns.Add(p);
+                    }
+                }
             }
 
-            // 初始化显示列表（未过滤状态）
+            if (showAllPawns)
+            {
+                foreach (Pawn p in Find.World.worldPawns.AllPawnsAlive)
+                {
+                    if (added.Add(p.thingIDNumber))
+                        allPawns.Add(p);
+                }
+            }
+
+            allPawns.Sort((a, b) =>
+            {
+                string na = a.Name != null ? a.Name.ToStringShort : a.def.label;
+                string nb = b.Name != null ? b.Name.ToStringShort : b.def.label;
+                return na.CompareTo(nb);
+            });
+
             UpdateDisplayList();
 
-            // 选中逻辑
-            if (selectedPawn == null && displayColonists.Count > 0) SelectPawn(displayColonists[0]);
-            else if (selectedPawn != null && !allColonists.Contains(selectedPawn)) selectedPawn = displayColonists.Count > 0 ? displayColonists[0] : null;
+            if (selectedPawn == null && displayPawns.Count > 0) SelectPawn(displayPawns[0]);
+            else if (selectedPawn != null && !allPawns.Any(p => p.thingIDNumber == selectedPawn.thingIDNumber)) selectedPawn = displayPawns.Count > 0 ? displayPawns[0] : null;
 
             RefreshCurrentGalleryList();
         }
 
-        // ✨✨✨ 新增：根据搜索词更新显示列表 ✨✨✨
         private void UpdateDisplayList()
         {
-            displayColonists.Clear();
+            displayPawns.Clear();
+            var filterType = CurrentFilterType;
+            var filtered = allPawns.Where(p => PawnPortraitTypeHelper.GetPawnType(p) == filterType);
+
             if (string.IsNullOrEmpty(searchKeyword))
             {
-                displayColonists.AddRange(allColonists);
+                displayPawns.AddRange(filtered);
             }
             else
             {
                 string key = searchKeyword.ToLower();
-                // 模糊搜索：名字包含关键词即可
-                displayColonists.AddRange(allColonists.Where(p => p.Name.ToStringShort.ToLower().Contains(key)));
+                displayPawns.AddRange(filtered.Where(p =>
+                {
+                    string name = p.Name != null ? p.Name.ToStringShort.ToLower() : p.def.label.ToLower();
+                    return name.Contains(key);
+                }));
             }
         }
 
@@ -98,27 +156,79 @@ namespace RimAiVinci
             }
 
             Text.Font = GameFont.Medium;
-            Widgets.Label(new Rect(0, 0, 300, 30), "AiVinci 艺术画廊");
+            Widgets.Label(new Rect(0, 0, 300, 30), "RAV_Gallery_Title".Translate());
             Text.Font = GameFont.Small;
 
-            float btnHeight = 30f; float scanBtnWidth = 180f; float folderBtnWidth = 160f; float gap = 10f;
-            Rect scanRect = new Rect(inRect.width - scanBtnWidth, 0, scanBtnWidth, btnHeight);
-            if (Widgets.ButtonText(scanRect, "🔄 扫描找回丢失画像"))
+            float topY = 30f;
+            float tabWidth = inRect.width / TabKeys.Length;
+            for (int i = 0; i < TabKeys.Length; i++)
+            {
+                Rect tabRect = new Rect(i * tabWidth, topY, tabWidth, 28f);
+                bool isSelected = (i == selectedTab);
+
+                if (isSelected)
+                {
+                    Widgets.DrawBoxSolid(tabRect, TabSelectedBg);
+                }
+                else
+                {
+                    Widgets.DrawHighlightIfMouseover(tabRect);
+                }
+
+                if (Widgets.ButtonInvisible(tabRect))
+                {
+                    if (selectedTab != i)
+                    {
+                        selectedTab = i;
+                        selectedPawn = null;
+                        UpdateDisplayList();
+                        if (displayPawns.Count > 0) SelectPawn(displayPawns[0]);
+                    }
+                }
+
+                GUI.color = isSelected ? TabSelectedText : Color.white;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(tabRect, TabKeys[i].Translate());
+                Text.Anchor = TextAnchor.UpperLeft;
+                GUI.color = Color.white;
+            }
+            topY += 30f;
+
+            float btnHeight = 28f;
+            float rightX = inRect.width;
+
+            Rect scanRect = new Rect(rightX - 180, topY, 180, btnHeight);
+            rightX -= 185;
+            if (Widgets.ButtonText(scanRect, "RAV_Gallery_ScanRecover".Translate()))
             {
                 int count = ArtFileSystem.ScanAndReconcile(dataStore);
-                if (count > 0) { Messages.Message($"找回了 {count} 张画像。", MessageTypeDefOf.TaskCompletion); RefreshData(); }
-                else Messages.Message("本地未发现丢失的画像记录。", MessageTypeDefOf.NeutralEvent);
+                if (count > 0) { Messages.Message("RAV_Gallery_Recovered".Translate(count), MessageTypeDefOf.TaskCompletion); RefreshData(); }
+                else Messages.Message("RAV_Gallery_NoLost".Translate(), MessageTypeDefOf.NeutralEvent);
             }
 
-            Rect folderRect = new Rect(inRect.width - scanBtnWidth - gap - folderBtnWidth, 0, folderBtnWidth, btnHeight);
-            if (Widgets.ButtonText(folderRect, "📂 打开珍藏目录")) Application.OpenURL(ArtFileSystem.GetActualSaveDir());
+            Rect folderRect = new Rect(rightX - 170, topY, 170, btnHeight);
+            rightX -= 175;
+            if (Widgets.ButtonText(folderRect, "RAV_Btn_OpenGallery".Translate())) Application.OpenURL(ArtFileSystem.GetActualSaveDir());
 
-            float margin = 10f; float leftWidth = 200f;
-            Rect rectLeft = new Rect(0, 40, leftWidth, inRect.height - 50);
-            DrawPawnList(rectLeft); // 绘制左侧列表
+            string filterLabel = showAllPawns ? "RAV_Gallery_ShowColony".Translate() : "RAV_Gallery_ShowAll".Translate();
+            Rect filterRect = new Rect(rightX - 160, topY, 160, btnHeight);
+            rightX -= 165;
+            if (Widgets.ButtonText(filterRect, filterLabel))
+            {
+                showAllPawns = !showAllPawns;
+                RefreshData();
+            }
 
-            Rect rectRight = new Rect(leftWidth + margin, 40, inRect.width - leftWidth - margin, inRect.height - 50);
-            DrawGalleryGrid(rectRight); // 绘制右侧画廊
+            topY += 34f;
+
+            float margin = 10f;
+            float leftWidth = 200f;
+            float contentHeight = inRect.height - topY;
+            Rect rectLeft = new Rect(0, topY, leftWidth, contentHeight);
+            DrawPawnList(rectLeft);
+
+            Rect rectRight = new Rect(leftWidth + margin, topY, inRect.width - leftWidth - margin, contentHeight);
+            DrawGalleryGrid(rectRight);
         }
 
         private void DrawPawnList(Rect rect)
@@ -126,27 +236,24 @@ namespace RimAiVinci
             Widgets.DrawMenuSection(rect);
             Rect inner = rect.ContractedBy(5);
 
-            // ✨✨✨ 1. 绘制搜索框 ✨✨✨
             Rect searchRect = new Rect(inner.x, inner.y, inner.width, 24f);
             string oldSearch = searchKeyword;
             searchKeyword = Widgets.TextField(searchRect, searchKeyword);
-            // 如果搜索词变了，刷新列表
             if (searchKeyword != oldSearch) UpdateDisplayList();
 
-            // ✨✨✨ 2. 绘制列表 (下移，避开搜索框) ✨✨✨
             float listY = inner.y + 30f;
             float listHeight = inner.height - 30f;
             Rect listRect = new Rect(inner.x, listY, inner.width, listHeight);
 
-            Rect viewRect = new Rect(0, 0, listRect.width - 16, displayColonists.Count * 35);
+            Rect viewRect = new Rect(0, 0, listRect.width - 16, displayPawns.Count * 35);
             Widgets.BeginScrollView(listRect, ref scrollPosLeft, viewRect);
 
             float y = 0;
-            // 注意：这里遍历的是 displayColonists (过滤后的列表)
-            foreach (Pawn p in displayColonists)
+            foreach (Pawn p in displayPawns)
             {
                 Rect rowRect = new Rect(0, y, viewRect.width, 30);
-                if (selectedPawn == p) Widgets.DrawHighlightSelected(rowRect);
+                bool isSelected = (selectedPawn == p);
+                if (isSelected) Widgets.DrawHighlightSelected(rowRect);
                 else Widgets.DrawHighlightIfMouseover(rowRect);
 
                 if (Widgets.ButtonInvisible(rowRect)) SelectPawn(p);
@@ -154,9 +261,9 @@ namespace RimAiVinci
                 Rect nameRect = new Rect(5, y, viewRect.width, 30);
                 Text.Anchor = TextAnchor.MiddleLeft;
 
-                // 给名字加个颜色区分 (选中时高亮)
-                if (selectedPawn == p) GUI.color = Color.yellow;
-                Widgets.Label(nameRect, p.Name.ToStringShort);
+                if (isSelected) GUI.color = Color.yellow;
+                string displayName = p.Name != null ? p.Name.ToStringShort : p.def.label;
+                Widgets.Label(nameRect, displayName);
                 GUI.color = Color.white;
 
                 Text.Anchor = TextAnchor.UpperLeft;
@@ -167,23 +274,43 @@ namespace RimAiVinci
 
         private void DrawGalleryGrid(Rect rect)
         {
-            Widgets.DrawMenuSection(rect); float topBarHeight = 40f; Rect topBarRect = new Rect(rect.x + 5, rect.y + 5, rect.width - 10, 30);
-            if (selectedPawn != null) { if (Widgets.ButtonText(topBarRect, $"🎨 为 {selectedPawn.Name.ToStringShort} 创作新画像 (Create New)")) Find.WindowStack.Add(new Window_ArtCreator(selectedPawn)); }
-            else Widgets.Label(topBarRect, "请先在左侧选择一位殖民者...");
+            Widgets.DrawMenuSection(rect);
+            float topBarHeight = 40f;
+            Rect topBarRect = new Rect(rect.x + 5, rect.y + 5, rect.width - 10, 30);
+
+            if (selectedPawn != null)
+            {
+                string pawnLabel = selectedPawn.Name != null ? selectedPawn.Name.ToStringShort : selectedPawn.def.label;
+                string btnLabel = "RAV_Gallery_CreateNew".Translate(pawnLabel);
+                if (Widgets.ButtonText(topBarRect, btnLabel)) Find.WindowStack.Add(new Window_ArtCreator(selectedPawn));
+            }
+            else
+            {
+                Widgets.Label(topBarRect, "RAV_Gallery_SelectPawn".Translate());
+            }
 
             Rect gridRect = new Rect(rect.x, rect.y + topBarHeight, rect.width, rect.height - topBarHeight);
-            if (currentGallery == null || currentGallery.Count == 0) { Text.Anchor = TextAnchor.MiddleCenter; Widgets.Label(gridRect, "暂无画像，点击上方按钮开始创作！"); Text.Anchor = TextAnchor.UpperLeft; return; }
+            if (currentGallery == null || currentGallery.Count == 0)
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(gridRect, "RAV_Gallery_NoArt".Translate());
+                Text.Anchor = TextAnchor.UpperLeft;
+                return;
+            }
 
             float cellWidth = 160f;
             float cellHeight = 230f;
-            int columns = Mathf.FloorToInt((gridRect.width - 20) / cellWidth); if (columns < 1) columns = 1;
+            int columns = Mathf.FloorToInt((gridRect.width - 20) / cellWidth);
+            if (columns < 1) columns = 1;
             int rows = Mathf.CeilToInt((float)currentGallery.Count / columns);
             Rect viewRect = new Rect(0, 0, gridRect.width - 16, rows * cellHeight);
 
             Widgets.BeginScrollView(gridRect, ref scrollPosRight, viewRect);
             for (int i = 0; i < currentGallery.Count; i++)
             {
-                ArtData art = currentGallery[i]; int col = i % columns; int row = i / columns;
+                ArtData art = currentGallery[i];
+                int col = i % columns;
+                int row = i / columns;
                 Rect cellRect = new Rect(col * cellWidth + 5, row * cellHeight + 5, 150, 220);
                 DrawArtCell(cellRect, art);
             }
@@ -200,7 +327,6 @@ namespace RimAiVinci
             else { tex = ArtFileSystem.LoadTextureFromDisk(art.relativePath); if (tex != null) textureCache[art.relativePath] = tex; }
 
             Rect imgRect = new Rect(rect.x + 5, rect.y + 5, 140, 140);
-
             bool isActive = (art.relativePath == currentActivePath);
 
             if (isActive)
@@ -208,7 +334,7 @@ namespace RimAiVinci
                 Widgets.DrawBoxSolidWithOutline(rect, new Color(0, 0, 0, 0), new Color(1f, 0.8f, 0f), 2);
                 GUI.color = new Color(1f, 0.8f, 0f);
                 Text.Anchor = TextAnchor.UpperCenter;
-                Widgets.Label(new Rect(rect.x, rect.y - 2, 150, 20), "★ 展示中 (Active)");
+                Widgets.Label(new Rect(rect.x, rect.y - 2, 150, 20), "★ " + "RAV_Gallery_Active".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
             }
@@ -218,28 +344,28 @@ namespace RimAiVinci
                 GUI.DrawTexture(imgRect, tex, ScaleMode.ScaleToFit);
                 if (Widgets.ButtonInvisible(imgRect)) Find.WindowStack.Add(new Dialog_ShowImage(tex));
             }
-            else Widgets.Label(imgRect, "文件丢失");
+            else Widgets.Label(imgRect, "RAV_Gallery_FileLost".Translate());
 
             float btnY = rect.y + 150;
 
             if (isActive)
             {
                 GUI.color = Color.gray;
-                Widgets.Label(new Rect(rect.x + 5, btnY, 140, 24), "当前使用中");
+                Widgets.Label(new Rect(rect.x + 5, btnY, 140, 24), "RAV_Gallery_InUse".Translate());
                 GUI.color = Color.white;
             }
             else
             {
-                if (Widgets.ButtonText(new Rect(rect.x + 5, btnY, 140, 24), "设为展示立绘"))
+                if (Widgets.ButtonText(new Rect(rect.x + 5, btnY, 140, 24), "RAV_Gallery_SetActive".Translate()))
                 {
                     dataStore.SetActivePortrait(selectedPawn.ThingID, art.relativePath);
                     currentActivePath = art.relativePath;
-                    Messages.Message("已更新展示画像！", MessageTypeDefOf.TaskCompletion);
+                    Messages.Message("RAV_Gallery_PortraitUpdated".Translate(), MessageTypeDefOf.TaskCompletion);
                 }
             }
 
             Rect deleteRect = new Rect(rect.x + 5, btnY + 30, 140, 24);
-            if (Widgets.ButtonText(deleteRect, "删除", true, true, true)) DeleteArt(art);
+            if (Widgets.ButtonText(deleteRect, "RAV_Gallery_Delete".Translate(), true, true, true)) DeleteArt(art);
         }
 
         private void DeleteArt(ArtData art)
