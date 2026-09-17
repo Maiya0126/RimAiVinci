@@ -40,6 +40,9 @@ namespace RimAiVinci
         {
             this.targetPawn = p;
             this.targetState = state;
+            // 状态描述词预填到额外细节，玩家可直接编辑（如自定义受伤位置）
+            string fragment = PortraitStateHelper.GetStatePromptFragment(state);
+            if (!string.IsNullOrEmpty(fragment)) options.extraPrompt = fragment;
             this.doCloseButton = false;
             this.doCloseX = true;
             this.draggable = true;
@@ -48,13 +51,7 @@ namespace RimAiVinci
 
         private string BuildFinalPrompt()
         {
-            string prompt = PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
-            if (targetState != null)
-            {
-                string fragment = PortraitStateHelper.GetStatePromptFragment(targetState.Value);
-                if (!string.IsNullOrEmpty(fragment)) prompt = prompt + ", " + fragment;
-            }
-            return prompt;
+            return PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
         }
 
         public override void PostClose()
