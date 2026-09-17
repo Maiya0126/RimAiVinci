@@ -44,6 +44,20 @@ namespace RimAiVinci
         }
 
         private bool IsUploadOnlyMode => !PawnPortraitTypeHelper.CanAIGenerate(targetPawn);
+        private bool IsDeadPawn => targetPawn != null && targetPawn.Dead;
+
+        private Texture2D LoadMemorialTexture()
+        {
+            var store = Find.World.GetComponent<ArtDataStore>();
+            var arts = store?.GetArtForPawn(targetPawn);
+            if (arts == null || arts.Count == 0) return null;
+            for (int i = arts.Count - 1; i >= 0; i--)
+            {
+                Texture2D t = ArtFileSystem.LoadTextureFromDisk(arts[i].relativePath);
+                if (t != null) return t;
+            }
+            return null;
+        }
 
         public override void DoWindowContents(Rect inRect)
         {
@@ -118,6 +132,8 @@ namespace RimAiVinci
                 displayTex = referenceTexture;
                 showLivePreview = false;
             }
+            if (IsDeadPawn) showLivePreview = false;
+            if (IsDeadPawn && displayTex == null) displayTex = LoadMemorialTexture();
 
             if (showLivePreview)
             {
@@ -188,10 +204,24 @@ namespace RimAiVinci
                 {
                     if (Widgets.ButtonText(new Rect(rect.x + 10, y, rect.width - 20, 26), "RAV_ArtCreator_SetReference".Translate()))
                     {
-                        RenderTexture rt = PortraitsCache.Get(targetPawn, new Vector2(512, 512), currentRotation);
-                        Texture2D rawTex = AdjustRenderTextureToTexture2D(rt);
-                        SetReferenceImage(PadToSquare1024(rawTex));
-                        UnityEngine.Object.Destroy(rawTex);
+                        if (IsDeadPawn)
+                        {
+                            Texture2D memorial = LoadMemorialTexture();
+                            if (memorial != null)
+                            {
+                                SetReferenceImage(PadToSquare1024(memorial));
+                                UnityEngine.Object.Destroy(memorial);
+                            }
+                            else
+                                Messages.Message("RAV_Gallery_FileLost".Translate(), MessageTypeDefOf.RejectInput);
+                        }
+                        else
+                        {
+                            RenderTexture rt = PortraitsCache.Get(targetPawn, new Vector2(512, 512), currentRotation);
+                            Texture2D rawTex = AdjustRenderTextureToTexture2D(rt);
+                            SetReferenceImage(PadToSquare1024(rawTex));
+                            UnityEngine.Object.Destroy(rawTex);
+                        }
                         generatedTexture = null;
                         SoundDefOf.Click.PlayOneShotOnCamera();
                     }
@@ -538,7 +568,8 @@ namespace RimAiVinci
                     prompt = finalPrompt,
                     timestamp = System.DateTime.Now.Ticks,
                     authorName = targetPawn.Name != null ? targetPawn.Name.ToStringShort : targetPawn.def.label,
-                    pawnType = PawnPortraitTypeHelper.GetPawnType(targetPawn)
+                    pawnType = PawnPortraitTypeHelper.GetPawnType(targetPawn),
+                    isMemorial = IsDeadPawn
                 };
                 Find.World.GetComponent<ArtDataStore>().AddArt(newData);
                 hasSavedCurrent = true;

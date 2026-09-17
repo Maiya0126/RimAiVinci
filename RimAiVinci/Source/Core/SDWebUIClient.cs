@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,6 +87,48 @@ namespace RimAiVinci
                     }, "RimAiVinci_AIError", false, null);
                 }
             });
+        }
+
+        public static void FetchModelList(Action<List<string>, string> callback)
+        {
+            string url = GetBaseUrl();
+            Task.Run(async () =>
+            {
+                List<string> models = null;
+                string error = null;
+                try
+                {
+                    HttpResponseMessage resp = await client.GetAsync(url + "/sdapi/v1/sd-models");
+                    string body = await resp.Content.ReadAsStringAsync();
+                    if (!resp.IsSuccessStatusCode) error = "HTTP " + (int)resp.StatusCode;
+                    else models = ExtractModelTitles(body);
+                }
+                catch (Exception ex) { error = ex.Message; }
+                LongEventHandler.QueueLongEvent(() => callback?.Invoke(models, error), "RimAiVinci_FetchModels", false, null);
+            });
+        }
+
+        private static List<string> ExtractModelTitles(string json)
+        {
+            List<string> result = new List<string>();
+            try
+            {
+                int pos = 0;
+                while (true)
+                {
+                    int tIdx = json.IndexOf("\"title\":", pos);
+                    if (tIdx == -1) break;
+                    int colon = tIdx + "\"title\":".Length;
+                    while (colon < json.Length && json[colon] == ' ') colon++;
+                    if (colon >= json.Length || json[colon] != '"') { pos = tIdx + 8; continue; }
+                    int end = json.IndexOf('"', colon + 1);
+                    if (end == -1) break;
+                    result.Add(json.Substring(colon + 1, end - colon - 1));
+                    pos = end + 1;
+                }
+            }
+            catch { }
+            return result;
         }
 
         private static void SendRequest(string endpoint, string jsonBody, Action<Texture2D> callback)

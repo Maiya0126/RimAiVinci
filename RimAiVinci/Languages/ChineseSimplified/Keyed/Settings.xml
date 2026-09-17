@@ -177,6 +177,20 @@
 	<RAV_Label_ModelFile>模型文件:</RAV_Label_ModelFile>
 	<RAV_Label_ModelName>模型名:</RAV_Label_ModelName>
 	<RAV_ArtCreator_Provider>服务商:</RAV_ArtCreator_Provider>
+	<RAV_Btn_Browse>浏览模型</RAV_Btn_Browse>
+	<RAV_ModelFetch_Running>正在获取模型列表...</RAV_ModelFetch_Running>
+	<RAV_ModelFetch_Fail>获取模型列表失败: {0}</RAV_ModelFetch_Fail>
+	<RAV_ModelFetch_Empty>未检测到任何模型</RAV_ModelFetch_Empty>
+	<RAV_Gallery_ShowDead>显示已故</RAV_Gallery_ShowDead>
+	<RAV_Gallery_OnlyAlive>仅存活</RAV_Gallery_OnlyAlive>
+	<RAV_Memorial_Captured>已为 {0} 保存纪念画像，可在画廊查看</RAV_Memorial_Captured>
+	<RAV_ArtCreator_Memorial>纪念画像</RAV_ArtCreator_Memorial>
+	<RAV_State_Normal>正常</RAV_State_Normal>
+	<RAV_State_Happy>高兴</RAV_State_Happy>
+	<RAV_State_Injured>受伤倒地</RAV_State_Injured>
+	<RAV_State_Break>精神崩溃</RAV_State_Break>
+	<RAV_Gallery_SetState>状态立绘</RAV_Gallery_SetState>
+	<RAV_State_ClearAll>清除全部状态映射</RAV_State_ClearAll>
 	<RAV_ShowImage_Size>尺寸: {0}x{1}</RAV_ShowImage_Size>
 	<RAV_ShowImage_LoadFail>图像加载失败或为空。</RAV_ShowImage_LoadFail>
 	<RAV_Gizmo_CurrentScale>当前尺寸: {0}</RAV_Gizmo_CurrentScale>

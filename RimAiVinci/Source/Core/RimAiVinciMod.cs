@@ -14,6 +14,12 @@ namespace RimAiVinci
         private bool testSuccess = false;
         private bool isTesting = false;
 
+        private bool isFetchingModels = false;
+        private string pendingModelField = null;
+        private bool modelMenuPending = false;
+        private List<string> pendingModelList = null;
+        private string fetchModelError = "";
+
         public RimAiVinciMod(ModContentPack content) : base(content)
         {
             settings = GetSettings<RimAiVinciSettings>();
@@ -142,24 +148,24 @@ namespace RimAiVinci
 
                     if (settings.comfyWorkflowMode == 1)
                     {
-                        listing.Label("RAV_Label_ComfyUNET".Translate());
+                        DrawFieldLabelWithBrowse(listing, "RAV_Label_ComfyUNET".Translate(), "unet");
                         if (settings.modelName == null) settings.modelName = "";
                         settings.modelName = listing.TextEntry(settings.modelName);
                         listing.Gap(3);
 
-                        listing.Label("RAV_Label_ComfyCLIP".Translate());
+                        DrawFieldLabelWithBrowse(listing, "RAV_Label_ComfyCLIP".Translate(), "clip");
                         if (settings.comfyFluxClipName == null) settings.comfyFluxClipName = "";
                         settings.comfyFluxClipName = listing.TextEntry(settings.comfyFluxClipName);
                         listing.Gap(3);
 
-                        listing.Label("RAV_Label_ComfyVAE".Translate());
+                        DrawFieldLabelWithBrowse(listing, "RAV_Label_ComfyVAE".Translate(), "vae");
                         if (settings.comfyFluxVaeName == null) settings.comfyFluxVaeName = "";
                         settings.comfyFluxVaeName = listing.TextEntry(settings.comfyFluxVaeName);
                         listing.Gap(3);
                     }
                     else
                     {
-                        listing.Label("RAV_Label_CheckpointName".Translate());
+                        DrawFieldLabelWithBrowse(listing, "RAV_Label_CheckpointName".Translate(), "ckpt");
                         if (settings.modelName == null) settings.modelName = "";
                         settings.modelName = listing.TextEntry(settings.modelName);
                         listing.Gap(5);
@@ -167,7 +173,7 @@ namespace RimAiVinci
                 }
                 else if (settings.providerIndex == ApiProviders.SDWebUI)
                 {
-                    listing.Label("RAV_Label_CheckpointName".Translate());
+                    DrawFieldLabelWithBrowse(listing, "RAV_Label_CheckpointName".Translate(), "ckpt");
                     if (settings.modelName == null) settings.modelName = "";
                     settings.modelName = listing.TextEntry(settings.modelName);
                     listing.Gap(5);
@@ -182,6 +188,13 @@ namespace RimAiVinci
                     listing.Label("RAV_Label_Img2ImgModel".Translate());
                     if (settings.modelNameI2I == null) settings.modelNameI2I = "";
                     settings.modelNameI2I = listing.TextEntry(settings.modelNameI2I);
+                }
+
+                if (isFetchingModels)
+                {
+                    GUI.color = Color.gray;
+                    listing.Label("RAV_ModelFetch_Running".Translate());
+                    GUI.color = Color.white;
                 }
 
                 // 测试连接
@@ -253,7 +266,81 @@ namespace RimAiVinci
                 Widgets.EndScrollView();
             }
 
+            if (modelMenuPending)
+            {
+                modelMenuPending = false;
+                ShowModelMenu();
+            }
+
             base.DoSettingsWindowContents(inRect);
+        }
+
+        private void DrawFieldLabelWithBrowse(Listing_Standard listing, string label, string fieldKey)
+        {
+            Rect row = listing.GetRect(26f);
+            Widgets.Label(new Rect(row.x, row.y + 4f, row.width - 105f, 24f), label);
+            if (Widgets.ButtonText(new Rect(row.xMax - 100f, row.y, 100f, 24f), "RAV_Btn_Browse".Translate()))
+            {
+                RequestModelBrowse(fieldKey);
+            }
+        }
+
+        private void RequestModelBrowse(string field)
+        {
+            if (isFetchingModels) return;
+            isFetchingModels = true;
+            pendingModelField = field;
+            pendingModelList = null;
+            fetchModelError = "";
+
+            if (settings.providerIndex == ApiProviders.SDWebUI)
+            {
+                SDWebUIClient.FetchModelList((list, err) =>
+                {
+                    isFetchingModels = false;
+                    pendingModelList = list;
+                    fetchModelError = err;
+                    modelMenuPending = true;
+                });
+            }
+            else
+            {
+                ComfyUIClient.FetchModelLists((ckpts, unets, clips, vaes, err) =>
+                {
+                    isFetchingModels = false;
+                    fetchModelError = err;
+                    modelMenuPending = true;
+                    if (field == "unet") pendingModelList = unets;
+                    else if (field == "clip") pendingModelList = clips;
+                    else if (field == "vae") pendingModelList = vaes;
+                    else pendingModelList = ckpts;
+                });
+            }
+        }
+
+        private void ShowModelMenu()
+        {
+            if (pendingModelList != null && pendingModelList.Count > 0)
+            {
+                List<FloatMenuOption> opts = new List<FloatMenuOption>();
+                foreach (string m in pendingModelList)
+                {
+                    string selected = m;
+                    opts.Add(new FloatMenuOption(selected, () => ApplyModelSelection(selected)));
+                }
+                Find.WindowStack.Add(new FloatMenu(opts));
+            }
+            else if (!string.IsNullOrEmpty(fetchModelError))
+                Messages.Message("RAV_ModelFetch_Fail".Translate(fetchModelError), MessageTypeDefOf.RejectInput);
+            else
+                Messages.Message("RAV_ModelFetch_Empty".Translate(), MessageTypeDefOf.NeutralEvent);
+        }
+
+        private void ApplyModelSelection(string model)
+        {
+            if (pendingModelField == "clip") settings.comfyFluxClipName = model;
+            else if (pendingModelField == "vae") settings.comfyFluxVaeName = model;
+            else settings.modelName = model;
         }
 
         public override string SettingsCategory() => "Rim AiVinci";

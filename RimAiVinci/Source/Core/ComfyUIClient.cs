@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -311,6 +312,61 @@ namespace RimAiVinci
         }
 
         #endregion
+
+        public static void FetchModelLists(Action<List<string>, List<string>, List<string>, List<string>, string> callback)
+        {
+            string url = GetBaseUrl();
+            Task.Run(async () =>
+            {
+                List<string> ckpts = null, unets = null, clips = null, vaes = null;
+                string error = null;
+                try
+                {
+                    ckpts = await FetchNodeList(url, "CheckpointLoaderSimple", "ckpt_name");
+                    unets = await FetchNodeList(url, "UNETLoader", "unet_name");
+                    clips = await FetchNodeList(url, "DualCLIPLoader", "clip_name1");
+                    vaes = await FetchNodeList(url, "VAELoader", "vae_name");
+                }
+                catch (Exception ex) { error = ex.Message; }
+                LongEventHandler.QueueLongEvent(() => callback?.Invoke(ckpts, unets, clips, vaes, error), "RimAiVinci_FetchModels", false, null);
+            });
+        }
+
+        private static async Task<List<string>> FetchNodeList(string url, string nodeClass, string inputName)
+        {
+            HttpResponseMessage resp = await client.GetAsync(url + "/object_info/" + nodeClass);
+            if (!resp.IsSuccessStatusCode) return null;
+            string body = await resp.Content.ReadAsStringAsync();
+            return ExtractStringList(body, inputName);
+        }
+
+        private static List<string> ExtractStringList(string json, string inputName)
+        {
+            try
+            {
+                string marker = "\"" + inputName + "\":[";
+                int idx = json.IndexOf(marker);
+                if (idx == -1) return null;
+                int pos = idx + marker.Length;
+                if (pos < json.Length && json[pos] == '[') pos++;
+                List<string> result = new List<string>();
+                while (pos < json.Length)
+                {
+                    char c = json[pos];
+                    if (c == ']') break;
+                    if (c == '"')
+                    {
+                        int end = json.IndexOf('"', pos + 1);
+                        if (end == -1) break;
+                        result.Add(json.Substring(pos + 1, end - pos - 1));
+                        pos = end + 1;
+                    }
+                    else pos++;
+                }
+                return result;
+            }
+            catch { return null; }
+        }
 
         private static string GetBaseUrl()
         {

@@ -5,6 +5,35 @@ namespace RimAiVinci
 {
     public enum PawnPortraitType { Human, Animal, Mechanoid }
 
+    public enum PortraitState { Normal = 0, Happy = 1, Injured = 2, MentalBreak = 3 }
+
+    public static class PortraitStateHelper
+    {
+        public static PortraitState GetCurrentState(Pawn p)
+        {
+            try
+            {
+                if (p == null) return PortraitState.Normal;
+                if (p.InMentalState) return PortraitState.MentalBreak;
+                if (p.health != null && p.health.Downed) return PortraitState.Injured;
+                if (p.needs != null && p.needs.mood != null && p.needs.mood.CurLevel >= 0.9f) return PortraitState.Happy;
+            }
+            catch { }
+            return PortraitState.Normal;
+        }
+
+        public static string GetStateLabelKey(PortraitState st)
+        {
+            switch (st)
+            {
+                case PortraitState.Happy: return "RAV_State_Happy";
+                case PortraitState.Injured: return "RAV_State_Injured";
+                case PortraitState.MentalBreak: return "RAV_State_Break";
+                default: return "RAV_State_Normal";
+            }
+        }
+    }
+
     public static class PawnPortraitTypeHelper
     {
         public static PawnPortraitType GetPawnType(Pawn pawn)
@@ -43,6 +72,7 @@ namespace RimAiVinci
         public string authorName;
         public string title;
         public PawnPortraitType pawnType = PawnPortraitType.Human;
+        public bool isMemorial;
 
         public ArtData() { }
 
@@ -67,6 +97,7 @@ namespace RimAiVinci
             Scribe_Values.Look(ref authorName, "authorName");
             Scribe_Values.Look(ref title, "title", "Untitled");
             Scribe_Values.Look(ref pawnType, "pawnType", PawnPortraitType.Human);
+            Scribe_Values.Look(ref isMemorial, "isMemorial", false);
         }
     }
 }

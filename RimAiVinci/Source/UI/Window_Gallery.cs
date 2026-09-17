@@ -24,6 +24,7 @@ namespace RimAiVinci
         private string searchKeyword = "";
         private int selectedTab = 0;
         private bool showAllPawns = false;
+        private bool showDeadPawns = false;
         private static readonly string[] TabKeys = { "RAV_Gallery_TabHuman", "RAV_Gallery_TabAnimal", "RAV_Gallery_TabMechanoid" };
         private static readonly Color TabSelectedBg = new Color(0.3f, 0.3f, 0.2f, 0.6f);
         private static readonly Color TabSelectedText = new Color(1f, 0.85f, 0.3f);
@@ -88,6 +89,15 @@ namespace RimAiVinci
                 {
                     if (added.Add(p.thingIDNumber))
                         allPawns.Add(p);
+                }
+            }
+
+            if (showDeadPawns)
+            {
+                foreach (Pawn dp in DeadPawnFinder.GetDeadColonists())
+                {
+                    if (added.Add(dp.thingIDNumber))
+                        allPawns.Add(dp);
                 }
             }
 
@@ -219,6 +229,15 @@ namespace RimAiVinci
                 RefreshData();
             }
 
+            string deadLabel = showDeadPawns ? "RAV_Gallery_OnlyAlive".Translate() : "RAV_Gallery_ShowDead".Translate();
+            Rect deadRect = new Rect(rightX - 130, topY, 130, btnHeight);
+            rightX -= 135;
+            if (Widgets.ButtonText(deadRect, deadLabel))
+            {
+                showDeadPawns = !showDeadPawns;
+                RefreshData();
+            }
+
             topY += 34f;
 
             float margin = 10f;
@@ -262,7 +281,8 @@ namespace RimAiVinci
                 Text.Anchor = TextAnchor.MiddleLeft;
 
                 if (isSelected) GUI.color = Color.yellow;
-                string displayName = p.Name != null ? p.Name.ToStringShort : p.def.label;
+                string displayName = (p.Dead ? "† " : "") + (p.Name != null ? p.Name.ToStringShort : p.def.label);
+                if (p.Dead) GUI.color = new Color(1f, 0.5f, 0.5f);
                 Widgets.Label(nameRect, displayName);
                 GUI.color = Color.white;
 
@@ -299,7 +319,7 @@ namespace RimAiVinci
             }
 
             float cellWidth = 160f;
-            float cellHeight = 230f;
+            float cellHeight = 262f;
             int columns = Mathf.FloorToInt((gridRect.width - 20) / cellWidth);
             if (columns < 1) columns = 1;
             int rows = Mathf.CeilToInt((float)currentGallery.Count / columns);
@@ -311,7 +331,7 @@ namespace RimAiVinci
                 ArtData art = currentGallery[i];
                 int col = i % columns;
                 int row = i / columns;
-                Rect cellRect = new Rect(col * cellWidth + 5, row * cellHeight + 5, 150, 220);
+                Rect cellRect = new Rect(col * cellWidth + 5, row * cellHeight + 5, 150, 250);
                 DrawArtCell(cellRect, art);
             }
             Widgets.EndScrollView();
@@ -335,6 +355,17 @@ namespace RimAiVinci
                 GUI.color = new Color(1f, 0.8f, 0f);
                 Text.Anchor = TextAnchor.UpperCenter;
                 Widgets.Label(new Rect(rect.x, rect.y - 2, 150, 20), "★ " + "RAV_Gallery_Active".Translate());
+                Text.Anchor = TextAnchor.UpperLeft;
+                GUI.color = Color.white;
+            }
+
+            if (art.isMemorial)
+            {
+                GUI.color = new Color(0.9f, 0.5f, 0.5f);
+                Text.Anchor = TextAnchor.UpperCenter;
+                Text.Font = GameFont.Tiny;
+                Widgets.Label(new Rect(rect.x, rect.y + 16, 150, 20), "RAV_ArtCreator_Memorial".Translate());
+                Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
             }
@@ -366,6 +397,30 @@ namespace RimAiVinci
 
             Rect deleteRect = new Rect(rect.x + 5, btnY + 30, 140, 24);
             if (Widgets.ButtonText(deleteRect, "RAV_Gallery_Delete".Translate(), true, true, true)) DeleteArt(art);
+
+            if (PawnPortraitTypeHelper.CanAIGenerate(selectedPawn))
+            {
+                Rect stateRect = new Rect(rect.x + 5, btnY + 58, 140, 22);
+                if (Widgets.ButtonText(stateRect, "RAV_Gallery_SetState".Translate())) OpenStateMenu(art);
+            }
+        }
+
+        private void OpenStateMenu(ArtData art)
+        {
+            List<FloatMenuOption> opts = new List<FloatMenuOption>();
+            foreach (PortraitState st in System.Enum.GetValues(typeof(PortraitState)))
+            {
+                PortraitState state = st;
+                bool assigned = dataStore.GetStatesFor(selectedPawn.ThingID, art.relativePath).Contains(state);
+                string label = (assigned ? "● " : "") + PortraitStateHelper.GetStateLabelKey(state).Translate();
+                opts.Add(new FloatMenuOption(label, () =>
+                {
+                    dataStore.SetStatePortrait(selectedPawn.ThingID, state, art.relativePath);
+                    Messages.Message("RAV_Gallery_PortraitUpdated".Translate(), MessageTypeDefOf.TaskCompletion);
+                }));
+            }
+            opts.Add(new FloatMenuOption("RAV_State_ClearAll".Translate(), () => dataStore.ClearAllStatesFor(selectedPawn.ThingID)));
+            Find.WindowStack.Add(new FloatMenu(opts));
         }
 
         private void DeleteArt(ArtData art)

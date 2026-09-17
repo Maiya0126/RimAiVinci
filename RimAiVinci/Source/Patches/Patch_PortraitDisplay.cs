@@ -26,11 +26,13 @@ namespace RimAiVinci
             var store = Find.World.GetComponent<ArtDataStore>();
             if (store == null) return;
 
-            string currentPath = store.GetActivePortraitPath(selectedPawn);
+            string currentPath = store.GetStatePortraitPath(selectedPawn, PortraitStateHelper.GetCurrentState(selectedPawn));
+            if (string.IsNullOrEmpty(currentPath)) currentPath = store.GetActivePortraitPath(selectedPawn);
 
             if (currentPath != cachedPath)
             {
                 cachedPath = currentPath;
+                if (cachedPortraitTex != null) UnityEngine.Object.Destroy(cachedPortraitTex);
                 cachedPortraitTex = null;
                 if (!string.IsNullOrEmpty(currentPath))
                 {

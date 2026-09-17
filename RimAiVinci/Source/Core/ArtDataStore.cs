@@ -9,9 +9,13 @@ namespace RimAiVinci
         // 存储画廊数据
         private Dictionary<string, ArtDataListWrapper> artRegistry = new Dictionary<string, ArtDataListWrapper>();
 
-        // ✨ 新增：存储“当前激活的立绘”
+        // ✨ 新增：存储"当前激活的立绘"
         // Key: PawnID, Value: 图片相对路径
         private Dictionary<string, string> activePortraits = new Dictionary<string, string>();
+
+        // ✨ 新增：状态立绘映射
+        // Key: "PawnID|stateInt", Value: 图片相对路径
+        private Dictionary<string, string> statePortraits = new Dictionary<string, string>();
 
         private List<string> workingKeys = new List<string>();
         private List<ArtDataListWrapper> workingValues = new List<ArtDataListWrapper>();
@@ -19,6 +23,8 @@ namespace RimAiVinci
         // 辅助 Scribe
         private List<string> activeKeys = new List<string>();
         private List<string> activeValues = new List<string>();
+        private List<string> stateKeys = new List<string>();
+        private List<string> stateValues = new List<string>();
 
         public ArtDataStore(World world) : base(world)
         {
@@ -31,8 +37,12 @@ namespace RimAiVinci
             // ✨ 保存激活的立绘设置
             Scribe_Collections.Look(ref activePortraits, "activePortraits", LookMode.Value, LookMode.Value, ref activeKeys, ref activeValues);
 
+            // ✨ 保存状态立绘映射
+            Scribe_Collections.Look(ref statePortraits, "statePortraits", LookMode.Value, LookMode.Value, ref stateKeys, ref stateValues);
+
             if (artRegistry == null) artRegistry = new Dictionary<string, ArtDataListWrapper>();
             if (activePortraits == null) activePortraits = new Dictionary<string, string>();
+            if (statePortraits == null) statePortraits = new Dictionary<string, string>();
         }
 
         public void AddArt(ArtData data)
@@ -57,6 +67,14 @@ namespace RimAiVinci
                 {
                     activePortraits.Remove(data.pawnID);
                 }
+                // 清理指向该图的状态映射
+                List<string> toRemove = new List<string>();
+                foreach (var kv in statePortraits)
+                {
+                    if (kv.Key.StartsWith(data.pawnID + "|") && kv.Value == data.relativePath)
+                        toRemove.Add(kv.Key);
+                }
+                foreach (var k in toRemove) statePortraits.Remove(k);
             }
         }
 
@@ -83,6 +101,49 @@ namespace RimAiVinci
             string id = p.ThingID;
             if (artRegistry.ContainsKey(id)) return artRegistry[id].list;
             return new List<ArtData>();
+        }
+
+        private static string StateKey(string pawnID, PortraitState st)
+        {
+            return pawnID + "|" + (int)st;
+        }
+
+        public void SetStatePortrait(string pawnID, PortraitState st, string relativePath)
+        {
+            statePortraits[StateKey(pawnID, st)] = relativePath;
+        }
+
+        public void ClearAllStatesFor(string pawnID)
+        {
+            List<string> toRemove = new List<string>();
+            foreach (var kv in statePortraits)
+            {
+                if (kv.Key.StartsWith(pawnID + "|")) toRemove.Add(kv.Key);
+            }
+            foreach (var k in toRemove) statePortraits.Remove(k);
+        }
+
+        public string GetStatePortraitPath(Pawn p, PortraitState st)
+        {
+            if (p == null) return null;
+            string v;
+            if (statePortraits.TryGetValue(StateKey(p.ThingID, st), out v)) return v;
+            return null;
+        }
+
+        public List<PortraitState> GetStatesFor(string pawnID, string relativePath)
+        {
+            List<PortraitState> result = new List<PortraitState>();
+            foreach (var kv in statePortraits)
+            {
+                if (kv.Value == relativePath && kv.Key.StartsWith(pawnID + "|"))
+                {
+                    int idx;
+                    if (int.TryParse(kv.Key.Substring(pawnID.Length + 1), out idx))
+                        result.Add((PortraitState)idx);
+                }
+            }
+            return result;
         }
 
         public IEnumerable<List<ArtData>> GetAllArts()

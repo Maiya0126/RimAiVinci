@@ -72,6 +72,7 @@
     <Compile Include="Source\Core\ArtData.cs" />
     <Compile Include="Source\Core\ArtDataStore.cs" />
     <Compile Include="Source\Core\ArtFileSystem.cs" />
+    <Compile Include="Source\Core\MemorialCapturer.cs" />
     <Compile Include="Source\Core\ColorLibrary.cs" />
     <Compile Include="Source\Core\DataController.cs" />
     <Compile Include="Source\Core\DebugActions.cs" />

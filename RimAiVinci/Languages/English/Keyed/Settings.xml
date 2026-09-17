@@ -177,6 +177,20 @@
 	<RAV_Label_ModelFile>Model File:</RAV_Label_ModelFile>
 	<RAV_Label_ModelName>Model Name:</RAV_Label_ModelName>
 	<RAV_ArtCreator_Provider>Provider:</RAV_ArtCreator_Provider>
+	<RAV_Btn_Browse>Browse</RAV_Btn_Browse>
+	<RAV_ModelFetch_Running>Fetching model list...</RAV_ModelFetch_Running>
+	<RAV_ModelFetch_Fail>Failed to fetch model list: {0}</RAV_ModelFetch_Fail>
+	<RAV_ModelFetch_Empty>No models detected</RAV_ModelFetch_Empty>
+	<RAV_Gallery_ShowDead>Show Deceased</RAV_Gallery_ShowDead>
+	<RAV_Gallery_OnlyAlive>Living Only</RAV_Gallery_OnlyAlive>
+	<RAV_Memorial_Captured>Memorial portrait saved for {0}, see gallery</RAV_Memorial_Captured>
+	<RAV_ArtCreator_Memorial>Memorial</RAV_ArtCreator_Memorial>
+	<RAV_State_Normal>Normal</RAV_State_Normal>
+	<RAV_State_Happy>Happy</RAV_State_Happy>
+	<RAV_State_Injured>Downed</RAV_State_Injured>
+	<RAV_State_Break>Mental Break</RAV_State_Break>
+	<RAV_Gallery_SetState>State Portrait</RAV_Gallery_SetState>
+	<RAV_State_ClearAll>Clear All State Mappings</RAV_State_ClearAll>
 	<RAV_ShowImage_Size>Size: {0}x{1}</RAV_ShowImage_Size>
 	<RAV_ShowImage_LoadFail>Image load failed or empty.</RAV_ShowImage_LoadFail>
 	<RAV_Gizmo_CurrentScale>Scale: {0}</RAV_Gizmo_CurrentScale>

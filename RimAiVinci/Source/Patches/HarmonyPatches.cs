@@ -7,6 +7,23 @@ using System.Collections.Generic;
 
 namespace RimAiVinci
 {
+    [HarmonyPatch(typeof(Pawn), "Kill")]
+    public static class Pawn_Kill_Memorial_Patch
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            try
+            {
+                if (__instance == null) return;
+                if (__instance.RaceProps == null || !__instance.RaceProps.Humanlike) return;
+                if (__instance.Faction != Faction.OfPlayer) return;
+                if (Find.World == null) return;
+                LongEventHandler.ExecuteWhenFinished(() => MemorialCapturer.CaptureAndSave(__instance));
+            }
+            catch { }
+        }
+    }
+
     [HarmonyPatch(typeof(Dialog_InfoCard), "FillCard")]
     public static class Dialog_InfoCard_FillCard_Patch
     {
@@ -22,10 +39,11 @@ namespace RimAiVinci
             Pawn pawn = ___thing as Pawn;
             if (pawn == null) return true;
 
-            // 2. 读取数据
+            // 2. 读取数据 (状态立绘优先，回退到普通立绘)
             ArtDataStore store = Find.World.GetComponent<ArtDataStore>();
             if (store == null) return true;
-            string activePath = store.GetActivePortraitPath(pawn);
+            string activePath = store.GetStatePortraitPath(pawn, PortraitStateHelper.GetCurrentState(pawn));
+            if (string.IsNullOrEmpty(activePath)) activePath = store.GetActivePortraitPath(pawn);
             if (string.IsNullOrEmpty(activePath)) return true;
 
             // 3. 加载图片 (带缓存)
