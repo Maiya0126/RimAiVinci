@@ -189,6 +189,13 @@
 	<RAV_State_Happy>高兴</RAV_State_Happy>
 	<RAV_State_Injured>受伤倒地</RAV_State_Injured>
 	<RAV_State_Break>精神崩溃</RAV_State_Break>
+	<RAV_State_Sleeping>睡眠中</RAV_State_Sleeping>
+	<RAV_State_Drunk>醉酒</RAV_State_Drunk>
+	<RAV_State_Sick>生病</RAV_State_Sick>
+	<RAV_State_Hungry>饥饿</RAV_State_Hungry>
+	<RAV_State_Tired>疲惫</RAV_State_Tired>
+	<RAV_State_GenNew>＋ 生成新的状态立绘...</RAV_State_GenNew>
+	<RAV_State_ModeHint>状态立绘模式: {0} (保存后自动指派)</RAV_State_ModeHint>
 	<RAV_Gallery_SetState>状态立绘</RAV_Gallery_SetState>
 	<RAV_State_ClearAll>清除全部状态映射</RAV_State_ClearAll>
 	<RAV_ShowImage_Size>尺寸: {0}x{1}</RAV_ShowImage_Size>

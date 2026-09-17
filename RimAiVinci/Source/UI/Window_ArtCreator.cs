@@ -20,6 +20,7 @@ namespace RimAiVinci
         private bool hasSavedCurrent = false;
         private GenerationMode currentMode = GenerationMode.TextToImage;
         private ArtStyle lastStyle = ArtStyle.Standard;
+        private PortraitState? targetState = null;
 
         private Vector2 scrollPosRight = Vector2.zero;
         private Rot4 currentRotation = Rot4.South;
@@ -33,6 +34,27 @@ namespace RimAiVinci
             this.doCloseX = true;
             this.draggable = true;
             this.resizeable = false;
+        }
+
+        public Window_ArtCreator(Pawn p, PortraitState state)
+        {
+            this.targetPawn = p;
+            this.targetState = state;
+            this.doCloseButton = false;
+            this.doCloseX = true;
+            this.draggable = true;
+            this.resizeable = false;
+        }
+
+        private string BuildFinalPrompt()
+        {
+            string prompt = PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
+            if (targetState != null)
+            {
+                string fragment = PortraitStateHelper.GetStatePromptFragment(targetState.Value);
+                if (!string.IsNullOrEmpty(fragment)) prompt = prompt + ", " + fragment;
+            }
+            return prompt;
         }
 
         public override void PostClose()
@@ -250,6 +272,13 @@ namespace RimAiVinci
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
 
+            if (targetState != null)
+            {
+                GUI.color = new Color(1f, 0.6f, 0.3f);
+                listing.Label("<b>" + "RAV_State_ModeHint".Translate(PortraitStateHelper.GetStateLabelKey(targetState.Value).Translate()) + "</b>");
+                GUI.color = Color.white;
+            }
+
             listing.Label("<b>" + "RAV_ArtCreator_PresetStyles".Translate() + "</b>");
             if (listing.RadioButton("RAV_Style_Standard".Translate(), options.style == ArtStyle.Standard)) options.style = ArtStyle.Standard;
             if (listing.RadioButton("RAV_Style_Realistic".Translate(), options.style == ArtStyle.Realistic)) options.style = ArtStyle.Realistic;
@@ -305,7 +334,7 @@ namespace RimAiVinci
             listing.Label("<b>" + "RAV_ArtCreator_FinalPrompt".Translate() + "</b>");
 
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
-            string preview = PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
+            string preview = BuildFinalPrompt();
             Widgets.TextArea(listing.GetRect(130), preview, true);
 
             listing.End();
@@ -435,7 +464,7 @@ namespace RimAiVinci
             isGenerating = true;
             hasSavedCurrent = false;
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
-            string finalPrompt = PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
+            string finalPrompt = BuildFinalPrompt();
 
             if (free)
             {
@@ -553,7 +582,7 @@ namespace RimAiVinci
             if (texToSave == null) return;
 
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
-            string finalPrompt = PawnPromptBuilder.BuildPromptFromPawn(targetPawn, options);
+            string finalPrompt = BuildFinalPrompt();
             if (generatedTexture == null) finalPrompt = "User Uploaded";
 
             string relPath = ArtFileSystem.SaveTextureToDisk(texToSave, targetPawn, finalPrompt);
@@ -571,7 +600,12 @@ namespace RimAiVinci
                     pawnType = PawnPortraitTypeHelper.GetPawnType(targetPawn),
                     isMemorial = IsDeadPawn
                 };
-                Find.World.GetComponent<ArtDataStore>().AddArt(newData);
+                ArtDataStore store = Find.World.GetComponent<ArtDataStore>();
+                store.AddArt(newData);
+                if (targetState != null)
+                {
+                    store.SetStatePortrait(targetPawn.ThingID, targetState.Value, relPath);
+                }
                 hasSavedCurrent = true;
                 Messages.Message("RAV_ArtCreator_SaveSuccess".Translate(), MessageTypeDefOf.TaskCompletion);
 

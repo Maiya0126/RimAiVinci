@@ -408,6 +408,20 @@ namespace RimAiVinci
         private void OpenStateMenu(ArtData art)
         {
             List<FloatMenuOption> opts = new List<FloatMenuOption>();
+            opts.Add(new FloatMenuOption("RAV_State_GenNew".Translate(), () =>
+            {
+                List<FloatMenuOption> stateOpts = new List<FloatMenuOption>();
+                foreach (PortraitState st in System.Enum.GetValues(typeof(PortraitState)))
+                {
+                    PortraitState state = st;
+                    stateOpts.Add(new FloatMenuOption(PortraitStateHelper.GetStateLabelKey(state).Translate(), () =>
+                    {
+                        Find.WindowStack.Add(new Window_ArtCreator(selectedPawn, state));
+                    }));
+                }
+                Find.WindowStack.Add(new FloatMenu(stateOpts));
+            }));
+
             foreach (PortraitState st in System.Enum.GetValues(typeof(PortraitState)))
             {
                 PortraitState state = st;

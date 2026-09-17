@@ -189,6 +189,13 @@
 	<RAV_State_Happy>Happy</RAV_State_Happy>
 	<RAV_State_Injured>Downed</RAV_State_Injured>
 	<RAV_State_Break>Mental Break</RAV_State_Break>
+	<RAV_State_Sleeping>Sleeping</RAV_State_Sleeping>
+	<RAV_State_Drunk>Drunk</RAV_State_Drunk>
+	<RAV_State_Sick>Sick</RAV_State_Sick>
+	<RAV_State_Hungry>Hungry</RAV_State_Hungry>
+	<RAV_State_Tired>Exhausted</RAV_State_Tired>
+	<RAV_State_GenNew>+ Generate New State Portrait...</RAV_State_GenNew>
+	<RAV_State_ModeHint>State Portrait Mode: {0} (auto-assigned on save)</RAV_State_ModeHint>
 	<RAV_Gallery_SetState>State Portrait</RAV_Gallery_SetState>
 	<RAV_State_ClearAll>Clear All State Mappings</RAV_State_ClearAll>
 	<RAV_ShowImage_Size>Size: {0}x{1}</RAV_ShowImage_Size>

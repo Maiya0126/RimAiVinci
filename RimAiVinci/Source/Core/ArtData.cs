@@ -5,7 +5,7 @@ namespace RimAiVinci
 {
     public enum PawnPortraitType { Human, Animal, Mechanoid }
 
-    public enum PortraitState { Normal = 0, Happy = 1, Injured = 2, MentalBreak = 3 }
+    public enum PortraitState { Normal = 0, Happy = 1, Injured = 2, MentalBreak = 3, Sleeping = 4, Drunk = 5, Sick = 6, Hungry = 7, Tired = 8 }
 
     public static class PortraitStateHelper
     {
@@ -16,7 +16,22 @@ namespace RimAiVinci
                 if (p == null) return PortraitState.Normal;
                 if (p.InMentalState) return PortraitState.MentalBreak;
                 if (p.health != null && p.health.Downed) return PortraitState.Injured;
-                if (p.needs != null && p.needs.mood != null && p.needs.mood.CurLevel >= 0.9f) return PortraitState.Happy;
+
+                HediffDef alcohol = DefDatabase<HediffDef>.GetNamedSilentFail("AlcoholHigh");
+                if (alcohol != null && p.health != null && p.health.hediffSet != null && p.health.hediffSet.HasHediff(alcohol))
+                    return PortraitState.Drunk;
+
+                if (p.health != null && p.health.hediffSet != null && p.health.hediffSet.HasImmunizableNotImmuneHediff())
+                    return PortraitState.Sick;
+
+                if (p.CurJobDef == JobDefOf.LayDown) return PortraitState.Sleeping;
+
+                if (p.needs != null)
+                {
+                    if (p.needs.food != null && p.needs.food.CurLevel < 0.15f) return PortraitState.Hungry;
+                    if (p.needs.rest != null && p.needs.rest.CurLevel < 0.15f) return PortraitState.Tired;
+                    if (p.needs.mood != null && p.needs.mood.CurLevel >= 0.9f) return PortraitState.Happy;
+                }
             }
             catch { }
             return PortraitState.Normal;
@@ -29,7 +44,28 @@ namespace RimAiVinci
                 case PortraitState.Happy: return "RAV_State_Happy";
                 case PortraitState.Injured: return "RAV_State_Injured";
                 case PortraitState.MentalBreak: return "RAV_State_Break";
+                case PortraitState.Sleeping: return "RAV_State_Sleeping";
+                case PortraitState.Drunk: return "RAV_State_Drunk";
+                case PortraitState.Sick: return "RAV_State_Sick";
+                case PortraitState.Hungry: return "RAV_State_Hungry";
+                case PortraitState.Tired: return "RAV_State_Tired";
                 default: return "RAV_State_Normal";
+            }
+        }
+
+        public static string GetStatePromptFragment(PortraitState st)
+        {
+            switch (st)
+            {
+                case PortraitState.Happy: return "joyful expression, big smile, laughing happily, beaming with joy";
+                case PortraitState.Injured: return "badly injured, bandages wrapped around body, bruises, exhausted pained expression, wounded";
+                case PortraitState.MentalBreak: return "crying hysterically, wild panicked expression, tears streaming down face, emotionally broken";
+                case PortraitState.Sleeping: return "sleeping peacefully, eyes closed, relaxed calm expression";
+                case PortraitState.Drunk: return "drunk, flushed red face, dizzy silly expression, holding a beer bottle, tipsy";
+                case PortraitState.Sick: return "sick, pale skin, feverish weak expression, cold sweat, ill and shivering";
+                case PortraitState.Hungry: return "starving, weak from hunger, desperate hungry expression, hollow cheeks";
+                case PortraitState.Tired: return "exhausted, dark circles under eyes, yawning, sleepy tired expression";
+                default: return "";
             }
         }
     }
