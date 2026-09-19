@@ -27,6 +27,20 @@ namespace RimAiVinci
 
         public override void DoSettingsWindowContents(Rect inRect)
         {
+            // 版本号显示（读取 About.xml 的 modVersion）
+            string version = Content.ModMetaData.ModVersion;
+            if (!string.IsNullOrEmpty(version))
+            {
+                Text.Font = GameFont.Tiny;
+                GUI.color = new Color(0.6f, 0.6f, 0.6f);
+                Rect verRect = new Rect(inRect.x, inRect.y, inRect.width, 18f);
+                Text.Anchor = TextAnchor.UpperRight;
+                Widgets.Label(verRect, "v" + version);
+                Text.Anchor = TextAnchor.UpperLeft;
+                GUI.color = Color.white;
+                Text.Font = GameFont.Small;
+            }
+
             float topBtnHeight = 36f;
             float topBtnW = (inRect.width - 10f) / 2f;
             if (Widgets.ButtonText(new Rect(inRect.x, inRect.y, topBtnW, topBtnHeight), "RAV_Btn_OpenGallery".Translate()))

@@ -3,6 +3,7 @@
 	<name>Rim AiVinci 边缘智绘</name>
 	<author>Maiya0126</author>
 	<packageId>Maiya.RimAiVinci</packageId>
+	<modVersion>1.5.0</modVersion>
 	<supportedVersions>
 		<li>1.6</li>
 	</supportedVersions>
