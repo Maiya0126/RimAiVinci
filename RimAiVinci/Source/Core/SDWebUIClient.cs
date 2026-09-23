@@ -11,7 +11,7 @@ namespace RimAiVinci
 {
     public static class SDWebUIClient
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient(new HttpClientHandler { UseCookies = false });
 
         static SDWebUIClient()
         {
@@ -179,7 +179,7 @@ namespace RimAiVinci
                 {
                     LongEventHandler.QueueLongEvent(() =>
                     {
-                        Log.Error($"[Rim AiVinci] SD-WebUI 网络错误: {ex.Message}");
+                        Log.Error("[Rim AiVinci] SD-WebUI 网络错误: " + ex.ToString());
                         Messages.Message("RAV_SDWebUI_NetError".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
                     }, "RimAiVinci_AIError", false, null);

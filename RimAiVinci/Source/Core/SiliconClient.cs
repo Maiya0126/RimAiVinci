@@ -10,7 +10,7 @@ namespace RimAiVinci
 {
     public static class SiliconClient
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient(new HttpClientHandler { UseCookies = false });
 
         static SiliconClient()
         {
@@ -138,7 +138,7 @@ namespace RimAiVinci
                     // ✨ 修复：网络异常（如断网）时的提示，必须在主线程执行
                     LongEventHandler.QueueLongEvent(() =>
                     {
-                        Log.Error($"[Rim AiVinci] 网络异常: {ex.Message}");
+                        Log.Error("[Rim AiVinci] 网络异常: " + ex.ToString());
                         Messages.Message("RAV_NetError_CheckUrl".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
                     }, "AIError", false, null);

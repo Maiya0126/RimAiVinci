@@ -14,7 +14,7 @@ namespace RimAiVinci
         private const string GameClientID = "019e299f-c9af-73db-8111-22a6bca30760";
         private const int DefaultPort = 4315;
 
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient(new HttpClientHandler { UseCookies = false });
         private static string p2Key = "";
         private static int apiPort = 0;
         private static bool isConnected = false;
@@ -97,7 +97,7 @@ namespace RimAiVinci
             }
             catch (Exception ex)
             {
-                Log.Warning($"[RimAiVinci] Player2: 连接失败: {ex.Message}");
+                Log.Warning("[RimAiVinci] Player2: 连接失败: " + ex.ToString());
             }
         }
 
@@ -257,7 +257,7 @@ namespace RimAiVinci
                 {
                     LongEventHandler.QueueLongEvent(() =>
                     {
-                        Log.Error($"[RimAiVinci] Player2: 网络异常: {ex.Message}");
+                        Log.Error("[RimAiVinci] Player2: 网络异常: " + ex.ToString());
                         Messages.Message("RAV_Player2_NoApp".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
                     }, "RimAiVinci_AIError", false, null);

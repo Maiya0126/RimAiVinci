@@ -12,7 +12,7 @@ namespace RimAiVinci
 {
     public static class ComfyUIClient
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient(new HttpClientHandler { UseCookies = false });
 
         static ComfyUIClient()
         {
@@ -74,7 +74,7 @@ namespace RimAiVinci
                 {
                     LongEventHandler.QueueLongEvent(() =>
                     {
-                        Log.Error("[RimAiVinci] ComfyUI upload error: " + ex.Message);
+                        Log.Error("[RimAiVinci] ComfyUI upload error: " + ex.ToString());
                         Messages.Message("RAV_ComfyUI_NetError".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
                     }, "RimAiVinci_AIError", false, null);
@@ -179,7 +179,7 @@ namespace RimAiVinci
                 {
                     LongEventHandler.QueueLongEvent(() =>
                     {
-                        Log.Error("[RimAiVinci] ComfyUI error: " + ex.Message);
+                        Log.Error("[RimAiVinci] ComfyUI error: " + ex.ToString());
                         Messages.Message("RAV_ComfyUI_NetError".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
                     }, "RimAiVinci_AIError", false, null);

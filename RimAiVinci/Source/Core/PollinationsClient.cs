@@ -9,7 +9,7 @@ namespace RimAiVinci
 {
     public static class PollinationsClient
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient(new HttpClientHandler { UseCookies = false });
         public static DateTime LastFreeUseTime { get; private set; } = DateTime.MinValue;
         public const double CooldownMinutes = 3.0;
 
@@ -117,7 +117,7 @@ namespace RimAiVinci
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning($"[Rim AiVinci] Pollinations Failed: {ex.Message}");
+                    Log.Warning("[Rim AiVinci] Pollinations Failed: " + ex.ToString());
                     LongEventHandler.QueueLongEvent(() =>
                     {
                         if (ex.Message.Contains("401"))
