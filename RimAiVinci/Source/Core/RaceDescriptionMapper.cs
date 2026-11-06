@@ -278,6 +278,7 @@ namespace RimAiVinci
         private static RacePromptEntry FindEntryForDef(ThingDef def)
         {
             if (def == null) return null;
+            if (IsCorpseDef(def.defName)) return null;
             if (!string.IsNullOrEmpty(def.defName))
             {
                 if (TryFindKeyword(def.defName.ToLower(), out RacePromptEntry e1)) return e1;
@@ -300,6 +301,7 @@ namespace RimAiVinci
         private static RacePromptEntry FindEntry(Pawn pawn)
         {
             if (pawn == null || pawn.def == null) return null;
+            if (IsCorpseDef(pawn.def.defName)) return null;
 
             string defName = pawn.def.defName;
             if (!string.IsNullOrEmpty(defName))
@@ -313,6 +315,13 @@ namespace RimAiVinci
                 if (TryFindKeyword(label.ToLower(), out RacePromptEntry e2)) return e2;
             }
             return null;
+        }
+
+        /// <summary>排除原版生成的尸体def（Corpse_XXX / UnnaturalCorpse_XXX），防止 Contains 模糊匹配误命中</summary>
+        private static bool IsCorpseDef(string defName)
+        {
+            return !string.IsNullOrEmpty(defName) &&
+                   (defName.StartsWith("Corpse_") || defName.StartsWith("UnnaturalCorpse_"));
         }
 
         private static readonly Dictionary<string, string> aliasToMain = new Dictionary<string, string>()

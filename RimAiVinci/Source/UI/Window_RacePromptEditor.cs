@@ -45,7 +45,9 @@ namespace RimAiVinci
         private void LoadRaces()
         {
             humanRaces = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(d => d.race != null && d.race.Humanlike && d.building == null)
+                .Where(d => d.race != null && d.race.Humanlike && d.building == null
+                            && d.category == ThingCategory.Pawn          // 排除生成的尸体def（Corpse_XXX 是 Item）
+                            && d.thingClass != typeof(Corpse))           // 双保险：挡掉 UnnaturalCorpse 等
                 .OrderBy(d => d.label)
                 .ToList();
         }
