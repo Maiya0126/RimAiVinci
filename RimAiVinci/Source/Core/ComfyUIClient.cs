@@ -245,13 +245,22 @@ namespace RimAiVinci
 
         #region Standard Workflow (SD1.5 / SDXL)
 
+        private static string BuildNegative()
+        {
+            string baseNeg = "bad quality, blurry, deformed, ugly, worst quality";
+            if (!string.IsNullOrEmpty(PromptContext.RaceNegative))
+                return baseNeg + ", " + PromptContext.RaceNegative;
+            return baseNeg;
+        }
+
         private static string BuildTxt2ImgWorkflow(string prompt, string ckptName, int seed)
         {
             string safePrompt = Escape(prompt);
             string safeCkpt = Escape(ckptName);
             if (string.IsNullOrEmpty(safeCkpt)) safeCkpt = "v1-5-pruned-emaonly.safetensors";
+            string safeNeg = Escape(BuildNegative());
 
-            return "{\"3\":{\"class_type\":\"KSampler\",\"inputs\":{\"cfg\":7,\"denoise\":1,\"latent_image\":[\"5\",0],\"model\":[\"4\",0],\"negative\":[\"7\",0],\"positive\":[\"6\",0],\"sampler_name\":\"euler_ancestral\",\"scheduler\":\"normal\",\"seed\":" + seed + ",\"steps\":25}},\"4\":{\"class_type\":\"CheckpointLoaderSimple\",\"inputs\":{\"ckpt_name\":\"" + safeCkpt + "\"}},\"5\":{\"class_type\":\"EmptyLatentImage\",\"inputs\":{\"batch_size\":1,\"height\":1024,\"width\":1024}},\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"" + safePrompt + "\"}},\"7\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"bad quality, blurry, deformed, ugly, worst quality\"}},\"8\":{\"class_type\":\"VAEDecode\",\"inputs\":{\"samples\":[\"3\",0],\"vae\":[\"4\",2]}},\"9\":{\"class_type\":\"SaveImage\",\"inputs\":{\"filename_prefix\":\"RimAiVinci\",\"images\":[\"8\",0]}}}";
+            return "{\"3\":{\"class_type\":\"KSampler\",\"inputs\":{\"cfg\":7,\"denoise\":1,\"latent_image\":[\"5\",0],\"model\":[\"4\",0],\"negative\":[\"7\",0],\"positive\":[\"6\",0],\"sampler_name\":\"euler_ancestral\",\"scheduler\":\"normal\",\"seed\":" + seed + ",\"steps\":25}},\"4\":{\"class_type\":\"CheckpointLoaderSimple\",\"inputs\":{\"ckpt_name\":\"" + safeCkpt + "\"}},\"5\":{\"class_type\":\"EmptyLatentImage\",\"inputs\":{\"batch_size\":1,\"height\":1024,\"width\":1024}},\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"" + safePrompt + "\"}},\"7\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"" + safeNeg + "\"}},\"8\":{\"class_type\":\"VAEDecode\",\"inputs\":{\"samples\":[\"3\",0],\"vae\":[\"4\",2]}},\"9\":{\"class_type\":\"SaveImage\",\"inputs\":{\"filename_prefix\":\"RimAiVinci\",\"images\":[\"8\",0]}}}";
         }
 
         private static string BuildImg2ImgWorkflow(string prompt, string ckptName, int seed, float strength, string uploadedFilename)
@@ -259,8 +268,9 @@ namespace RimAiVinci
             string safePrompt = Escape(prompt);
             string safeCkpt = Escape(ckptName);
             if (string.IsNullOrEmpty(safeCkpt)) safeCkpt = "v1-5-pruned-emaonly.safetensors";
+            string safeNeg = Escape(BuildNegative());
 
-            return "{\"3\":{\"class_type\":\"KSampler\",\"inputs\":{\"cfg\":7,\"denoise\":" + strength.ToString("F2") + ",\"latent_image\":[\"11\",0],\"model\":[\"4\",0],\"negative\":[\"7\",0],\"positive\":[\"6\",0],\"sampler_name\":\"euler_ancestral\",\"scheduler\":\"normal\",\"seed\":" + seed + ",\"steps\":25}},\"4\":{\"class_type\":\"CheckpointLoaderSimple\",\"inputs\":{\"ckpt_name\":\"" + safeCkpt + "\"}},\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"" + safePrompt + "\"}},\"7\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"bad quality, blurry, deformed, ugly, worst quality\"}},\"8\":{\"class_type\":\"VAEDecode\",\"inputs\":{\"samples\":[\"3\",0],\"vae\":[\"4\",2]}},\"9\":{\"class_type\":\"SaveImage\",\"inputs\":{\"filename_prefix\":\"RimAiVinci\",\"images\":[\"8\",0]}},\"10\":{\"class_type\":\"LoadImage\",\"inputs\":{\"image\":\"" + Escape(uploadedFilename) + "\"}},\"11\":{\"class_type\":\"VAEEncode\",\"inputs\":{\"pixels\":[\"10\",0],\"vae\":[\"4\",2]}}}";
+            return "{\"3\":{\"class_type\":\"KSampler\",\"inputs\":{\"cfg\":7,\"denoise\":" + strength.ToString("F2") + ",\"latent_image\":[\"11\",0],\"model\":[\"4\",0],\"negative\":[\"7\",0],\"positive\":[\"6\",0],\"sampler_name\":\"euler_ancestral\",\"scheduler\":\"normal\",\"seed\":" + seed + ",\"steps\":25}},\"4\":{\"class_type\":\"CheckpointLoaderSimple\",\"inputs\":{\"ckpt_name\":\"" + safeCkpt + "\"}},\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"" + safePrompt + "\"}},\"7\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"clip\":[\"4\",1],\"text\":\"" + safeNeg + "\"}},\"8\":{\"class_type\":\"VAEDecode\",\"inputs\":{\"samples\":[\"3\",0],\"vae\":[\"4\",2]}},\"9\":{\"class_type\":\"SaveImage\",\"inputs\":{\"filename_prefix\":\"RimAiVinci\",\"images\":[\"8\",0]}},\"10\":{\"class_type\":\"LoadImage\",\"inputs\":{\"image\":\"" + Escape(uploadedFilename) + "\"}},\"11\":{\"class_type\":\"VAEEncode\",\"inputs\":{\"pixels\":[\"10\",0],\"vae\":[\"4\",2]}}}";
         }
 
         #endregion

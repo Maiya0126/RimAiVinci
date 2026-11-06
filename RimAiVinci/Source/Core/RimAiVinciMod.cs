@@ -42,7 +42,7 @@ namespace RimAiVinci
             }
 
             float topBtnHeight = 36f;
-            float topBtnW = (inRect.width - 10f) / 2f;
+            float topBtnW = (inRect.width - 20f) / 3f;
             if (Widgets.ButtonText(new Rect(inRect.x, inRect.y, topBtnW, topBtnHeight), "RAV_Btn_OpenGallery".Translate()))
             {
                 Application.OpenURL(ArtFileSystem.GetActualSaveDir());
@@ -50,6 +50,10 @@ namespace RimAiVinci
             if (Widgets.ButtonText(new Rect(inRect.x + topBtnW + 10f, inRect.y, topBtnW, topBtnHeight), "RAV_Btn_OpenFolder".Translate()))
             {
                 Application.OpenURL(ArtFileSystem.GetImportDir());
+            }
+            if (Widgets.ButtonText(new Rect(inRect.x + (topBtnW + 10f) * 2, inRect.y, topBtnW, topBtnHeight), "RAV_Btn_RaceEditor".Translate()))
+            {
+                Find.WindowStack.Add(new Window_RacePromptEditor());
             }
 
             float scrollY = inRect.y + topBtnHeight + 4f;

@@ -3,9 +3,10 @@
 	<name>Rim AiVinci 边缘智绘</name>
 	<author>Maiya0126</author>
 	<packageId>Maiya.RimAiVinci</packageId>
-	<modVersion>1.5.1</modVersion>
+	<modVersion>1.6.0</modVersion>
 	<supportedVersions>
 		<li>1.6</li>
+		<li>1.7</li>
 	</supportedVersions>
 	<description>
 		[h1]Rim AiVinci - 边缘智绘 (AI Art Generator)[/h1]

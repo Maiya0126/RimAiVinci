@@ -32,11 +32,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\Games\steamapps\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -48,21 +48,23 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>..\..\..\Games\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>D:\Visual Studio Code ALL\RimWorldRefs-1.6\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +75,8 @@
     <Compile Include="Source\Core\ArtDataStore.cs" />
     <Compile Include="Source\Core\ArtFileSystem.cs" />
     <Compile Include="Source\Core\MemorialCapturer.cs" />
+    <Compile Include="Source\Core\PromptSyntaxHelper.cs" />
+    <Compile Include="Source\Core\CustomRacePromptStore.cs" />
     <Compile Include="Source\Core\ColorLibrary.cs" />
     <Compile Include="Source\Core\DataController.cs" />
     <Compile Include="Source\Core\DebugActions.cs" />
@@ -95,6 +99,7 @@
     <Compile Include="Source\UI\MainButtonWorker_Gallery.cs" />
     <Compile Include="Source\UI\Gizmo_ArtScale.cs" />
     <Compile Include="Source\UI\Window_ArtCreator.cs" />
+    <Compile Include="Source\UI\Window_RacePromptEditor.cs" />
     <Compile Include="Source\UI\Window_Gallery.cs" />
     <Compile Include="Source\UI\Window_ImageViewer.cs" />
   </ItemGroup>
@@ -122,44 +127,34 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM 设置您的 RimWorld Mod 安装路径 (请根据实际情况修改盘符和路径)
+    <PostBuildEvent>REM RimWorld Mod 部署（1.6 双版本结构）
 set MOD_DIR="D:\Games\steamapps\common\RimWorld\Mods\MaiyaMod04 Rim AiVinci 边缘智绘芬奇"
 
-REM ========================================================
-REM 1. 强制清理 (关键步骤：彻底删除旧文件夹，防止残留)
-REM ========================================================
+REM 1. 清理旧目录（防残留）
 if exist %25MOD_DIR%25\Defs rmdir /s /q %25MOD_DIR%25\Defs
 if exist %25MOD_DIR%25\Assemblies rmdir /s /q %25MOD_DIR%25\Assemblies
-REM ✨✨ 新增：清理旧的语言包，防止改名后的废弃文件残留 ✨✨
 if exist %25MOD_DIR%25\Languages rmdir /s /q %25MOD_DIR%25\Languages
+if exist %25MOD_DIR%25\1.6 rmdir /s /q %25MOD_DIR%25\1.6
+if exist %25MOD_DIR%25\1.7 rmdir /s /q %25MOD_DIR%25\1.7
+if exist %25MOD_DIR%25\LoadFolders.xml del /q %25MOD_DIR%25\LoadFolders.xml
 
-REM 如果您修改了 About 或 Textures，也可以加上下面这两行：
-REM if exist %25MOD_DIR%25\About rmdir /s /q %25MOD_DIR%25\About
-REM if exist %25MOD_DIR%25\Textures rmdir /s /q %25MOD_DIR%25\Textures
+REM 2. 1.6 DLL -> 1.6/Assemblies
+if not exist %25MOD_DIR%25\1.6\Assemblies mkdir %25MOD_DIR%25\1.6\Assemblies
+copy /y "$(TargetPath)" %25MOD_DIR%25\1.6\Assemblies\
 
-REM ========================================================
-REM 2. 复制 DLL (程序集)
-REM ========================================================
-if not exist %25MOD_DIR%25\Assemblies mkdir %25MOD_DIR%25\Assemblies
-copy /y "$(TargetPath)" %25MOD_DIR%25\Assemblies\
+REM 3. 1.7 DLL（若已编译）-> 1.7/Assemblies
+if exist "D:\Visual Studio Code ALL\RimAiVinci\RimAiVinci-1.7\bin\Release\RimAiVinci.dll" (
+  if not exist %25MOD_DIR%25\1.7\Assemblies mkdir %25MOD_DIR%25\1.7\Assemblies
+  copy /y "D:\Visual Studio Code ALL\RimAiVinci\RimAiVinci-1.7\bin\Release\RimAiVinci.dll" %25MOD_DIR%25\1.7\Assemblies\
+)
 
-REM ========================================================
-REM 3. 复制资源文件 (Defs, About, Textures, Languages 等)
-REM ========================================================
-REM 注意：$(ProjectDir) 是您项目文件的目录。
-
+REM 4. 资源文件
 xcopy /s /y /i "$(ProjectDir)Defs" %25MOD_DIR%25\Defs
 xcopy /s /y /i "$(ProjectDir)About" %25MOD_DIR%25\About
 xcopy /s /y /i "$(ProjectDir)Textures" %25MOD_DIR%25\Textures
-
-REM ✨✨ 新增：复制语言包 ✨✨
 xcopy /s /y /i "$(ProjectDir)Languages" %25MOD_DIR%25\Languages
+copy /y "$(ProjectDir)LoadFolders.xml" %25MOD_DIR%25\LoadFolders.xml
 
-REM xcopy /s /y /i "$(ProjectDir)Patches" %25MOD_DIR%25\Patches
-
-REM ========================================================
-REM 4. 输出完成信息
-REM ========================================================
-echo [MaiyaMod] 部署完成！Languages 及其他文件已同步。</PostBuildEvent>
+echo [MaiyaMod] 部署完成！1.6/1.7 双版本结构已同步。</PostBuildEvent>
   </PropertyGroup>
 </Project>

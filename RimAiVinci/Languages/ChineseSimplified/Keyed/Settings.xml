@@ -198,6 +198,26 @@
 	<RAV_State_ModeHint>状态立绘模式: {0} (保存后自动指派)</RAV_State_ModeHint>
 	<RAV_Gallery_SetState>状态立绘</RAV_Gallery_SetState>
 	<RAV_State_ClearAll>清除全部状态映射</RAV_State_ClearAll>
+	<RAV_Btn_RaceEditor>种族描述管理</RAV_Btn_RaceEditor>
+	<RAV_RaceEditor_Title>种族描述编辑器</RAV_RaceEditor_Title>
+	<RAV_RaceEditor_ListHint>已加载的种族</RAV_RaceEditor_ListHint>
+	<RAV_RaceEditor_SelectFirst>请先在左侧选择一个种族...</RAV_RaceEditor_SelectFirst>
+	<RAV_RaceEditor_StatusCustom>已自定义</RAV_RaceEditor_StatusCustom>
+	<RAV_RaceEditor_StatusBuiltIn>内置描述</RAV_RaceEditor_StatusBuiltIn>
+	<RAV_RaceEditor_StatusNone>无描述</RAV_RaceEditor_StatusNone>
+	<RAV_RaceEditor_BuiltInRef>内置描述参考 (只读):</RAV_RaceEditor_BuiltInRef>
+	<RAV_RaceEditor_NoBuiltIn>该种族暂无内置描述，可自行填写</RAV_RaceEditor_NoBuiltIn>
+	<RAV_RaceEditor_CustomLabel>自定义描述 (保存后优先生效，英文提示词效果最佳):</RAV_RaceEditor_CustomLabel>
+	<RAV_RaceEditor_Save>保存覆盖</RAV_RaceEditor_Save>
+	<RAV_RaceEditor_Reset>恢复默认</RAV_RaceEditor_Reset>
+	<RAV_RaceEditor_Saved>已保存 {0} 的自定义描述</RAV_RaceEditor_Saved>
+	<RAV_RaceEditor_ResetDone>已恢复 {0} 的默认描述</RAV_RaceEditor_ResetDone>
+	<RAV_RaceEditor_EmptyWarn>描述为空，如需清除请用"恢复默认"</RAV_RaceEditor_EmptyWarn>
+	<RAV_RaceEditor_EditBtn>编辑描述</RAV_RaceEditor_EditBtn>
+	<RAV_RaceMissing_Desc>"{0}" 暂无外形描述，AI 可能画不准它的特征。\n是否立即添加描述？</RAV_RaceMissing_Desc>
+	<RAV_RaceMissing_Ignore>本次忽略</RAV_RaceMissing_Ignore>
+	<RAV_RaceMissing_Add>立即添加</RAV_RaceMissing_Add>
+	<RAV_Race_I2ISuggest>{0} 无种族描述，建议用图生图模式获得更准的外形</RAV_Race_I2ISuggest>
 	<RAV_ShowImage_Size>尺寸: {0}x{1}</RAV_ShowImage_Size>
 	<RAV_ShowImage_LoadFail>图像加载失败或为空。</RAV_ShowImage_LoadFail>
 	<RAV_Gizmo_CurrentScale>当前尺寸: {0}</RAV_Gizmo_CurrentScale>

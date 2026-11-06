@@ -302,7 +302,28 @@ namespace RimAiVinci
             Rect row1 = listing.GetRect(24);
             Widgets.CheckboxLabeled(new Rect(row1.x, row1.y, row1.width / 2, 24), "RAV_Read_Race".Translate(), ref options.readRace);
             Widgets.CheckboxLabeled(new Rect(row1.x + row1.width / 2, row1.y, row1.width / 2, 24), "RAV_Read_Age".Translate(), ref options.readAge);
-            if (options.readRace) { string rd = RaceDescriptionMapper.GetRaceVisuals(targetPawn); if (!string.IsNullOrEmpty(rd) && rd != "human") { GUI.color = Color.cyan; listing.Label("    " + "RAV_Read_Detected".Translate(rd)); GUI.color = Color.white; } }
+            if (options.readRace && targetPawn.def != null && targetPawn.def.defName != "Human")
+            {
+                bool hasCustom = CustomRacePromptStore.HasCustom(targetPawn);
+                bool hasBuiltIn = RaceDescriptionMapper.HasBuiltIn(targetPawn);
+                if (hasCustom || hasBuiltIn)
+                {
+                    Rect detRow = listing.GetRect(24);
+                    string statusKey = hasCustom ? "RAV_RaceEditor_StatusCustom" : "RAV_Read_Detected";
+                    GUI.color = hasCustom ? Color.green : Color.cyan;
+                    Widgets.Label(new Rect(detRow.x + 8, detRow.y, detRow.width - 110, 24), "    " + statusKey.Translate(targetPawn.def.label));
+                    GUI.color = Color.white;
+                    if (Widgets.ButtonText(new Rect(detRow.xMax - 100, detRow.y, 100, 22), "RAV_RaceEditor_EditBtn".Translate()))
+                        Find.WindowStack.Add(new Window_RacePromptEditor(targetPawn.def));
+                }
+                else if (currentMode == GenerationMode.TextToImage)
+                {
+                    // 方案D：mod种族无描述时建议图生图（游戏立绘是最准的种族参照）
+                    GUI.color = new Color(1f, 0.7f, 0.3f);
+                    listing.Label("    " + "RAV_Race_I2ISuggest".Translate(targetPawn.def.label));
+                    GUI.color = Color.white;
+                }
+            }
 
             Rect row2 = listing.GetRect(24);
             Widgets.CheckboxLabeled(new Rect(row2.x, row2.y, row2.width / 2, 24), "RAV_Read_Health".Translate(), ref options.readHealth);
@@ -331,6 +352,8 @@ namespace RimAiVinci
             listing.Label("<b>" + "RAV_ArtCreator_FinalPrompt".Translate() + "</b>");
 
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
+            // 预览同步使用当前供应商的语法模式
+            options.naturalLanguageMode = PromptSyntaxHelper.NeedsNaturalLanguage(RimAiVinciMod.settings.providerIndex, false);
             string preview = BuildFinalPrompt();
             Widgets.TextArea(listing.GetRect(130), preview, true);
 
@@ -461,6 +484,40 @@ namespace RimAiVinci
             isGenerating = true;
             hasSavedCurrent = false;
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
+
+            // 未识别种族引导：勾选了种族读取但无任何描述时，一次性询问
+            if (options.readRace && targetPawn != null && targetPawn.def != null &&
+                targetPawn.def.defName != "Human" && !RaceDescriptionMapper.HasDescription(targetPawn))
+            {
+                if (!askedMissingRaceThisSession)
+                {
+                    askedMissingRaceThisSession = true;
+                    isGenerating = false;
+                    Dialog_MessageBox dlg = new Dialog_MessageBox(
+                        "RAV_RaceMissing_Desc".Translate(targetPawn.def.label),
+                        "RAV_RaceMissing_Ignore".Translate(), // A: 继续生成
+                        () => { StartGenerationCore(free, player2); },
+                        "RAV_RaceMissing_Add".Translate(),     // B: 打开编辑器
+                        () => { Find.WindowStack.Add(new Window_RacePromptEditor(targetPawn.def)); });
+                    Find.WindowStack.Add(dlg);
+                    return;
+                }
+            }
+
+            StartGenerationCore(free, player2);
+        }
+
+        private bool askedMissingRaceThisSession = false;
+
+        private void StartGenerationCore(bool free, bool player2)
+        {
+            isGenerating = true;
+
+            // 按渠道适配提示词语法模式 + 设置种族负面词上下文
+            int providerIdx = RimAiVinciMod.settings.providerIndex;
+            options.naturalLanguageMode = PromptSyntaxHelper.NeedsNaturalLanguage(providerIdx, player2);
+            PromptContext.Begin(targetPawn);
+
             string finalPrompt = BuildFinalPrompt();
 
             if (free)

@@ -198,6 +198,26 @@
 	<RAV_State_ModeHint>State Portrait Mode: {0} (auto-assigned on save)</RAV_State_ModeHint>
 	<RAV_Gallery_SetState>State Portrait</RAV_Gallery_SetState>
 	<RAV_State_ClearAll>Clear All State Mappings</RAV_State_ClearAll>
+	<RAV_Btn_RaceEditor>Race Descriptions</RAV_Btn_RaceEditor>
+	<RAV_RaceEditor_Title>Race Description Editor</RAV_RaceEditor_Title>
+	<RAV_RaceEditor_ListHint>Loaded races</RAV_RaceEditor_ListHint>
+	<RAV_RaceEditor_SelectFirst>Select a race from the left...</RAV_RaceEditor_SelectFirst>
+	<RAV_RaceEditor_StatusCustom>Customized</RAV_RaceEditor_StatusCustom>
+	<RAV_RaceEditor_StatusBuiltIn>Built-in</RAV_RaceEditor_StatusBuiltIn>
+	<RAV_RaceEditor_StatusNone>No description</RAV_RaceEditor_StatusNone>
+	<RAV_RaceEditor_BuiltInRef>Built-in reference (read-only):</RAV_RaceEditor_BuiltInRef>
+	<RAV_RaceEditor_NoBuiltIn>No built-in description for this race. Feel free to write one.</RAV_RaceEditor_NoBuiltIn>
+	<RAV_RaceEditor_CustomLabel>Custom description (takes priority once saved; English prompts work best):</RAV_RaceEditor_CustomLabel>
+	<RAV_RaceEditor_Save>Save Override</RAV_RaceEditor_Save>
+	<RAV_RaceEditor_Reset>Restore Default</RAV_RaceEditor_Reset>
+	<RAV_RaceEditor_Saved>Saved custom description for {0}</RAV_RaceEditor_Saved>
+	<RAV_RaceEditor_ResetDone>Restored default description for {0}</RAV_RaceEditor_ResetDone>
+	<RAV_RaceEditor_EmptyWarn>Description is empty. Use "Restore Default" to clear.</RAV_RaceEditor_EmptyWarn>
+	<RAV_RaceEditor_EditBtn>Edit</RAV_RaceEditor_EditBtn>
+	<RAV_RaceMissing_Desc>"{0}" has no appearance description yet, so the AI may not draw it accurately.\nAdd a description now?</RAV_RaceMissing_Desc>
+	<RAV_RaceMissing_Ignore>Ignore</RAV_RaceMissing_Ignore>
+	<RAV_RaceMissing_Add>Add Now</RAV_RaceMissing_Add>
+	<RAV_Race_I2ISuggest>{0} has no race description. Img2Img mode is recommended for accurate looks.</RAV_Race_I2ISuggest>
 	<RAV_ShowImage_Size>Size: {0}x{1}</RAV_ShowImage_Size>
 	<RAV_ShowImage_LoadFail>Image load failed or empty.</RAV_ShowImage_LoadFail>
 	<RAV_Gizmo_CurrentScale>Scale: {0}</RAV_Gizmo_CurrentScale>

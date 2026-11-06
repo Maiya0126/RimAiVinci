@@ -18,11 +18,19 @@ namespace RimAiVinci
             client.Timeout = TimeSpan.FromMinutes(5);
         }
 
+        private static string BuildNegative()
+        {
+            string baseNeg = "bad quality, blurry, deformed, ugly, worst quality";
+            if (!string.IsNullOrEmpty(PromptContext.RaceNegative))
+                return baseNeg + ", " + PromptContext.RaceNegative;
+            return baseNeg;
+        }
+
         public static void GenerateImageAsync(string prompt, Action<Texture2D> callback)
         {
             string url = GetBaseUrl();
             string overrideSettings = GetOverrideModel();
-            string negativePrompt = "bad quality, blurry, deformed, ugly, worst quality";
+            string negativePrompt = BuildNegative();
 
             string json = overrideSettings != null
                 ? $"{{\"prompt\":\"{Escape(prompt)}\",\"negative_prompt\":\"{Escape(negativePrompt)}\",\"width\":1024,\"height\":1024,\"steps\":25,\"cfg_scale\":7,\"sampler_name\":\"Euler a\",\"seed\":{UnityEngine.Random.Range(0, 99999999)},\"override_settings\":{{\"sd_model_checkpoint\":\"{Escape(overrideSettings)}\"}}}}"
@@ -38,7 +46,7 @@ namespace RimAiVinci
 
             string url = GetBaseUrl();
             string overrideSettings = GetOverrideModel();
-            string negativePrompt = "bad quality, blurry, deformed, ugly, worst quality";
+            string negativePrompt = BuildNegative();
             byte[] imageBytes = referenceImage.EncodeToPNG();
             string base64Image = Convert.ToBase64String(imageBytes);
 

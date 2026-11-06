@@ -29,6 +29,36 @@ namespace RimAiVinci
         public bool readHealth = true;
         public bool readQuality = true;
         public bool readSkinColor = true;
+
+        /// <summary>自然语言模式（Qwen/Flux/T5/LLM 系编码器）：跳过 (x:权重) 语法</summary>
+        public bool naturalLanguageMode = false;
+    }
+
+    /// <summary>
+    /// 生成期上下文：传递种族防变异负面词到各 API 客户端。
+    /// 生成请求发出后自动失效（OneShot 语义）。
+    /// </summary>
+    public static class PromptContext
+    {
+        public static string RaceNegative;
+
+        /// <summary>设置本次生成的种族负面词（创作窗在发起生成前调用）</summary>
+        public static void Begin(Pawn pawn)
+        {
+            RaceNegative = null;
+            try
+            {
+                string custom = CustomRacePromptStore.GetCustom(pawn);
+                if (!string.IsNullOrEmpty(custom))
+                {
+                    // 自定义描述：不追加内置负面词（玩家全权接管）
+                    RaceNegative = null;
+                    return;
+                }
+                RaceNegative = RaceDescriptionMapper.GetRaceNegative(pawn);
+            }
+            catch { }
+        }
     }
 
     public static class PawnPromptBuilder
@@ -58,18 +88,20 @@ namespace RimAiVinci
 
             StringBuilder sb = new StringBuilder();
 
-            // 1. 风格前缀
+            // 1. 风格前缀（自然语言模式下不加权重语法）
             if (opt.style != ArtStyle.Custom)
             {
                 if (opt.isImg2ImgMode)
                 {
-                    string breakStructure = "(humanoid body structure:1.5), (detailed arms and hands:1.4), (detailed legs:1.4), (NOT pixel art:1.5), (NOT game sprite:1.5), ";
+                    string breakStructure = opt.naturalLanguageMode
+                        ? "humanoid body structure with detailed arms, hands and legs, not pixel art, not game sprite, "
+                        : "(humanoid body structure:1.5), (detailed arms and hands:1.4), (detailed legs:1.4), (NOT pixel art:1.5), (NOT game sprite:1.5), ";
                     switch (opt.style)
                     {
                         case ArtStyle.Standard: sb.Append($"masterpiece, best quality, mobile game illustration, detailed cel shading, {breakStructure} dynamic pose, "); break;
-                        case ArtStyle.Realistic: sb.Append($"photorealistic, 8k uhd, cosplay photography, real life, (hyper realistic:1.4), {breakStructure} (skin texture:1.3), cinematic lighting, "); break;
+                        case ArtStyle.Realistic: sb.Append($"photorealistic, 8k uhd, cosplay photography, real life{(opt.naturalLanguageMode ? ", " : ", (hyper realistic:1.4), ")}, {breakStructure}{(opt.naturalLanguageMode ? "" : "(skin texture:1.3), ")}cinematic lighting, "); break;
                         case ArtStyle.Miyazaki: sb.Append($"studio ghibli style, hayao miyazaki, 1990s anime style, hand painted watercolor, {breakStructure} soft colors, "); break;
-                        case ArtStyle.Chibi: sb.Append($"chibi, nendoroid figure, 3d render style, blind box toy, (cute body with arms and legs:1.4), big head, standing on base, "); break;
+                        case ArtStyle.Chibi: sb.Append($"chibi, nendoroid figure, 3d render style, blind box toy{(opt.naturalLanguageMode ? ", " : ", (cute body with arms and legs:1.4), ")}big head, standing on base, "); break;
                     }
                 }
                 else
@@ -94,29 +126,43 @@ namespace RimAiVinci
                 else sb.Append("full body, standing, ");
             }
 
-            // 2. 种族与描述
+            // 2. 种族与描述（修复：用英文 defName，避免中文 label 污染提示词）
             string gender = pawn.gender == Gender.None ? "" : pawn.gender.ToString();
 
             if (opt.readRace)
             {
-                string manualVisuals = RaceDescriptionMapper.GetRaceVisuals(pawn);
-                string dynamicDesc = GetDynamicRaceDescription(pawn);
-                string raceLabel = pawn.def.label.ToLower();
-
-                string racePrefix;
-                if (opt.isImg2ImgMode)
-                    racePrefix = (raceLabel == "human") ? "human" : $"{raceLabel}";
-                else
-                    racePrefix = (raceLabel == "human") ? "human" : $"(RimWorld {raceLabel} race:1.2)";
-
-                if (!string.IsNullOrEmpty(manualVisuals))
+                // 优先级：玩家自定义 > 内置词库（按语法模式选形式）> 动态种族描述
+                string customVisuals = CustomRacePromptStore.GetCustom(pawn);
+                if (!string.IsNullOrEmpty(customVisuals))
                 {
-                    sb.Append($"{gender}, {racePrefix}, ({manualVisuals}:1.3), ");
+                    sb.Append($"{gender}, ({customVisuals}:1.2), ");
+                    string dynamicDesc = GetDynamicRaceDescription(pawn);
                     if (!string.IsNullOrEmpty(dynamicDesc)) sb.Append($"{dynamicDesc}, ");
                 }
                 else
                 {
-                    sb.Append($"{gender}, {racePrefix}, {dynamicDesc}, ");
+                    string builtInVisuals = RaceDescriptionMapper.GetRaceVisuals(pawn, opt.naturalLanguageMode);
+                    string dynamicDesc = GetDynamicRaceDescription(pawn);
+                    string raceDefName = pawn.def.defName;
+
+                    if (!string.IsNullOrEmpty(builtInVisuals))
+                    {
+                        if (opt.naturalLanguageMode)
+                        {
+                            sb.Append($"{gender}, {builtInVisuals}, ");
+                        }
+                        else
+                        {
+                            string racePrefix = (raceDefName == "Human") ? "human" : $"(RimWorld {raceDefName} race:1.2)";
+                            sb.Append($"{gender}, {racePrefix}, ({builtInVisuals}:1.3), ");
+                        }
+                        if (!string.IsNullOrEmpty(dynamicDesc)) sb.Append($"{dynamicDesc}, ");
+                    }
+                    else
+                    {
+                        string racePrefix = (raceDefName == "Human") ? "human" : $"(RimWorld {raceDefName} race:1.2)";
+                        sb.Append($"{gender}, {racePrefix}, {dynamicDesc}, ");
+                    }
                 }
             }
             else { sb.Append($"{gender}, "); }
@@ -126,7 +172,6 @@ namespace RimAiVinci
             {
                 sb.Append($"{ColorLibrary.GetBestMatch(pawn.story.SkinColor, "skin")}, ");
 
-                // ✨ 修复点：强制读取眼睛，无论是否为人类
                 string eyeColor = GetEyeColorDescription(pawn);
                 if (!string.IsNullOrEmpty(eyeColor)) sb.Append($"{eyeColor}, ");
             }
@@ -138,7 +183,10 @@ namespace RimAiVinci
             {
                 string colorName = ColorLibrary.GetBestMatch(pawn.story.HairColor, "hair");
                 string hairStyleName = pawn.story.hairDef?.label ?? "hair";
-                sb.Append($"({colorName}:1.3) {hairStyleName}, ");
+                if (opt.naturalLanguageMode)
+                    sb.Append($"{colorName} hair styled as {hairStyleName}, ");
+                else
+                    sb.Append($"({colorName}:1.3) {hairStyleName}, ");
             }
 
             // 4. 服装与其他
@@ -148,7 +196,15 @@ namespace RimAiVinci
 
             if (!string.IsNullOrEmpty(safeExtra)) sb.Append($"{safeExtra}, ");
 
-            if (opt.readBackground && pawn.story.Adulthood != null) { float bgWeight = opt.forceFullBody ? 0.6f : 0.8f; string jobTitle = pawn.story.Adulthood.title.Replace("(", "").Replace(")", ""); sb.Append($"(background theme: {jobTitle}:{bgWeight}), "); }
+            if (opt.readBackground && pawn.story.Adulthood != null)
+            {
+                float bgWeight = opt.forceFullBody ? 0.6f : 0.8f;
+                string jobTitle = pawn.story.Adulthood.title.Replace("(", "").Replace(")", "");
+                if (opt.naturalLanguageMode)
+                    sb.Append($"background theme of a {jobTitle}, ");
+                else
+                    sb.Append($"(background theme: {jobTitle}:{bgWeight}), ");
+            }
 
             return sb.ToString();
         }
@@ -168,7 +224,22 @@ namespace RimAiVinci
             if (opt.readSkinColor) { string eyeColor = GetEyeColorDescription(pawn); if (!string.IsNullOrEmpty(eyeColor)) sb.Append($"- Eyes: {eyeColor}\n"); }
             if (opt.readTraits && pawn.story.traits.allTraits.Count > 0) { sb.Append("Reflect traits: "); foreach (var t in pawn.story.traits.allTraits) sb.Append($"{TranslateTraitToEnglish(t)}, "); sb.Append("\n"); } else sb.Append("\n");
 
-            if (opt.readRace) { string manualVisuals = RaceDescriptionMapper.GetRaceVisuals(pawn); string dynamicDesc = GetDynamicRaceDescription(pawn); sb.Append("Key Constraints:\n"); if (!string.IsNullOrEmpty(manualVisuals)) sb.Append($"- Visual Tags: {manualVisuals}\n"); if (!string.IsNullOrEmpty(dynamicDesc)) sb.Append($"- Lore Description: {dynamicDesc}\n"); }
+            if (opt.readRace)
+            {
+                sb.Append("Key Constraints:\n");
+                string customVisuals = CustomRacePromptStore.GetCustom(pawn);
+                if (!string.IsNullOrEmpty(customVisuals))
+                {
+                    sb.Append($"- Custom Visual Tags: {customVisuals}\n");
+                }
+                else
+                {
+                    string manualVisuals = RaceDescriptionMapper.GetRaceVisuals(pawn, true);
+                    string dynamicDesc = GetDynamicRaceDescription(pawn);
+                    if (!string.IsNullOrEmpty(manualVisuals)) sb.Append($"- Visual Tags: {manualVisuals}\n");
+                    if (!string.IsNullOrEmpty(dynamicDesc)) sb.Append($"- Lore Description: {dynamicDesc}\n");
+                }
+            }
             if (opt.readHair) { string hairColor = ColorLibrary.GetBestMatch(pawn.story.HairColor, "hair"); string hairStyle = pawn.story.hairDef?.label ?? "hair"; sb.Append($"- Hair: {hairColor} {hairStyle}\n"); }
             if (opt.readApparel) { string apparel = GetApparelDescription(pawn, false); if (!string.IsNullOrEmpty(apparel)) sb.Append($"- Clothing: {apparel}\n"); }
 
@@ -193,7 +264,6 @@ namespace RimAiVinci
             return output.Trim();
         }
 
-        // ✨✨✨ 修复版：无条件兜底眼睛颜色 ✨✨✨
         private static string GetEyeColorDescription(Pawn pawn)
         {
             // 1. 优先从基因读取 (Biotech)
@@ -227,20 +297,13 @@ namespace RimAiVinci
                 if (generalEyeColor != null) return $"{generalEyeColor} eyes";
             }
 
-            // 2. 兜底逻辑：如果基因没读到，根据发色生成眼睛描述
-            // ✨ 修复：不再限制 only human，任何种族只要没读到基因，都走这个兜底
-            // 防止 "烟烬" 或其他 Mod 种族变成无眼人
+            // 2. 兜底逻辑：根据发色生成眼睛描述
             Color hair = pawn.story.HairColor;
-            // 黑/深色发 -> 棕/黑眼
             if (hair.r < 0.3f && hair.g < 0.2f) return "brown eyes";
-            // 浅金发 -> 蓝眼
             if (hair.r > 0.8f && hair.g > 0.8f && hair.b < 0.7f) return "blue eyes";
-            // 红发 -> 绿眼
             if (hair.r > 0.8f && hair.g < 0.5f) return "green eyes";
-            // 灰发/白发 -> 灰眼
             if (hair.r > 0.8f && hair.g > 0.8f && hair.b > 0.8f) return "grey eyes";
 
-            // 默认兜底
             return "eyes with distinct iris";
         }
 
