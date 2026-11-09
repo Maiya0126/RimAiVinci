@@ -149,6 +149,8 @@
 	<RAV_Read_Skin>Read Skin Color</RAV_Read_Skin>
 	<RAV_Read_Hair>Read Hair</RAV_Read_Hair>
 	<RAV_Read_Background>Read Background</RAV_Read_Background>
+	<RAV_Read_RimTalkPersona>Read Persona (RimTalk)</RAV_Read_RimTalkPersona>
+	<RAV_Read_PersonaPreview>Persona: {0}</RAV_Read_PersonaPreview>
 	<RAV_Read_Detected>Detected: {0}</RAV_Read_Detected>
 	<RAV_ArtCreator_MasterPrompt>4. Master Prompt:</RAV_ArtCreator_MasterPrompt>
 	<RAV_ArtCreator_ExtraDetailCS>4. Extra Details (Character Sheet):</RAV_ArtCreator_ExtraDetailCS>

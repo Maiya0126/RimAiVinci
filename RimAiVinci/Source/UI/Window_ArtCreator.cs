@@ -95,7 +95,7 @@ namespace RimAiVinci
                     options.readAge = false; options.readRace = false; options.readApparel = false;
                     options.readHair = false; options.readTraits = false; options.readBackground = false;
                     options.readHealth = false; options.readQuality = false; options.readSkinColor = false;
-                    options.readBodyType = false;
+                    options.readBodyType = false; options.readRimTalkPersona = false;
                 }
                 lastStyle = options.style;
             }
@@ -112,18 +112,25 @@ namespace RimAiVinci
             if (currentMode == GenerationMode.TextToImage) GUI.color = Color.green;
             if (Widgets.ButtonText(btnModeTxt, "RAV_Mode_Txt2Img".Translate()))
             {
-                currentMode = GenerationMode.TextToImage;
-                if (options.style == ArtStyle.CharacterSheet) options.style = ArtStyle.Standard;
+                if (currentMode != GenerationMode.TextToImage)
+                {
+                    currentMode = GenerationMode.TextToImage;
+                    if (options.style == ArtStyle.CharacterSheet) options.style = ArtStyle.Standard;
+                    options.ApplyModeDefaults(false);
+                }
             }
             GUI.color = Color.white;
 
             if (currentMode == GenerationMode.ImageToImage) GUI.color = Color.green;
             if (Widgets.ButtonText(btnModeImg, "RAV_Mode_Img2Img".Translate()))
             {
-                currentMode = GenerationMode.ImageToImage;
-                options.isImg2ImgMode = true;
+                if (currentMode != GenerationMode.ImageToImage)
+                {
+                    currentMode = GenerationMode.ImageToImage;
+                    options.ApplyModeDefaults(true);
+                }
             }
-            else { options.isImg2ImgMode = false; }
+            options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
             GUI.color = Color.white;
 
             float margin = 10f;
@@ -338,7 +345,23 @@ namespace RimAiVinci
             Widgets.CheckboxLabeled(new Rect(row4.x + row4.width / 2, row4.y, row4.width / 2, 24), "RAV_Read_Hair".Translate(), ref options.readHair);
 
             listing.Gap(5);
-            listing.CheckboxLabeled("RAV_Read_Background".Translate(), ref options.readBackground);
+            Rect row5 = listing.GetRect(24);
+            Widgets.CheckboxLabeled(new Rect(row5.x, row5.y, row5.width / 2, 24), "RAV_Read_Background".Translate(), ref options.readBackground);
+            if (RimTalkPersonaReader.IsRimTalkInstalled)
+            {
+                Widgets.CheckboxLabeled(new Rect(row5.x + row5.width / 2, row5.y, row5.width / 2, 24), "RAV_Read_RimTalkPersona".Translate(), ref options.readRimTalkPersona);
+            }
+            if (options.readRimTalkPersona && RimTalkPersonaReader.IsRimTalkInstalled)
+            {
+                string persona = RimTalkPersonaReader.GetPersonaText(targetPawn);
+                if (!string.IsNullOrEmpty(persona))
+                {
+                    string snippet = persona.Length > 42 ? persona.Substring(0, 42) + "..." : persona;
+                    GUI.color = Color.cyan;
+                    listing.Label("    " + "RAV_Read_PersonaPreview".Translate(snippet));
+                    GUI.color = Color.white;
+                }
+            }
 
             listing.GapLine();
 

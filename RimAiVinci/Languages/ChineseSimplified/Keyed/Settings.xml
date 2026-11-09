@@ -149,6 +149,8 @@
 	<RAV_Read_Skin>读取肤色 (Skin)</RAV_Read_Skin>
 	<RAV_Read_Hair>读取发型 (Hair)</RAV_Read_Hair>
 	<RAV_Read_Background>读取背景故事 (Background)</RAV_Read_Background>
+	<RAV_Read_RimTalkPersona>读取人格 (RimTalk)</RAV_Read_RimTalkPersona>
+	<RAV_Read_PersonaPreview>人格: {0}</RAV_Read_PersonaPreview>
 	<RAV_Read_Detected>识别: {0}</RAV_Read_Detected>
 	<RAV_ArtCreator_MasterPrompt>4. 大师提示词 (Master Prompt):</RAV_ArtCreator_MasterPrompt>
 	<RAV_ArtCreator_ExtraDetailCS>4. 额外细节 (追加描述):</RAV_ArtCreator_ExtraDetailCS>
