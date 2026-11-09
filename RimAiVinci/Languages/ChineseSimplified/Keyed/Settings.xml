@@ -123,13 +123,20 @@
 	<RAV_ArtCreator_LoadSuccess>加载成功</RAV_ArtCreator_LoadSuccess>
 	<RAV_ArtCreator_LoadFail>无法加载：{0}</RAV_ArtCreator_LoadFail>
 	<RAV_ArtCreator_ImportEmpty>文件夹是空的</RAV_ArtCreator_ImportEmpty>
-	<RAV_ArtCreator_SaveSuccess>保存成功</RAV_ArtCreator_SaveSuccess>
+	<RAV_ArtCreator_SaveSuccess>已保存并设为展示立绘</RAV_ArtCreator_SaveSuccess>
+	<RAV_ArtCreator_ClickZoom>点击放大查看高清图像</RAV_ArtCreator_ClickZoom>
+	<RAV_ArtCreator_UseAsRef>设为图生图底图 (继续精修)</RAV_ArtCreator_UseAsRef>
+	<RAV_ArtCreator_OpenSettings>API设置</RAV_ArtCreator_OpenSettings>
+	<RAV_ArtCreator_SelectAll>全选</RAV_ArtCreator_SelectAll>
+	<RAV_ArtCreator_SelectNone>清空</RAV_ArtCreator_SelectNone>
+	<RAV_ArtCreator_CopyPrompt>复制提示词</RAV_ArtCreator_CopyPrompt>
+	<RAV_ArtCreator_CopiedPrompt>已复制提示词到剪贴板</RAV_ArtCreator_CopiedPrompt>
 	<RAV_Mode_Txt2Img>文生图 (Txt2Img)</RAV_Mode_Txt2Img>
 	<RAV_Mode_Img2Img>图生图 (Img2Img)</RAV_Mode_Img2Img>
 	<RAV_UploadOnly_Title>立绘上传 - {0}</RAV_UploadOnly_Title>
 
 	<RAV_ArtCreator_PresetStyles>1. 预装艺术风格:</RAV_ArtCreator_PresetStyles>
-	<RAV_Style_Standard>标准风格 (Standard)</RAV_Style_Standard>
+	<RAV_Style_Standard>二次元立绘 (Anime)</RAV_Style_Standard>
 	<RAV_Style_Realistic>废土写实 (Realistic)</RAV_Style_Realistic>
 	<RAV_Style_Miyazaki>宫崎骏风 (Miyazaki)</RAV_Style_Miyazaki>
 	<RAV_Style_Chibi>Q版萌系 (Chibi)</RAV_Style_Chibi>
@@ -138,6 +145,15 @@
 	<RAV_Style_DarkGothic>暗黑哥特 (Dark Gothic)</RAV_Style_DarkGothic>
 	<RAV_Style_CharacterSheet>设定集模式 (Character Sheet)</RAV_Style_CharacterSheet>
 	<RAV_Style_Custom>自定义/大师模式 (Custom)</RAV_Style_Custom>
+	<RAV_StyleTip_Standard>【二次元立绘】\n精细赛璐珞上色、干净线稿与鲜明色彩。\n类似效果：《明日方舟》《蔚蓝档案》等日系二次元手游精修立绘。</RAV_StyleTip_Standard>
+	<RAV_StyleTip_Realistic>【废土写实】\n8K 电影级真实皮肤毛孔、织物磨损纹理与戏剧性光影。\n类似效果：《沙丘》《银翼杀手》等硬核科幻废土写实剧照。</RAV_StyleTip_Realistic>
+	<RAV_StyleTip_Miyazaki>【宫崎骏风】\n温暖怀旧的 90 年代手绘水彩、水粉与赛璐珞动画质感。\n类似效果：吉卜力工作室动画电影角色插画。</RAV_StyleTip_Miyazaki>
+	<RAV_StyleTip_Chibi>【Q版萌系】\n二头身可爱比例、闪亮大眼睛、干净粗描边与柔和色彩。\n类似效果：日系 Q版萌系立绘与收藏级二头身角色图。</RAV_StyleTip_Chibi>
+	<RAV_StyleTip_Storyteller>【厚涂概念】\n介于二次元与真人之间的半写实厚涂画风，笔触感强烈、光影厚重。\n类似效果：《环世界》官方封面讲述者插画、欧美奇幻/科幻概念原画。</RAV_StyleTip_Storyteller>
+	<RAV_StyleTip_EasternInk>【水墨仙侠】\n传统水墨晕染结合精细工笔设色，飘逸衣袂与写意泼墨点缀。\n类似效果：国风修仙、武侠立绘（尤其适合萌螈、龙人、悠兰等古风种族）。</RAV_StyleTip_EasternInk>
+	<RAV_StyleTip_DarkGothic>【暗黑哥特】\n高对比浓重黑影、低饱和冷暗色调与深红点缀的克系哥特氛围。\n类似效果：《暗黑地牢》及环世界“异象 (Anomaly)”/血族主题风格。</RAV_StyleTip_DarkGothic>
+	<RAV_StyleTip_CharacterSheet>【设定集模式】\n纯白干净背景、标准直立站姿与清晰结构线稿。\n类似效果：角色美术设定原画，重点展示全身服饰结构与配色细节。</RAV_StyleTip_CharacterSheet>
+	<RAV_StyleTip_Custom>【自定义/大师模式】\n自动清空所有预设风格词与自动勾选项，完全由你在下方“大师提示词”中输入的内容主导画面。</RAV_StyleTip_Custom>
 	<RAV_ArtCreator_Constraint>2. 画面约束:</RAV_ArtCreator_Constraint>
 	<RAV_ArtCreator_ConstraintCustom>2. 画面约束 (大师模式可选):</RAV_ArtCreator_ConstraintCustom>
 	<RAV_Constraint_FullBody>强制全身站立</RAV_Constraint_FullBody>

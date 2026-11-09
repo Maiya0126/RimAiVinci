@@ -195,32 +195,83 @@ namespace RimAiVinci
             else
             {
                 Widgets.DrawTextureFitted(imgRect, displayTex, 1.0f);
+                if (!isGenerating && displayTex != null)
+                {
+                    TooltipHandler.TipRegion(imgRect, "RAV_ArtCreator_ClickZoom".Translate());
+                    if (Widgets.ButtonInvisible(imgRect))
+                    {
+                        Find.WindowStack.Add(new Dialog_ShowImage(displayTex));
+                    }
+                }
             }
 
             if (isGenerating) { Widgets.DrawBoxSolid(imgRect, new Color(0, 0, 0, 0.5f)); Text.Anchor = TextAnchor.MiddleCenter; Widgets.Label(imgRect, "RAV_ArtCreator_Generating".Translate()); Text.Anchor = TextAnchor.UpperLeft; }
 
             float y = imgRect.yMax + 6;
+            float sw = rect.width - 20;
+
+            if (generatedTexture != null && !isGenerating)
+            {
+                GUI.color = new Color(0.5f, 1f, 0.7f);
+                if (Widgets.ButtonText(new Rect(rect.x + 10, y, sw, 26), "RAV_ArtCreator_UseAsRef".Translate()))
+                {
+                    SetReferenceImage(generatedTexture);
+                    generatedTexture = null;
+                    if (currentMode != GenerationMode.ImageToImage)
+                    {
+                        currentMode = GenerationMode.ImageToImage;
+                        options.ApplyModeDefaults(true);
+                    }
+                    SoundDefOf.Click.PlayOneShotOnCamera();
+                }
+                GUI.color = Color.white;
+                y += 30;
+            }
 
             int provIdx = RimAiVinciMod.settings.providerIndex;
             bool isLocal = ApiProviders.IsLocalProvider(provIdx);
             string provName = ApiProviders.TranslationKeys[provIdx].Translate();
-            float sw = rect.width - 20;
 
-            GUI.color = new Color(0.7f, 0.85f, 1f);
-            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), "RAV_ArtCreator_Provider".Translate() + " " + provName);
-            GUI.color = Color.white;
-            y += 22;
+            float settingsBtnW = 78f;
+            Rect provBtnRect = new Rect(rect.x + 10, y, sw - settingsBtnW - 4f, 24);
+            Rect apiSetBtnRect = new Rect(provBtnRect.xMax + 4f, y, settingsBtnW, 24);
+
+            if (Widgets.ButtonText(provBtnRect, "RAV_ArtCreator_Provider".Translate() + " " + provName + " ▾"))
+            {
+                List<FloatMenuOption> provOpts = new List<FloatMenuOption>();
+                for (int i = 0; i < ApiProviders.Count; i++)
+                {
+                    int idx = i;
+                    provOpts.Add(new FloatMenuOption(ApiProviders.TranslationKeys[idx].Translate(), () =>
+                    {
+                        int prev = RimAiVinciMod.settings.providerIndex;
+                        RimAiVinciMod.settings.providerIndex = idx;
+                        if (prev != idx)
+                        {
+                            ApiProviders.ApplyProviderDefaults(idx);
+                            RimAiVinciMod.settings.Write();
+                        }
+                    }));
+                }
+                Find.WindowStack.Add(new FloatMenu(provOpts));
+            }
+            if (Widgets.ButtonText(apiSetBtnRect, "RAV_ArtCreator_OpenSettings".Translate()))
+            {
+                var mod = LoadedModManager.GetMod<RimAiVinciMod>();
+                if (mod != null) Find.WindowStack.Add(new Dialog_ModSettings(mod));
+            }
+            y += 28;
 
             string currentModel = currentMode == GenerationMode.ImageToImage ? RimAiVinciMod.settings.modelNameI2I : RimAiVinciMod.settings.modelName;
             string modelLabel = isLocal ? "RAV_Label_ModelFile".Translate() : "RAV_Label_ModelName".Translate();
             if (provIdx == ApiProviders.ComfyUI && RimAiVinciMod.settings.comfyWorkflowMode == 1) modelLabel = "RAV_Label_ComfyUNET".Translate();
-            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), modelLabel);
-            y += 18;
             string modelDisplay = currentModel;
-            if (string.IsNullOrEmpty(modelDisplay)) modelDisplay = isLocal ? "" : "Flux";
-            if (modelDisplay.Length > 28) modelDisplay = modelDisplay.Substring(0, 26) + "..";
+            if (string.IsNullOrEmpty(modelDisplay)) modelDisplay = isLocal ? "(Default)" : "Flux";
+            if (modelDisplay.Length > 26) modelDisplay = modelDisplay.Substring(0, 24) + "..";
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), modelDisplay);
+            GUI.color = new Color(0.8f, 0.8f, 0.8f);
+            Widgets.Label(new Rect(rect.x + 10, y, sw, 18), modelLabel + " " + modelDisplay);
+            GUI.color = Color.white;
             Text.Font = GameFont.Small;
             y += 20;
 
@@ -239,23 +290,7 @@ namespace RimAiVinci
                 {
                     if (Widgets.ButtonText(new Rect(rect.x + 10, y, rect.width - 20, 26), "RAV_ArtCreator_SetReference".Translate()))
                     {
-                        if (IsDeadPawn)
-                        {
-                            Texture2D memorial = LoadMemorialTexture();
-                            if (memorial != null)
-                            {
-                                SetReferenceImage(PadToSquare1024(memorial));
-                            }
-                            else
-                                Messages.Message("RAV_Gallery_FileLost".Translate(), MessageTypeDefOf.RejectInput);
-                        }
-                        else
-                        {
-                            RenderTexture rt = PortraitsCache.Get(targetPawn, new Vector2(512, 512), currentRotation);
-                            Texture2D rawTex = AdjustRenderTextureToTexture2D(rt);
-                            SetReferenceImage(PadToSquare1024(rawTex));
-                            UnityEngine.Object.Destroy(rawTex);
-                        }
+                        CaptureInGameReference();
                         generatedTexture = null;
                         SoundDefOf.Click.PlayOneShotOnCamera();
                     }
@@ -267,13 +302,19 @@ namespace RimAiVinci
 
                 if (Widgets.ButtonText(new Rect(rect.x + 10, y, (rect.width - 25) / 2, 26), "RAV_Btn_OpenFolder".Translate())) Application.OpenURL(ArtFileSystem.GetImportDir());
                 if (Widgets.ButtonText(new Rect(rect.x + 15 + (rect.width - 25) / 2, y, (rect.width - 25) / 2, 26), "RAV_ArtCreator_PickFile".Translate())) OpenImportFloatMenu();
-                y += 32;
+                y += 30;
 
                 Widgets.Label(new Rect(rect.x + 10, y, sw, 18), "RAV_Label_Strength".Translate(RimAiVinciMod.settings.i2iStrength.ToString("P0")));
                 y += 20;
                 RimAiVinciMod.settings.i2iStrength = Widgets.HorizontalSlider(new Rect(rect.x + 10, y, sw, 18), RimAiVinciMod.settings.i2iStrength, 0.1f, 1.0f);
-                y += 24;
+                y += 22;
             }
+
+            var store = Find.World?.GetComponent<ArtDataStore>();
+            int portraitCount = store != null ? store.GetArtForPawn(targetPawn).Count : 0;
+            GUI.color = new Color(0.75f, 0.75f, 0.75f);
+            Widgets.Label(new Rect(rect.x + 10, y, sw, 22), "RAV_ArtCreator_PortraitCount".Translate(portraitCount));
+            GUI.color = Color.white;
         }
 
         private void DrawRightPanel(Rect rect)
@@ -299,7 +340,10 @@ namespace RimAiVinci
 
             if (currentMode == GenerationMode.ImageToImage)
             {
-                if (listing.RadioButton("<b>" + "RAV_Style_CharacterSheet".Translate() + "</b>", options.style == ArtStyle.CharacterSheet)) options.style = ArtStyle.CharacterSheet;
+                Rect csRow = listing.GetRect(26f);
+                if (Widgets.RadioButtonLabeled(csRow, "<b>" + "RAV_Style_CharacterSheet".Translate() + "</b>", options.style == ArtStyle.CharacterSheet))
+                    options.style = ArtStyle.CharacterSheet;
+                TooltipHandler.TipRegion(csRow, GetStyleTooltipKey(ArtStyle.CharacterSheet).Translate());
             }
             listing.GapLine();
 
@@ -311,7 +355,22 @@ namespace RimAiVinci
             listing.CheckboxLabeled("RAV_Constraint_CinematicLighting".Translate(), ref options.useCinematicLighting);
             listing.GapLine();
 
-            listing.Label("<b>" + "RAV_ArtCreator_InfoRead".Translate() + "</b>");
+            Rect infoHeaderRow = listing.GetRect(24f);
+            Widgets.Label(new Rect(infoHeaderRow.x, infoHeaderRow.y, infoHeaderRow.width - 136f, 24f), "<b>" + "RAV_ArtCreator_InfoRead".Translate() + "</b>");
+            if (Widgets.ButtonText(new Rect(infoHeaderRow.xMax - 130f, infoHeaderRow.y, 62f, 22f), "RAV_ArtCreator_SelectAll".Translate()))
+            {
+                options.readRace = true; options.readAge = true; options.readHealth = true;
+                options.readApparel = true; options.readQuality = true; options.readTraits = true;
+                options.readSkinColor = true; options.readHair = true; options.readBackground = true;
+                if (RimTalkPersonaReader.IsRimTalkInstalled) options.readRimTalkPersona = true;
+            }
+            if (Widgets.ButtonText(new Rect(infoHeaderRow.xMax - 64f, infoHeaderRow.y, 62f, 22f), "RAV_ArtCreator_SelectNone".Translate()))
+            {
+                options.readRace = false; options.readAge = false; options.readHealth = false;
+                options.readApparel = false; options.readQuality = false; options.readTraits = false;
+                options.readSkinColor = false; options.readHair = false; options.readBackground = false;
+                options.readRimTalkPersona = false;
+            }
             Rect row1 = listing.GetRect(24);
             Widgets.CheckboxLabeled(new Rect(row1.x, row1.y, row1.width / 2, 24), "RAV_Read_Race".Translate(), ref options.readRace);
             Widgets.CheckboxLabeled(new Rect(row1.x + row1.width / 2, row1.y, row1.width / 2, 24), "RAV_Read_Age".Translate(), ref options.readAge);
@@ -378,12 +437,19 @@ namespace RimAiVinci
             options.extraPrompt = Widgets.TextArea(listing.GetRect(80), options.extraPrompt);
 
             listing.Gap(5);
-            listing.Label("<b>" + "RAV_ArtCreator_FinalPrompt".Translate() + "</b>");
-
             options.isImg2ImgMode = (currentMode == GenerationMode.ImageToImage);
             // 预览同步使用当前供应商的语法模式
             options.naturalLanguageMode = PromptSyntaxHelper.NeedsNaturalLanguage(RimAiVinciMod.settings.providerIndex, false);
             string preview = BuildFinalPrompt();
+
+            Rect promptHeaderRow = listing.GetRect(24f);
+            Widgets.Label(new Rect(promptHeaderRow.x, promptHeaderRow.y, promptHeaderRow.width - 110f, 24f), "<b>" + "RAV_ArtCreator_FinalPrompt".Translate() + "</b>");
+            if (Widgets.ButtonText(new Rect(promptHeaderRow.xMax - 105f, promptHeaderRow.y, 105f, 22f), "RAV_ArtCreator_CopyPrompt".Translate()))
+            {
+                GUIUtility.systemCopyBuffer = preview ?? "";
+                Messages.Message("RAV_ArtCreator_CopiedPrompt".Translate(), MessageTypeDefOf.TaskCompletion, false);
+            }
+
             Widgets.TextArea(listing.GetRect(130), preview, true);
 
             listing.End();
@@ -397,7 +463,47 @@ namespace RimAiVinci
             Rect leftRect = new Rect(row.x, row.y, colW, 24f);
             Rect rightRect = new Rect(row.x + colW + 14f, row.y, colW, 24f);
             if (Widgets.RadioButtonLabeled(leftRect, labelLeft, options.style == styleLeft)) options.style = styleLeft;
+            TooltipHandler.TipRegion(leftRect, GetStyleTooltipKey(styleLeft).Translate());
             if (Widgets.RadioButtonLabeled(rightRect, labelRight, options.style == styleRight)) options.style = styleRight;
+            TooltipHandler.TipRegion(rightRect, GetStyleTooltipKey(styleRight).Translate());
+        }
+
+        private static string GetStyleTooltipKey(ArtStyle style)
+        {
+            switch (style)
+            {
+                case ArtStyle.Standard: return "RAV_StyleTip_Standard";
+                case ArtStyle.Realistic: return "RAV_StyleTip_Realistic";
+                case ArtStyle.Miyazaki: return "RAV_StyleTip_Miyazaki";
+                case ArtStyle.Chibi: return "RAV_StyleTip_Chibi";
+                case ArtStyle.Storyteller: return "RAV_StyleTip_Storyteller";
+                case ArtStyle.EasternInk: return "RAV_StyleTip_EasternInk";
+                case ArtStyle.DarkGothic: return "RAV_StyleTip_DarkGothic";
+                case ArtStyle.CharacterSheet: return "RAV_StyleTip_CharacterSheet";
+                case ArtStyle.Custom: return "RAV_StyleTip_Custom";
+                default: return "RAV_StyleTip_Standard";
+            }
+        }
+
+        private bool CaptureInGameReference()
+        {
+            if (IsDeadPawn)
+            {
+                Texture2D memorial = LoadMemorialTexture();
+                if (memorial != null)
+                {
+                    SetReferenceImage(PadToSquare1024(memorial));
+                    return true;
+                }
+                Messages.Message("RAV_Gallery_FileLost".Translate(), MessageTypeDefOf.RejectInput);
+                return false;
+            }
+
+            RenderTexture rt = PortraitsCache.Get(targetPawn, new Vector2(512, 512), currentRotation);
+            Texture2D rawTex = AdjustRenderTextureToTexture2D(rt);
+            SetReferenceImage(PadToSquare1024(rawTex));
+            UnityEngine.Object.Destroy(rawTex);
+            return referenceTexture != null;
         }
 
         private void DrawBottomButtons(Rect inRect, float btnX)
@@ -552,6 +658,16 @@ namespace RimAiVinci
         {
             isGenerating = true;
 
+            // 图生图模式下若玩家尚未手动设置底图，自动抓取当前角度的游戏立绘作为 1024x1024 底图
+            if (currentMode == GenerationMode.ImageToImage && referenceTexture == null)
+            {
+                if (!CaptureInGameReference())
+                {
+                    isGenerating = false;
+                    return;
+                }
+            }
+
             // 按渠道适配提示词语法模式 + 设置种族负面词上下文
             int providerIdx = RimAiVinciMod.settings.providerIndex;
             options.naturalLanguageMode = PromptSyntaxHelper.NeedsNaturalLanguage(providerIdx, player2);
@@ -695,6 +811,7 @@ namespace RimAiVinci
                 };
                 ArtDataStore store = Find.World.GetComponent<ArtDataStore>();
                 store.AddArt(newData);
+                store.SetActivePortrait(targetPawn.ThingID, relPath);
                 if (targetState != null)
                 {
                     store.SetStatePortrait(targetPawn.ThingID, targetState.Value, relPath);
@@ -797,7 +914,9 @@ namespace RimAiVinci
                     authorName = targetPawn.Name != null ? targetPawn.Name.ToStringShort : targetPawn.def.label,
                     pawnType = PawnPortraitTypeHelper.GetPawnType(targetPawn)
                 };
-                Find.World.GetComponent<ArtDataStore>().AddArt(newData);
+                ArtDataStore upStore = Find.World.GetComponent<ArtDataStore>();
+                upStore.AddArt(newData);
+                upStore.SetActivePortrait(targetPawn.ThingID, relPath);
                 hasSavedCurrent = true;
                 Messages.Message("RAV_ArtCreator_SaveSuccess".Translate(), MessageTypeDefOf.TaskCompletion);
 

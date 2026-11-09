@@ -123,13 +123,20 @@
 	<RAV_ArtCreator_LoadSuccess>Loaded successfully</RAV_ArtCreator_LoadSuccess>
 	<RAV_ArtCreator_LoadFail>Cannot load: {0}</RAV_ArtCreator_LoadFail>
 	<RAV_ArtCreator_ImportEmpty>Import folder is empty</RAV_ArtCreator_ImportEmpty>
-	<RAV_ArtCreator_SaveSuccess>Saved</RAV_ArtCreator_SaveSuccess>
+	<RAV_ArtCreator_SaveSuccess>Saved and set as active portrait</RAV_ArtCreator_SaveSuccess>
+	<RAV_ArtCreator_ClickZoom>Click to zoom in</RAV_ArtCreator_ClickZoom>
+	<RAV_ArtCreator_UseAsRef>Use as Img2Img Reference (Refine)</RAV_ArtCreator_UseAsRef>
+	<RAV_ArtCreator_OpenSettings>API Setup</RAV_ArtCreator_OpenSettings>
+	<RAV_ArtCreator_SelectAll>All</RAV_ArtCreator_SelectAll>
+	<RAV_ArtCreator_SelectNone>None</RAV_ArtCreator_SelectNone>
+	<RAV_ArtCreator_CopyPrompt>Copy Prompt</RAV_ArtCreator_CopyPrompt>
+	<RAV_ArtCreator_CopiedPrompt>Prompt copied to clipboard</RAV_ArtCreator_CopiedPrompt>
 	<RAV_Mode_Txt2Img>Txt2Img</RAV_Mode_Txt2Img>
 	<RAV_Mode_Img2Img>Img2Img</RAV_Mode_Img2Img>
 	<RAV_UploadOnly_Title>Portrait Upload - {0}</RAV_UploadOnly_Title>
 
 	<RAV_ArtCreator_PresetStyles>1. Preset Art Styles:</RAV_ArtCreator_PresetStyles>
-	<RAV_Style_Standard>Standard</RAV_Style_Standard>
+	<RAV_Style_Standard>Anime Illustration</RAV_Style_Standard>
 	<RAV_Style_Realistic>Wasteland Realistic</RAV_Style_Realistic>
 	<RAV_Style_Miyazaki>Miyazaki Style</RAV_Style_Miyazaki>
 	<RAV_Style_Chibi>Chibi Kawaii</RAV_Style_Chibi>
@@ -138,6 +145,15 @@
 	<RAV_Style_DarkGothic>Dark Gothic</RAV_Style_DarkGothic>
 	<RAV_Style_CharacterSheet>Character Sheet Mode</RAV_Style_CharacterSheet>
 	<RAV_Style_Custom>Custom / Master Mode</RAV_Style_Custom>
+	<RAV_StyleTip_Standard>[Anime Illustration]\nDetailed cel shading, clean lineart, and vibrant colors.\nSimilar to: Arknights / Blue Archive mobile game character splash art.</RAV_StyleTip_Standard>
+	<RAV_StyleTip_Realistic>[Wasteland Realistic]\n8K photorealistic skin pores, weathered fabric textures, and dramatic lighting.\nSimilar to: Gritty sci-fi frontier portraits like Dune or Blade Runner.</RAV_StyleTip_Realistic>
+	<RAV_StyleTip_Miyazaki>[Miyazaki Style]\nWarm nostalgic 1990s cel animation with hand-painted watercolor and gouache textures.\nSimilar to: Studio Ghibli animated film characters.</RAV_StyleTip_Miyazaki>
+	<RAV_StyleTip_Chibi>[Chibi Kawaii]\n2-heads-tall super deformed proportions, big sparkling eyes, and clean thick lineart.\nSimilar to: Cute chibi character illustrations.</RAV_StyleTip_Chibi>
+	<RAV_StyleTip_Storyteller>[Storyteller Concept]\nSemi-realistic digital painting with rich painterly brushstrokes and strong chiaroscuro lighting.\nSimilar to: RimWorld official Storyteller cover art and western concept art.</RAV_StyleTip_Storyteller>
+	<RAV_StyleTip_EasternInk>[Eastern Ink Fantasy]\nTraditional Chinese ink wash combined with delicate gongbi brushwork and flowing robes.\nSimilar to: Xianxia / martial arts eastern fantasy illustrations.</RAV_StyleTip_EasternInk>
+	<RAV_StyleTip_DarkGothic>[Dark Gothic]\nHigh-contrast heavy ink shadows, muted desaturated palette, and crimson accents.\nSimilar to: Darkest Dungeon and RimWorld Anomaly / Sanguophage aesthetics.</RAV_StyleTip_DarkGothic>
+	<RAV_StyleTip_CharacterSheet>[Character Sheet Mode]\nSimple clean white background, upright standing reference pose, and clear lineart.\nSimilar to: Official character design concept sheets showing full outfit details.</RAV_StyleTip_CharacterSheet>
+	<RAV_StyleTip_Custom>[Custom / Master Mode]\nDisables all preset style tags and auto-checkboxes so your Master Prompt below takes full control.</RAV_StyleTip_Custom>
 	<RAV_ArtCreator_Constraint>2. Composition Constraints:</RAV_ArtCreator_Constraint>
 	<RAV_ArtCreator_ConstraintCustom>2. Composition Constraints (Master Optional):</RAV_ArtCreator_ConstraintCustom>
 	<RAV_Constraint_FullBody>Force full-body standing</RAV_Constraint_FullBody>
