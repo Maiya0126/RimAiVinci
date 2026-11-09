@@ -338,7 +338,7 @@ namespace RimAiVinci
                     vaes = await FetchNodeList(url, "VAELoader", "vae_name");
                 }
                 catch (Exception ex) { error = ex.Message; }
-                LongEventHandler.QueueLongEvent(() => callback?.Invoke(ckpts, unets, clips, vaes, error), "RimAiVinci_FetchModels", false, null);
+                LongEventHandler.QueueLongEvent(() => callback?.Invoke(ckpts, unets, clips, vaes, error), "RAV_ModelFetch_Running", false, null);
             });
         }
 

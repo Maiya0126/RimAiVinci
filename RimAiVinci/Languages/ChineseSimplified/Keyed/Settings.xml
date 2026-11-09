@@ -168,6 +168,8 @@
 	<RAV_NetError_CheckUrl>网络连接出错，请检查 URL 设置。</RAV_NetError_CheckUrl>
 	<RAV_Frame_NoPortrait>{0} 未设置展示立绘！</RAV_Frame_NoPortrait>
 	<RAV_Frame_Created>具现化成功！</RAV_Frame_Created>
+	<RAV_Frame_PortraitSubject>立绘人物: {0}</RAV_Frame_PortraitSubject>
+	<RAV_Error_Http405>端点缺少路径 (HTTP 405)，已自动尝试补全，请检查 API URL 或重试</RAV_Error_Http405>
 	<RAV_Debug_QuickGen>[快速测试] 正在为 {0} 生图...</RAV_Debug_QuickGen>
 	<RAV_Debug_GenDone>生成完成</RAV_Debug_GenDone>
 	<RAV_Comfy_Standard>标准 (SD1.5/SDXL)</RAV_Comfy_Standard>

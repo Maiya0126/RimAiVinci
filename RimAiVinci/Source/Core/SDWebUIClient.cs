@@ -112,7 +112,7 @@ namespace RimAiVinci
                     else models = ExtractModelTitles(body);
                 }
                 catch (Exception ex) { error = ex.Message; }
-                LongEventHandler.QueueLongEvent(() => callback?.Invoke(models, error), "RimAiVinci_FetchModels", false, null);
+                LongEventHandler.QueueLongEvent(() => callback?.Invoke(models, error), "RAV_ModelFetch_Running", false, null);
             });
         }
 

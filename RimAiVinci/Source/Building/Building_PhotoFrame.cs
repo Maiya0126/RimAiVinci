@@ -55,9 +55,23 @@ namespace RimAiVinci
         {
             this.targetPawnID = pID;
             this.artPath = path;
-            this.cachedTexture = null; // 路径变了，清空贴图缓存
+            if (this.cachedTexture != null)
+            {
+                UnityEngine.Object.Destroy(this.cachedTexture);
+                this.cachedTexture = null;
+            }
             this.cachedGraphic = null;
             this.RefreshDisplay();
+        }
+
+        public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
+        {
+            if (this.cachedTexture != null)
+            {
+                UnityEngine.Object.Destroy(this.cachedTexture);
+                this.cachedTexture = null;
+            }
+            base.Destroy(mode);
         }
 
         // 供 Gizmo 调用的设置方法
@@ -125,9 +139,9 @@ namespace RimAiVinci
                 if (Find.CurrentMap != null)
                 {
                     Pawn p = Find.CurrentMap.mapPawns.AllPawns.FirstOrDefault(x => x.ThingID == targetPawnID);
-                    if (p != null) name = p.Name.ToStringShort;
+                    if (p != null) name = p.Name != null ? p.Name.ToStringShort : p.LabelShort;
                 }
-                sb.Append($"立绘人物: {name}");
+                sb.Append("RAV_Frame_PortraitSubject".Translate(name));
             }
             return sb.ToString();
         }

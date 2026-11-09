@@ -14,7 +14,49 @@ namespace RimAiVinci
 
         static SiliconClient()
         {
-            client.Timeout = TimeSpan.FromSeconds(120);
+            client.Timeout = TimeSpan.FromSeconds(240);
+        }
+
+        /// <summary>
+        /// 规范化生图 API 端点 URL（405 修复）：
+        /// 完整端点保持不变；版本目录（/v1、/v2、/v3、/v4、/v1beta、/openai、/api/paas 等）自动补 /images/generations；
+        /// 仅填域名自动补 /v1/images/generations。不回写玩家原配置。
+        /// </summary>
+        public static string NormalizeEndpointUrl(string rawUrl)
+        {
+            if (string.IsNullOrWhiteSpace(rawUrl))
+                return "https://api.siliconflow.cn/v1/images/generations";
+
+            string url = rawUrl.Trim().TrimEnd('/');
+            string lower = url.ToLowerInvariant();
+
+            if (lower.EndsWith("/images/generations") ||
+                lower.EndsWith("/images/edits") ||
+                lower.EndsWith("/chat/completions") ||
+                lower.EndsWith("/completions") ||
+                lower.EndsWith("/messages") ||
+                lower.EndsWith("/generatecontent"))
+            {
+                return url;
+            }
+
+            if (lower.EndsWith("/v1") || lower.EndsWith("/v2") || lower.EndsWith("/v3") ||
+                lower.EndsWith("/v4") || lower.EndsWith("/v1beta") || lower.EndsWith("/openai") ||
+                lower.EndsWith("/api/paas") || lower.EndsWith("/inference"))
+            {
+                return url + "/images/generations";
+            }
+
+            if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+            {
+                string path = uri.AbsolutePath.Trim('/');
+                if (string.IsNullOrEmpty(path))
+                {
+                    return url + "/v1/images/generations";
+                }
+            }
+
+            return url;
         }
 
         public static void GenerateImageAsync(string prompt, Action<Texture2D> callback)
@@ -65,8 +107,7 @@ namespace RimAiVinci
         private static void SendRequest(string jsonBody, Action<Texture2D> callback)
         {
             string apiKey = RimAiVinciMod.settings.apiKey;
-            string url = RimAiVinciMod.settings.apiUrl;
-            if (string.IsNullOrEmpty(url)) url = "https://api.siliconflow.cn/v1/images/generations";
+            string url = NormalizeEndpointUrl(RimAiVinciMod.settings.apiUrl);
 
             // 这段还在主线程，直接调用没问题
             if (string.IsNullOrEmpty(apiKey))
@@ -89,59 +130,61 @@ namespace RimAiVinci
 
                     if (response.IsSuccessStatusCode)
                     {
+                        byte[] imageBytes = null;
                         string imageUrl = ExtractUrlFromJson(responseBody);
                         if (!string.IsNullOrEmpty(imageUrl))
                         {
-                            byte[] imageBytes = await client.GetByteArrayAsync(imageUrl);
-
-                            // 成功获取图片，回到主线程处理贴图
-                            LongEventHandler.QueueLongEvent(() =>
-                            {
-                                if (imageBytes != null && imageBytes.Length > 0)
-                                {
-                                    Texture2D tex = new Texture2D(2, 2);
-                                    tex.LoadImage(imageBytes);
-                                    tex.name = "AI_Gen_" + DateTime.Now.Ticks;
-                                    callback?.Invoke(tex);
-                                }
-                                else
-                                {
-                                    // ✨ 修复：将后台报错和回调打包进主线程
-                                    Log.Error($"[Rim AiVinci] 无法从返回中提取 URL: {responseBody}");
-                                    callback?.Invoke(null);
-                                }
-                            }, "ProcessingAIImage", false, null);
+                            imageBytes = await client.GetByteArrayAsync(imageUrl);
                         }
                         else
                         {
-                            // ✨ 修复：JSON 解析失败时的报错和回调打包进主线程
+                            string b64 = ExtractBase64FromJson(responseBody);
+                            if (!string.IsNullOrEmpty(b64))
+                            {
+                                imageBytes = Convert.FromBase64String(b64);
+                            }
+                        }
+
+                        if (imageBytes != null && imageBytes.Length > 0)
+                        {
                             LongEventHandler.QueueLongEvent(() =>
                             {
-                                Log.Error($"[Rim AiVinci] 无法从返回中提取 URL: {responseBody}");
+                                Texture2D tex = new Texture2D(2, 2);
+                                tex.LoadImage(imageBytes);
+                                tex.name = "AI_Gen_" + DateTime.Now.Ticks;
+                                callback?.Invoke(tex);
+                            }, "RimAiVinci_ProcessingAIImage", false, null);
+                        }
+                        else
+                        {
+                            LongEventHandler.QueueLongEvent(() =>
+                            {
+                                Log.Error($"[Rim AiVinci] 无法从返回中提取图片 URL 或 b64_json: {responseBody}");
                                 callback?.Invoke(null);
-                            }, "AIError", false, null);
+                            }, "RimAiVinci_AIError", false, null);
                         }
                     }
                     else
                     {
-                        // ✨ 修复：API 请求失败（如欠费、限流）时的日志和左上角红字提示，必须在主线程执行
                         LongEventHandler.QueueLongEvent(() =>
                         {
                             Log.Error($"[Rim AiVinci] API 请求失败: {response.StatusCode}\n{responseBody}");
-                            Messages.Message("RAV_GenFail_CheckSettings".Translate(((int)response.StatusCode).ToString()), MessageTypeDefOf.RejectInput);
+                            if ((int)response.StatusCode == 405)
+                                Messages.Message("RAV_Error_Http405".Translate(), MessageTypeDefOf.RejectInput);
+                            else
+                                Messages.Message("RAV_GenFail_CheckSettings".Translate(((int)response.StatusCode).ToString()), MessageTypeDefOf.RejectInput);
                             callback?.Invoke(null);
-                        }, "AIError", false, null);
+                        }, "RimAiVinci_AIError", false, null);
                     }
                 }
                 catch (Exception ex)
                 {
-                    // ✨ 修复：网络异常（如断网）时的提示，必须在主线程执行
                     LongEventHandler.QueueLongEvent(() =>
                     {
                         Log.Error("[Rim AiVinci] 网络异常: " + ex.ToString());
                         Messages.Message("RAV_NetError_CheckUrl".Translate(), MessageTypeDefOf.RejectInput);
                         callback?.Invoke(null);
-                    }, "AIError", false, null);
+                    }, "RimAiVinci_AIError", false, null);
                 }
             });
         }
@@ -163,10 +206,33 @@ namespace RimAiVinci
             catch { return null; }
         }
 
+        private static string ExtractBase64FromJson(string json)
+        {
+            try
+            {
+                string key = "\"b64_json\":";
+                int start = json.IndexOf(key);
+                if (start == -1) return null;
+                start += key.Length;
+                int quoteStart = json.IndexOf("\"", start);
+                if (quoteStart == -1) return null;
+                int quoteEnd = json.IndexOf("\"", quoteStart + 1);
+                if (quoteEnd == -1) return null;
+                string val = json.Substring(quoteStart + 1, quoteEnd - quoteStart - 1);
+                if (val.StartsWith("data:image"))
+                {
+                    int comma = val.IndexOf(',');
+                    if (comma != -1) val = val.Substring(comma + 1);
+                }
+                return val;
+            }
+            catch { return null; }
+        }
+
         public static void TestConnection(Action<string, bool> resultCallback)
         {
             string apiKey = RimAiVinciMod.settings.apiKey;
-            string url = RimAiVinciMod.settings.apiUrl;
+            string rawUrl = RimAiVinciMod.settings.apiUrl;
             string model = RimAiVinciMod.settings.modelName;
 
             if (string.IsNullOrEmpty(apiKey))
@@ -174,11 +240,13 @@ namespace RimAiVinci
                 resultCallback("RAV_Test_NoKey".Translate(), false);
                 return;
             }
-            if (string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(rawUrl))
             {
                 resultCallback("RAV_Test_NoUrl".Translate(), false);
                 return;
             }
+
+            string url = NormalizeEndpointUrl(rawUrl);
 
             Task.Run(async () =>
             {
@@ -198,6 +266,10 @@ namespace RimAiVinci
                         if (response.IsSuccessStatusCode)
                         {
                             resultCallback("RAV_Test_Success".Translate(), true);
+                        }
+                        else if ((int)response.StatusCode == 405)
+                        {
+                            resultCallback("RAV_Error_Http405".Translate(), false);
                         }
                         else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                         {

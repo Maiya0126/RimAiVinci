@@ -16,6 +16,8 @@ namespace RimAiVinci
         private Texture2D generatedTexture = null;
         private Texture2D referenceTexture = null;
         private Texture2D uploadedTexture = null;
+        private Texture2D cachedMemorialTexture = null;
+        private bool memorialTextureChecked = false;
         private bool isGenerating = false;
         private bool hasSavedCurrent = false;
         private GenerationMode currentMode = GenerationMode.TextToImage;
@@ -60,6 +62,7 @@ namespace RimAiVinci
             if (generatedTexture != null) { UnityEngine.Object.Destroy(generatedTexture); generatedTexture = null; }
             if (referenceTexture != null) { UnityEngine.Object.Destroy(referenceTexture); referenceTexture = null; }
             if (uploadedTexture != null) { UnityEngine.Object.Destroy(uploadedTexture); uploadedTexture = null; }
+            if (cachedMemorialTexture != null) { UnityEngine.Object.Destroy(cachedMemorialTexture); cachedMemorialTexture = null; }
         }
 
         private bool IsUploadOnlyMode => !PawnPortraitTypeHelper.CanAIGenerate(targetPawn);
@@ -67,13 +70,19 @@ namespace RimAiVinci
 
         private Texture2D LoadMemorialTexture()
         {
+            if (memorialTextureChecked) return cachedMemorialTexture;
+            memorialTextureChecked = true;
             var store = Find.World.GetComponent<ArtDataStore>();
             var arts = store?.GetArtForPawn(targetPawn);
             if (arts == null || arts.Count == 0) return null;
             for (int i = arts.Count - 1; i >= 0; i--)
             {
                 Texture2D t = ArtFileSystem.LoadTextureFromDisk(arts[i].relativePath);
-                if (t != null) return t;
+                if (t != null)
+                {
+                    cachedMemorialTexture = t;
+                    return cachedMemorialTexture;
+                }
             }
             return null;
         }
@@ -221,8 +230,8 @@ namespace RimAiVinci
                 {
                     if (Widgets.ButtonText(new Rect(rect.x + 10, y, rect.width - 20, 26), "RAV_ArtCreator_ResetReference".Translate()))
                     {
-                        referenceTexture = null;
-                        generatedTexture = null;
+                        if (referenceTexture != null) { UnityEngine.Object.Destroy(referenceTexture); referenceTexture = null; }
+                        if (generatedTexture != null) { UnityEngine.Object.Destroy(generatedTexture); generatedTexture = null; }
                         SoundDefOf.Click.PlayOneShotOnCamera();
                     }
                 }
@@ -236,7 +245,6 @@ namespace RimAiVinci
                             if (memorial != null)
                             {
                                 SetReferenceImage(PadToSquare1024(memorial));
-                                UnityEngine.Object.Destroy(memorial);
                             }
                             else
                                 Messages.Message("RAV_Gallery_FileLost".Translate(), MessageTypeDefOf.RejectInput);

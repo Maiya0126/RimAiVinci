@@ -168,6 +168,8 @@
 	<RAV_NetError_CheckUrl>Network error. Please check URL settings.</RAV_NetError_CheckUrl>
 	<RAV_Frame_NoPortrait>{0} has no portrait set!</RAV_Frame_NoPortrait>
 	<RAV_Frame_Created>Frame created successfully!</RAV_Frame_Created>
+	<RAV_Frame_PortraitSubject>Portrait Subject: {0}</RAV_Frame_PortraitSubject>
+	<RAV_Error_Http405>Endpoint path missing (HTTP 405). Auto-completed path; please check API URL or retry.</RAV_Error_Http405>
 	<RAV_Debug_QuickGen>[Quick Test] Generating for {0}...</RAV_Debug_QuickGen>
 	<RAV_Debug_GenDone>Generation complete</RAV_Debug_GenDone>
 	<RAV_Comfy_Standard>Standard (SD1.5/SDXL)</RAV_Comfy_Standard>
