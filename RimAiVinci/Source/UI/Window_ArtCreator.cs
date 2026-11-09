@@ -292,17 +292,15 @@ namespace RimAiVinci
             }
 
             listing.Label("<b>" + "RAV_ArtCreator_PresetStyles".Translate() + "</b>");
-            if (listing.RadioButton("RAV_Style_Standard".Translate(), options.style == ArtStyle.Standard)) options.style = ArtStyle.Standard;
-            if (listing.RadioButton("RAV_Style_Realistic".Translate(), options.style == ArtStyle.Realistic)) options.style = ArtStyle.Realistic;
-            if (listing.RadioButton("RAV_Style_Miyazaki".Translate(), options.style == ArtStyle.Miyazaki)) options.style = ArtStyle.Miyazaki;
-            if (listing.RadioButton("RAV_Style_Chibi".Translate(), options.style == ArtStyle.Chibi)) options.style = ArtStyle.Chibi;
+            DrawStyleRadioPair(listing, "RAV_Style_Standard".Translate(), ArtStyle.Standard, "RAV_Style_Realistic".Translate(), ArtStyle.Realistic);
+            DrawStyleRadioPair(listing, "RAV_Style_Miyazaki".Translate(), ArtStyle.Miyazaki, "RAV_Style_Chibi".Translate(), ArtStyle.Chibi);
+            DrawStyleRadioPair(listing, "RAV_Style_Storyteller".Translate(), ArtStyle.Storyteller, "RAV_Style_EasternInk".Translate(), ArtStyle.EasternInk);
+            DrawStyleRadioPair(listing, "RAV_Style_DarkGothic".Translate(), ArtStyle.DarkGothic, "<b>" + "RAV_Style_Custom".Translate() + "</b>", ArtStyle.Custom);
 
             if (currentMode == GenerationMode.ImageToImage)
             {
                 if (listing.RadioButton("<b>" + "RAV_Style_CharacterSheet".Translate() + "</b>", options.style == ArtStyle.CharacterSheet)) options.style = ArtStyle.CharacterSheet;
             }
-
-            if (listing.RadioButton("<b>" + "RAV_Style_Custom".Translate() + "</b>", options.style == ArtStyle.Custom)) options.style = ArtStyle.Custom;
             listing.GapLine();
 
             string constraintLabel = options.style == ArtStyle.Custom
@@ -390,6 +388,16 @@ namespace RimAiVinci
 
             listing.End();
             Widgets.EndScrollView();
+        }
+
+        private void DrawStyleRadioPair(Listing_Standard listing, string labelLeft, ArtStyle styleLeft, string labelRight, ArtStyle styleRight)
+        {
+            Rect row = listing.GetRect(26f);
+            float colW = (row.width - 14f) / 2f;
+            Rect leftRect = new Rect(row.x, row.y, colW, 24f);
+            Rect rightRect = new Rect(row.x + colW + 14f, row.y, colW, 24f);
+            if (Widgets.RadioButtonLabeled(leftRect, labelLeft, options.style == styleLeft)) options.style = styleLeft;
+            if (Widgets.RadioButtonLabeled(rightRect, labelRight, options.style == styleRight)) options.style = styleRight;
         }
 
         private void DrawBottomButtons(Rect inRect, float btnX)

@@ -10,7 +10,18 @@ using RimWorld;
 
 namespace RimAiVinci
 {
-    public enum ArtStyle { Standard, Realistic, Miyazaki, Chibi, CharacterSheet, Custom }
+    public enum ArtStyle
+    {
+        Standard,
+        Realistic,
+        Miyazaki,
+        Chibi,
+        Storyteller,
+        EasternInk,
+        DarkGothic,
+        CharacterSheet,
+        Custom
+    }
 
     public class PromptOptions
     {
@@ -248,6 +259,15 @@ namespace RimAiVinci
                         case ArtStyle.Chibi:
                             sb.Append($"chibi style, super deformed, 2 heads tall, cute adorable proportions, big expressive sparkling eyes, clean thick lineart, soft vibrant colors{(opt.naturalLanguageMode ? ", complete chibi body with arms and legs, " : ", (cute chibi body with arms and legs:1.3), ")}");
                             break;
+                        case ArtStyle.Storyteller:
+                            sb.Append($"masterpiece, best quality, semi-realistic digital painting, rich painterly brushstrokes, stylized western sci-fi concept art portrait, dramatic rimworld storyteller illustration aesthetic, {breakStructure}strong chiaroscuro lighting, ");
+                            break;
+                        case ArtStyle.EasternInk:
+                            sb.Append($"masterpiece, best quality, eastern fantasy illustration, traditional chinese ink wash and gongbi painting style, delicate brushwork, flowing robes, ethereal xianxia martial arts aesthetic, {breakStructure}poetic ink splash accents, ");
+                            break;
+                        case ArtStyle.DarkGothic:
+                            sb.Append($"masterpiece, best quality, dark gothic fantasy illustration, heavy ink shadows, stark chiaroscuro lighting, eldritch horror atmosphere, muted desaturated palette with crimson accents, {breakStructure}ominous mood, ");
+                            break;
                     }
                 }
                 else
@@ -265,6 +285,15 @@ namespace RimAiVinci
                             break;
                         case ArtStyle.Chibi:
                             sb.Append("chibi style, super deformed, 2 heads tall, cute adorable proportions, big expressive sparkling eyes, clean thick lineart, soft vibrant colors, kawaii illustration, ");
+                            break;
+                        case ArtStyle.Storyteller:
+                            sb.Append("masterpiece, best quality, semi-realistic digital painting, rich painterly brushstrokes, stylized western sci-fi concept art portrait, dramatic rimworld storyteller illustration aesthetic, strong chiaroscuro lighting, ");
+                            break;
+                        case ArtStyle.EasternInk:
+                            sb.Append("masterpiece, best quality, eastern fantasy illustration, traditional chinese ink wash and gongbi painting style, delicate brushwork, flowing robes, ethereal xianxia martial arts aesthetic, poetic ink splash accents, ");
+                            break;
+                        case ArtStyle.DarkGothic:
+                            sb.Append("masterpiece, best quality, dark gothic fantasy illustration, heavy ink shadows, stark chiaroscuro lighting, eldritch horror atmosphere, muted desaturated palette with crimson accents, ominous mood, ");
                             break;
                     }
                 }
