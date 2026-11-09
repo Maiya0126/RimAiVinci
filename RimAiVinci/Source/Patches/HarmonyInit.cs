@@ -9,7 +9,7 @@ namespace RimAiVinci
     {
         static HarmonyInit()
         {
-            var harmony = new Harmony("com.maiya.rimaivinci");
+            var harmony = new Harmony("Maiya.RimAiVinci");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             Log.Message("[Rim AiVinci] Harmony Patches Applied.");
         }
