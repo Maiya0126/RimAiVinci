@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Verse;
 
 namespace RimAiVinci
@@ -224,13 +225,38 @@ namespace RimAiVinci
         };
 
         /// <summary>
-        /// 获取种族描述（自动适配提示词语法模式）。返回 null 表示未收录。
+        /// 获取种族描述（自动适配提示词语法模式与角色性别）。返回 null 表示未收录。
         /// </summary>
         public static string GetRaceVisuals(Pawn pawn, bool naturalLanguage = false)
         {
             var entry = FindEntry(pawn);
             if (entry == null) return null;
-            return naturalLanguage ? entry.nlForm : entry.tagForm;
+            string raw = naturalLanguage ? entry.nlForm : entry.tagForm;
+            return AdaptGenderTerms(raw, pawn.gender);
+        }
+
+        private static string AdaptGenderTerms(string text, Gender gender)
+        {
+            if (string.IsNullOrEmpty(text) || gender == Gender.Female) return text;
+
+            if (gender == Gender.Male)
+            {
+                string res = Regex.Replace(text, @"\b1girl\b", "1boy", RegexOptions.IgnoreCase);
+                res = Regex.Replace(res, @"\byoung woman\b", "young man", RegexOptions.IgnoreCase);
+                res = Regex.Replace(res, @"\bwoman\b", "man", RegexOptions.IgnoreCase);
+                res = Regex.Replace(res, @"\bgirl\b", "boy", RegexOptions.IgnoreCase);
+                res = Regex.Replace(res, @"\bshe\b", "he", RegexOptions.IgnoreCase);
+                res = Regex.Replace(res, @"\bher\b", "his", RegexOptions.IgnoreCase);
+                return res;
+            }
+
+            // Gender.None
+            string neutral = Regex.Replace(text, @"\b1girl,\s*", "", RegexOptions.IgnoreCase);
+            neutral = Regex.Replace(neutral, @"\byoung woman\b", "figure", RegexOptions.IgnoreCase);
+            neutral = Regex.Replace(neutral, @"\bgirl\b", "character", RegexOptions.IgnoreCase);
+            neutral = Regex.Replace(neutral, @"\bshe\b", "they", RegexOptions.IgnoreCase);
+            neutral = Regex.Replace(neutral, @"\bher\b", "their", RegexOptions.IgnoreCase);
+            return neutral;
         }
 
         /// <summary>

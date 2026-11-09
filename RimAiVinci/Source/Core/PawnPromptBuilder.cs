@@ -80,20 +80,23 @@ namespace RimAiVinci
     {
         public static string RaceNegative;
 
-        /// <summary>设置本次生成的种族负面词（创作窗在发起生成前调用）</summary>
+        /// <summary>设置本次生成的种族负面词与防像素/防无手脚棋子负面词（创作窗在发起生成前调用）</summary>
         public static void Begin(Pawn pawn)
         {
-            RaceNegative = null;
+            const string antiSpriteNeg = "pixel art, game sprite, armless, legless, floating torso, pawn token";
+            RaceNegative = antiSpriteNeg;
             try
             {
                 string custom = CustomRacePromptStore.GetCustom(pawn);
                 if (!string.IsNullOrEmpty(custom))
                 {
-                    // 自定义描述：不追加内置负面词（玩家全权接管）
-                    RaceNegative = null;
                     return;
                 }
-                RaceNegative = RaceDescriptionMapper.GetRaceNegative(pawn);
+                string raceNeg = RaceDescriptionMapper.GetRaceNegative(pawn);
+                if (!string.IsNullOrEmpty(raceNeg))
+                {
+                    RaceNegative = antiSpriteNeg + ", " + raceNeg;
+                }
             }
             catch { }
         }
@@ -223,30 +226,46 @@ namespace RimAiVinci
 
             StringBuilder sb = new StringBuilder();
 
-            // 1. 风格前缀（自然语言模式下不加权重语法）
+            // 1. 风格前缀（自然语言模式下不加权重语法；禁止在正向提示词写 NOT pixel art 等反作用词）
             if (opt.style != ArtStyle.Custom)
             {
                 if (opt.isImg2ImgMode)
                 {
                     string breakStructure = opt.naturalLanguageMode
-                        ? "humanoid body structure with detailed arms, hands and legs, not pixel art, not game sprite, "
-                        : "(humanoid body structure:1.5), (detailed arms and hands:1.4), (detailed legs:1.4), (NOT pixel art:1.5), (NOT game sprite:1.5), ";
+                        ? "complete humanoid body structure with detailed arms, hands and legs, natural proportions, "
+                        : "(complete humanoid body structure:1.4), (detailed arms and hands:1.3), (detailed legs:1.3), ";
                     switch (opt.style)
                     {
-                        case ArtStyle.Standard: sb.Append($"masterpiece, best quality, mobile game illustration, detailed cel shading, {breakStructure} dynamic pose, "); break;
-                        case ArtStyle.Realistic: sb.Append($"photorealistic, 8k uhd, cosplay photography, real life{(opt.naturalLanguageMode ? ", " : ", (hyper realistic:1.4), ")}, {breakStructure}{(opt.naturalLanguageMode ? "" : "(skin texture:1.3), ")}cinematic lighting, "); break;
-                        case ArtStyle.Miyazaki: sb.Append($"studio ghibli style, hayao miyazaki, 1990s anime style, hand painted watercolor, {breakStructure} soft colors, "); break;
-                        case ArtStyle.Chibi: sb.Append($"chibi, nendoroid figure, 3d render style, blind box toy{(opt.naturalLanguageMode ? ", " : ", (cute body with arms and legs:1.4), ")}big head, standing on base, "); break;
+                        case ArtStyle.Standard:
+                            sb.Append($"masterpiece, best quality, anime character illustration, detailed cel shading, clean lineart, vibrant colors, expressive eyes, {breakStructure}dynamic pose, ");
+                            break;
+                        case ArtStyle.Realistic:
+                            sb.Append($"photorealistic, 8k uhd, gritty sci-fi frontier portrait, realistic skin pores and fabric texture, weathered details{(opt.naturalLanguageMode ? ", " : ", (hyper realistic:1.3), ")}{breakStructure}dramatic shadows, ");
+                            break;
+                        case ArtStyle.Miyazaki:
+                            sb.Append($"studio ghibli style, hayao miyazaki, 1990s cel animation, hand-painted watercolor and gouache texture, warm nostalgic palette, gentle expressive features, {breakStructure}soft colors, ");
+                            break;
+                        case ArtStyle.Chibi:
+                            sb.Append($"chibi style, super deformed, 2 heads tall, cute adorable proportions, big expressive sparkling eyes, clean thick lineart, soft vibrant colors{(opt.naturalLanguageMode ? ", complete chibi body with arms and legs, " : ", (cute chibi body with arms and legs:1.3), ")}");
+                            break;
                     }
                 }
                 else
                 {
                     switch (opt.style)
                     {
-                        case ArtStyle.Standard: sb.Append("masterpiece, best quality, rimworld art style, digital art, detailed painting, character concept art, "); break;
-                        case ArtStyle.Realistic: sb.Append("photorealistic, 8k, unreal engine 5, detailed texture, sci-fi concept art, dramatic lighting, "); break;
-                        case ArtStyle.Miyazaki: sb.Append("studio ghibli style, anime style, vibrant colors, picturesque, hand drawn, "); break;
-                        case ArtStyle.Chibi: sb.Append("chibi, cute, big head, kawaii, sticker art, thick outline, "); break;
+                        case ArtStyle.Standard:
+                            sb.Append("masterpiece, best quality, anime character illustration, detailed cel shading, clean lineart, vibrant colors, expressive eyes, character concept art, ");
+                            break;
+                        case ArtStyle.Realistic:
+                            sb.Append("photorealistic, 8k uhd, gritty sci-fi frontier portrait, realistic skin pores and fabric texture, weathered details, sci-fi concept art, dramatic shadows, ");
+                            break;
+                        case ArtStyle.Miyazaki:
+                            sb.Append("studio ghibli style, hayao miyazaki, 1990s cel animation, hand-painted watercolor and gouache texture, warm nostalgic palette, gentle expressive features, picturesque, ");
+                            break;
+                        case ArtStyle.Chibi:
+                            sb.Append("chibi style, super deformed, 2 heads tall, cute adorable proportions, big expressive sparkling eyes, clean thick lineart, soft vibrant colors, kawaii illustration, ");
+                            break;
                     }
                 }
             }
@@ -257,8 +276,20 @@ namespace RimAiVinci
 
             if (opt.forceFullBody)
             {
-                if (opt.isImg2ImgMode && opt.style == ArtStyle.Realistic) sb.Append("full body photograph, wide angle shot, showing shoes, ");
-                else sb.Append("full body, standing, ");
+                if (opt.style == ArtStyle.Realistic)
+                    sb.Append("full body portrait, head to toe, standing, showing footwear, ");
+                else if (opt.naturalLanguageMode)
+                    sb.Append("full body standing portrait from head to toe, ");
+                else
+                    sb.Append("(full body:1.3), standing, head to toe, ");
+            }
+
+            if (opt.useCinematicLighting)
+            {
+                if (opt.naturalLanguageMode)
+                    sb.Append("cinematic volumetric lighting, dramatic rim light, atmospheric depth, ");
+                else
+                    sb.Append("(cinematic lighting:1.25), volumetric light, dramatic rim lighting, ");
             }
 
             // 2. 种族与描述（修复：用英文 defName，避免中文 label 污染提示词）
@@ -379,7 +410,7 @@ namespace RimAiVinci
         private static string BuildCharacterSheetPrompt(Pawn pawn, PromptOptions opt)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("Create a high-quality 2D character sprite based on this prototype.\nCore Requirements:\n- Art Style: RimWorld art style, high quality anime style, flat color, clean lines.\n");
+            sb.Append("character reference sheet, anime character design concept art, complete humanoid body with arms, hands and legs.\nCore Requirements:\n- Art Style: high quality anime character sheet, clean lineart, flat cel shading, vibrant accurate colors.\n");
 
             string race = pawn.def.defName;
             string gender = pawn.gender.ToString();
@@ -422,7 +453,12 @@ namespace RimAiVinci
             if (opt.readHair) { string hairColor = ColorLibrary.GetBestMatch(pawn.story.HairColor, "hair"); string hairStyle = GetHairStyleDescription(pawn.story.hairDef); sb.Append($"- Hair: {hairColor} {hairStyle}\n"); }
             if (opt.readApparel) { string apparel = GetApparelDescription(pawn, false, opt.isImg2ImgMode); if (!string.IsNullOrEmpty(apparel)) sb.Append($"- Clothing: {apparel}\n"); }
 
-            sb.Append("Composition & Camera:\n- Shot: Full body shot.\n- Background: Simple white.\nAction:\n- Pose: Standing.\n");
+            sb.Append("Composition & Camera:\n- Shot: Full body standing portrait from head to toe.\n- Background: Simple clean white background.\n");
+            if (opt.useCinematicLighting)
+            {
+                sb.Append("- Lighting: Cinematic volumetric lighting with subtle rim light.\n");
+            }
+            sb.Append("Action:\n- Pose: Natural standing reference pose.\n");
 
             string safeExtra = SanitizePrompt(opt.extraPrompt);
             if (!string.IsNullOrEmpty(safeExtra)) sb.Append($"- Extra Details: {safeExtra}\n");
