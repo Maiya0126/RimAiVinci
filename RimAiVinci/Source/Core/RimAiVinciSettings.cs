@@ -18,6 +18,11 @@ namespace RimAiVinci
         public bool showPortraitInInspectPane = true;
         public bool showBottomTab = true;
         public float portraitScale = 1.0f;
+        // 全局默认立绘偏移（以立绘高度为 1 的相对单位）
+        public float portraitOffsetX = 0f;
+        public float portraitOffsetY = 0f;
+        // 战斗立绘：0=关闭，1=仅实际交战，2=征召即切换
+        public int combatPortraitMode = 1;
 
         public override void ExposeData()
         {
@@ -35,6 +40,9 @@ namespace RimAiVinci
             Scribe_Values.Look(ref showPortraitInInspectPane, "showPortraitInInspectPane", true);
             Scribe_Values.Look(ref showBottomTab, "showBottomTab", true);
             Scribe_Values.Look(ref portraitScale, "portraitScale", 1.0f);
+            Scribe_Values.Look(ref portraitOffsetX, "portraitOffsetX", 0f);
+            Scribe_Values.Look(ref portraitOffsetY, "portraitOffsetY", 0f);
+            Scribe_Values.Look(ref combatPortraitMode, "combatPortraitMode", 1);
 
             base.ExposeData();
         }
@@ -45,6 +53,9 @@ namespace RimAiVinci
             ApiProviders.ApplyProviderDefaults(providerIndex);
             i2iStrength = 0.7f;
             portraitScale = 1.0f;
+            portraitOffsetX = 0f;
+            portraitOffsetY = 0f;
+            combatPortraitMode = 1;
         }
     }
 }

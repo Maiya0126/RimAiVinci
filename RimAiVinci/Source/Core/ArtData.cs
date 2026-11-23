@@ -1,24 +1,57 @@
 ﻿using Verse;
 using RimWorld;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace RimAiVinci
 {
     public enum PawnPortraitType { Human, Animal, Mechanoid }
 
-    public enum PortraitState { Normal = 0, Happy = 1, Injured = 2, MentalBreak = 3, Sleeping = 4, Drunk = 5, Sick = 6, Hungry = 7, Tired = 8 }
+    public enum PortraitState { Normal = 0, Happy = 1, Injured = 2, MentalBreak = 3, Sleeping = 4, Drunk = 5, Sick = 6, Hungry = 7, Tired = 8, Combat = 9 }
 
     public static class PortraitStateHelper
     {
+        private const float StateCacheDuration = 0.25f;
+
+        private static HediffDef alcoholHighDef;
+        private static bool alcoholLookupDone;
+        private static readonly Dictionary<string, PortraitState> stateCache = new Dictionary<string, PortraitState>();
+        private static readonly Dictionary<string, float> stateCacheTime = new Dictionary<string, float>();
+
         public static PortraitState GetCurrentState(Pawn p)
+        {
+            if (p == null) return PortraitState.Normal;
+
+            float now = Time.realtimeSinceStartup;
+            string id = p.ThingID;
+            float cachedAt;
+            PortraitState cachedState;
+            if (stateCacheTime.TryGetValue(id, out cachedAt) && now - cachedAt < StateCacheDuration
+                && stateCache.TryGetValue(id, out cachedState))
+            {
+                return cachedState;
+            }
+
+            PortraitState st = ComputeCurrentState(p);
+            stateCache[id] = st;
+            stateCacheTime[id] = now;
+            return st;
+        }
+
+        private static PortraitState ComputeCurrentState(Pawn p)
         {
             try
             {
-                if (p == null) return PortraitState.Normal;
                 if (p.InMentalState) return PortraitState.MentalBreak;
                 if (p.health != null && p.health.Downed) return PortraitState.Injured;
+                if (IsInCombat(p)) return PortraitState.Combat;
 
-                HediffDef alcohol = DefDatabase<HediffDef>.GetNamedSilentFail("AlcoholHigh");
-                if (alcohol != null && p.health != null && p.health.hediffSet != null && p.health.hediffSet.HasHediff(alcohol))
+                if (!alcoholLookupDone)
+                {
+                    alcoholHighDef = DefDatabase<HediffDef>.GetNamedSilentFail("AlcoholHigh");
+                    alcoholLookupDone = true;
+                }
+                if (alcoholHighDef != null && p.health != null && p.health.hediffSet != null && p.health.hediffSet.HasHediff(alcoholHighDef))
                     return PortraitState.Drunk;
 
                 if (p.health != null && p.health.hediffSet != null && p.health.hediffSet.HasImmunizableNotImmuneHediff())
@@ -37,6 +70,28 @@ namespace RimAiVinci
             return PortraitState.Normal;
         }
 
+        private static bool IsInCombat(Pawn p)
+        {
+            int mode = RimAiVinciMod.settings != null ? RimAiVinciMod.settings.combatPortraitMode : 1;
+            if (mode <= 0) return false;
+
+            try
+            {
+                if (p.Drafted && p.mindState != null && p.mindState.enemyTarget != null) return true;
+                if (PawnUtility.IsFighting(p)) return true;
+                if (mode >= 2 && p.Drafted) return true;
+            }
+            catch { }
+            return false;
+        }
+
+        // 设置项变更后立即生效，避免最长 0.25 秒的旧缓存
+        public static void ClearStateCache()
+        {
+            stateCache.Clear();
+            stateCacheTime.Clear();
+        }
+
         public static string GetStateLabelKey(PortraitState st)
         {
             switch (st)
@@ -49,6 +104,7 @@ namespace RimAiVinci
                 case PortraitState.Sick: return "RAV_State_Sick";
                 case PortraitState.Hungry: return "RAV_State_Hungry";
                 case PortraitState.Tired: return "RAV_State_Tired";
+                case PortraitState.Combat: return "RAV_State_Combat";
                 default: return "RAV_State_Normal";
             }
         }
@@ -65,6 +121,7 @@ namespace RimAiVinci
                 case PortraitState.Sick: return "sick, pale skin, feverish weak expression, cold sweat, ill and shivering";
                 case PortraitState.Hungry: return "starving, weak from hunger, desperate hungry expression, hollow cheeks";
                 case PortraitState.Tired: return "exhausted, dark circles under eyes, yawning, sleepy tired expression";
+                case PortraitState.Combat: return "combat stance, fierce determined expression, battle-ready, tense atmosphere, gritted teeth, dynamic pose";
                 default: return "";
             }
         }

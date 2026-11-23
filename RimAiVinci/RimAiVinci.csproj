@@ -82,6 +82,7 @@
     <Compile Include="Source\Core\DebugActions.cs" />
     <Compile Include="Source\Core\ApiProviders.cs" />
     <Compile Include="Source\Core\PawnPromptBuilder.cs" />
+    <Compile Include="Source\Core\PortraitLayout.cs" />
     <Compile Include="Source\Core\PlaceWorker_WallArt.cs" />
     <Compile Include="Source\Core\PollinationsClient.cs" />
     <Compile Include="Source\Core\Player2Client.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Source\UI\Window_RacePromptEditor.cs" />
     <Compile Include="Source\UI\Window_Gallery.cs" />
     <Compile Include="Source\UI\Window_ImageViewer.cs" />
+    <Compile Include="Source\UI\Window_PortraitLayout.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assemblies\" />

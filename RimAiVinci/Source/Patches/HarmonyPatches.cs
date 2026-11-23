@@ -28,6 +28,8 @@ namespace RimAiVinci
     public static class Dialog_InfoCard_FillCard_Patch
     {
         private static Dictionary<string, Texture2D> portraitCache = new Dictionary<string, Texture2D>();
+        private static List<string> portraitCacheOrder = new List<string>();
+        private const int MaxPortraitCache = 12;
 
         // ✨ 改回 Prefix (前置补丁)
         // 注意：Prefix 如果返回 true，会继续执行原版方法；返回 false 则拦截原版方法。
@@ -48,11 +50,31 @@ namespace RimAiVinci
 
             // 3. 加载图片 (带缓存)
             Texture2D displayTex = null;
-            if (portraitCache.ContainsKey(activePath)) displayTex = portraitCache[activePath];
+            if (portraitCache.ContainsKey(activePath))
+            {
+                displayTex = portraitCache[activePath];
+                portraitCacheOrder.Remove(activePath);
+                portraitCacheOrder.Add(activePath);
+            }
             else
             {
                 displayTex = ArtFileSystem.LoadTextureFromDisk(activePath);
-                if (displayTex != null) portraitCache[activePath] = displayTex;
+                if (displayTex != null)
+                {
+                    portraitCache[activePath] = displayTex;
+                    portraitCacheOrder.Add(activePath);
+                    while (portraitCacheOrder.Count > MaxPortraitCache)
+                    {
+                        string oldest = portraitCacheOrder[0];
+                        portraitCacheOrder.RemoveAt(0);
+                        Texture2D oldTex;
+                        if (portraitCache.TryGetValue(oldest, out oldTex))
+                        {
+                            portraitCache.Remove(oldest);
+                            if (oldTex != null) UnityEngine.Object.Destroy(oldTex);
+                        }
+                    }
+                }
             }
             if (displayTex == null) return true;
 
@@ -85,6 +107,7 @@ namespace RimAiVinci
                 if (tex != null) UnityEngine.Object.Destroy(tex);
             }
             portraitCache.Clear();
+            portraitCacheOrder.Clear();
         }
     }
 }

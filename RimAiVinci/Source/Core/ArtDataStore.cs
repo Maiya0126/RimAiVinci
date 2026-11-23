@@ -17,6 +17,9 @@ namespace RimAiVinci
         // Key: "PawnID|stateInt", Value: 图片相对路径
         private Dictionary<string, string> statePortraits = new Dictionary<string, string>();
 
+        // ✨ 新增：按小人的立绘排版覆盖（位置与缩放）
+        private Dictionary<string, PortraitLayout> portraitLayouts = new Dictionary<string, PortraitLayout>();
+
         private List<string> workingKeys = new List<string>();
         private List<ArtDataListWrapper> workingValues = new List<ArtDataListWrapper>();
 
@@ -25,6 +28,8 @@ namespace RimAiVinci
         private List<string> activeValues = new List<string>();
         private List<string> stateKeys = new List<string>();
         private List<string> stateValues = new List<string>();
+        private List<string> layoutKeys = new List<string>();
+        private List<PortraitLayout> layoutValues = new List<PortraitLayout>();
 
         public ArtDataStore(World world) : base(world)
         {
@@ -40,9 +45,13 @@ namespace RimAiVinci
             // ✨ 保存状态立绘映射
             Scribe_Collections.Look(ref statePortraits, "statePortraits", LookMode.Value, LookMode.Value, ref stateKeys, ref stateValues);
 
+            // ✨ 保存按小人的立绘排版
+            Scribe_Collections.Look(ref portraitLayouts, "portraitLayouts", LookMode.Value, LookMode.Deep, ref layoutKeys, ref layoutValues);
+
             if (artRegistry == null) artRegistry = new Dictionary<string, ArtDataListWrapper>();
             if (activePortraits == null) activePortraits = new Dictionary<string, string>();
             if (statePortraits == null) statePortraits = new Dictionary<string, string>();
+            if (portraitLayouts == null) portraitLayouts = new Dictionary<string, PortraitLayout>();
         }
 
         public void AddArt(ArtData data)
@@ -131,8 +140,33 @@ namespace RimAiVinci
             return null;
         }
 
-        public List<PortraitState> GetStatesFor(string pawnID, string relativePath)
+        // ✨ 立绘排版：按小人读取（没有覆盖时返回 false，调用方使用全局默认）
+        public bool TryGetPortraitLayout(string pawnID, out PortraitLayout layout)
         {
+            layout = null;
+            if (string.IsNullOrEmpty(pawnID)) return false;
+            if (portraitLayouts.TryGetValue(pawnID, out layout) && layout != null) return true;
+            layout = null;
+            return false;
+        }
+
+        public void SetPortraitLayout(string pawnID, PortraitLayout layout)
+        {
+            if (string.IsNullOrEmpty(pawnID) || layout == null) return;
+            portraitLayouts[pawnID] = layout;
+        }
+
+        public void ClearPortraitLayout(string pawnID)
+        {
+            if (!string.IsNullOrEmpty(pawnID)) portraitLayouts.Remove(pawnID);
+        }
+
+        public void ClearAllPortraitLayouts()
+        {
+            portraitLayouts.Clear();
+        }
+
+        public List<PortraitState> GetStatesFor(string pawnID, string relativePath)        {
             List<PortraitState> result = new List<PortraitState>();
             foreach (var kv in statePortraits)
             {

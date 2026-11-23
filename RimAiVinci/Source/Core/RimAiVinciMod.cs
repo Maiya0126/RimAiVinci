@@ -269,6 +269,30 @@ namespace RimAiVinci
                 {
                     listing.Label("RAV_Label_PortraitScale".Translate(settings.portraitScale.ToString("P0")));
                     settings.portraitScale = listing.Slider(settings.portraitScale, 0.2f, 2.0f);
+                    Pawn layoutPawn = Find.Selector.SingleSelectedThing as Pawn;
+                    if (layoutPawn != null && listing.ButtonText("RAV_Layout_OpenButton".Translate()))
+                    {
+                        Find.WindowStack.Add(new Window_PortraitLayout(layoutPawn));
+                    }
+                }
+
+                listing.Label("<b>" + "RAV_Group_Combat".Translate() + "</b>");
+                listing.Label("<color=grey>" + "RAV_Desc_Combat".Translate() + "</color>");
+                int combatMode = settings.combatPortraitMode;
+                if (listing.RadioButton("RAV_Combat_Off".Translate(), combatMode == 0))
+                {
+                    settings.combatPortraitMode = 0;
+                    PortraitStateHelper.ClearStateCache();
+                }
+                if (listing.RadioButton("RAV_Combat_Fighting".Translate(), combatMode == 1))
+                {
+                    settings.combatPortraitMode = 1;
+                    PortraitStateHelper.ClearStateCache();
+                }
+                if (listing.RadioButton("RAV_Combat_Drafted".Translate(), combatMode == 2))
+                {
+                    settings.combatPortraitMode = 2;
+                    PortraitStateHelper.ClearStateCache();
                 }
                 bool oldTabSetting = settings.showBottomTab;
                 listing.CheckboxLabeled("RAV_Check_ShowTab".Translate(), ref settings.showBottomTab);

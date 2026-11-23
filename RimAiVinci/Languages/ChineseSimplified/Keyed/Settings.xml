@@ -61,6 +61,26 @@
 	<RAV_Group_UI>UI 界面与显示</RAV_Group_UI>
 	<RAV_Check_ShowPortrait>立绘显示 (选中角色时在左下角展示)</RAV_Check_ShowPortrait>
 	<RAV_Label_PortraitScale>立绘展示大小: {0}</RAV_Label_PortraitScale>
+	<RAV_Group_Combat>战斗立绘</RAV_Group_Combat>
+	<RAV_Desc_Combat>需要先在画廊为角色指派“战斗中”状态画像；未指派时会自动回退到当前展示立绘。</RAV_Desc_Combat>
+	<RAV_Combat_Off>关闭（不自动切换）</RAV_Combat_Off>
+	<RAV_Combat_Fighting>仅实际交战时切换（推荐）</RAV_Combat_Fighting>
+	<RAV_Combat_Drafted>征召即切换（含站岗）</RAV_Combat_Drafted>
+	<RAV_Layout_OpenButton>立绘排版</RAV_Layout_OpenButton>
+	<RAV_Layout_Title>立绘排版 - {0}</RAV_Layout_Title>
+	<RAV_Layout_Hint>拖动立绘调整位置，滚轮缩放；灰色横线代表信息面板底部</RAV_Layout_Hint>
+	<RAV_Layout_OffsetX>水平偏移: {0}</RAV_Layout_OffsetX>
+	<RAV_Layout_OffsetY>垂直偏移: {0}</RAV_Layout_OffsetY>
+	<RAV_Layout_Scale>缩放比例: {0}</RAV_Layout_Scale>
+	<RAV_Layout_NudgeHint>方向键每次微调 1%，按住 Shift 为 5%；• 回到正中</RAV_Layout_NudgeHint>
+	<RAV_Layout_NoPortrait>该角色还没有可调整的立绘</RAV_Layout_NoPortrait>
+	<RAV_Layout_ApplyPawn>应用到当前小人</RAV_Layout_ApplyPawn>
+	<RAV_Layout_ApplyGlobal>设为所有小人默认</RAV_Layout_ApplyGlobal>
+	<RAV_Layout_UseGlobal>恢复全局默认</RAV_Layout_UseGlobal>
+	<RAV_Layout_Reset>重置位置与缩放</RAV_Layout_Reset>
+	<RAV_Layout_Saved>已保存当前小人的立绘排版</RAV_Layout_Saved>
+	<RAV_Layout_GlobalSaved>已设为全局默认排版</RAV_Layout_GlobalSaved>
+	<RAV_Layout_ResetDone>已恢复为全局默认排版</RAV_Layout_ResetDone>
 	<RAV_Check_ShowTab>显示底部功能标签 (需重启游戏或重新加载生效)</RAV_Check_ShowTab>
 
 	<RAV_Btn_OpenGallery>打开珍藏画廊</RAV_Btn_OpenGallery>
@@ -217,6 +237,7 @@
 	<RAV_State_Sick>生病</RAV_State_Sick>
 	<RAV_State_Hungry>饥饿</RAV_State_Hungry>
 	<RAV_State_Tired>疲惫</RAV_State_Tired>
+	<RAV_State_Combat>战斗中</RAV_State_Combat>
 	<RAV_State_GenNew>＋ 生成新的状态立绘...</RAV_State_GenNew>
 	<RAV_State_ModeHint>状态立绘模式: {0} (保存后自动指派)</RAV_State_ModeHint>
 	<RAV_Gallery_SetState>状态立绘</RAV_Gallery_SetState>

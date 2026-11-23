@@ -61,6 +61,26 @@
 	<RAV_Group_UI>UI and Display</RAV_Group_UI>
 	<RAV_Check_ShowPortrait>Show Portrait (Bottom-Left when pawn selected)</RAV_Check_ShowPortrait>
 	<RAV_Label_PortraitScale>Portrait Scale: {0}</RAV_Label_PortraitScale>
+	<RAV_Group_Combat>Combat Portrait</RAV_Group_Combat>
+	<RAV_Desc_Combat>Assign a "In Combat" state portrait in the gallery first. If none is assigned, the active portrait is used automatically.</RAV_Desc_Combat>
+	<RAV_Combat_Off>Disabled</RAV_Combat_Off>
+	<RAV_Combat_Fighting>Only while actually fighting (Recommended)</RAV_Combat_Fighting>
+	<RAV_Combat_Drafted>Whenever drafted (includes guard duty)</RAV_Combat_Drafted>
+	<RAV_Layout_OpenButton>Adjust Layout</RAV_Layout_OpenButton>
+	<RAV_Layout_Title>Portrait Layout - {0}</RAV_Layout_Title>
+	<RAV_Layout_Hint>Drag the portrait to move it, scroll to scale. The grey line marks the pane bottom.</RAV_Layout_Hint>
+	<RAV_Layout_OffsetX>Horizontal Offset: {0}</RAV_Layout_OffsetX>
+	<RAV_Layout_OffsetY>Vertical Offset: {0}</RAV_Layout_OffsetY>
+	<RAV_Layout_Scale>Scale: {0}</RAV_Layout_Scale>
+	<RAV_Layout_NudgeHint>Arrow buttons nudge by 1%, hold Shift for 5%; • centers it.</RAV_Layout_NudgeHint>
+	<RAV_Layout_NoPortrait>This pawn has no portrait to adjust yet.</RAV_Layout_NoPortrait>
+	<RAV_Layout_ApplyPawn>Apply to This Pawn</RAV_Layout_ApplyPawn>
+	<RAV_Layout_ApplyGlobal>Set as Default for All</RAV_Layout_ApplyGlobal>
+	<RAV_Layout_UseGlobal>Revert to Global Default</RAV_Layout_UseGlobal>
+	<RAV_Layout_Reset>Reset Position and Scale</RAV_Layout_Reset>
+	<RAV_Layout_Saved>Portrait layout saved for this pawn.</RAV_Layout_Saved>
+	<RAV_Layout_GlobalSaved>Saved as the global default layout.</RAV_Layout_GlobalSaved>
+	<RAV_Layout_ResetDone>Reverted to the global default layout.</RAV_Layout_ResetDone>
 	<RAV_Check_ShowTab>Show Bottom Gallery Tab (Requires Restart)</RAV_Check_ShowTab>
 
 	<RAV_Btn_OpenGallery>Open Gallery</RAV_Btn_OpenGallery>
@@ -217,6 +237,7 @@
 	<RAV_State_Sick>Sick</RAV_State_Sick>
 	<RAV_State_Hungry>Hungry</RAV_State_Hungry>
 	<RAV_State_Tired>Exhausted</RAV_State_Tired>
+	<RAV_State_Combat>In Combat</RAV_State_Combat>
 	<RAV_State_GenNew>+ Generate New State Portrait...</RAV_State_GenNew>
 	<RAV_State_ModeHint>State Portrait Mode: {0} (auto-assigned on save)</RAV_State_ModeHint>
 	<RAV_Gallery_SetState>State Portrait</RAV_Gallery_SetState>

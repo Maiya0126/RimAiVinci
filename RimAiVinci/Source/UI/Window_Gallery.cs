@@ -302,7 +302,11 @@ namespace RimAiVinci
             {
                 string pawnLabel = selectedPawn.Name != null ? selectedPawn.Name.ToStringShort : selectedPawn.def.label;
                 string btnLabel = "RAV_Gallery_CreateNew".Translate(pawnLabel);
-                if (Widgets.ButtonText(topBarRect, btnLabel)) Find.WindowStack.Add(new Window_ArtCreator(selectedPawn));
+                Rect createRect = new Rect(topBarRect.x, topBarRect.y, topBarRect.width - 150f, topBarRect.height);
+                Rect layoutRect = new Rect(topBarRect.xMax - 144f, topBarRect.y, 144f, topBarRect.height);
+                if (Widgets.ButtonText(createRect, btnLabel)) Find.WindowStack.Add(new Window_ArtCreator(selectedPawn));
+                if (Widgets.ButtonText(layoutRect, "RAV_Layout_OpenButton".Translate()))
+                    Find.WindowStack.Add(new Window_PortraitLayout(selectedPawn));
             }
             else
             {
