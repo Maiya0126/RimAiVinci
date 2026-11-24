@@ -18,6 +18,7 @@ namespace RimAiVinci
         private PortraitLayout layout;
         private Texture2D portraitTex;
         private bool dragging;
+        private bool canOperate;
 
         public override Vector2 InitialSize => new Vector2(600f, 700f);
 
@@ -31,6 +32,9 @@ namespace RimAiVinci
             this.absorbInputAroundWindow = true;
 
             layout = new PortraitLayout();
+            canOperate = Current.ProgramState == ProgramState.Playing;
+            if (!canOperate) return;
+
             layout.offsetX = RimAiVinciMod.settings.portraitOffsetX;
             layout.offsetY = RimAiVinciMod.settings.portraitOffsetY;
             layout.scale = RimAiVinciMod.settings.portraitScale;
@@ -70,6 +74,14 @@ namespace RimAiVinci
 
         public override void DoWindowContents(Rect inRect)
         {
+            if (!canOperate)
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(inRect, "RAV_Layout_EntryHint".Translate());
+                Text.Anchor = TextAnchor.UpperLeft;
+                return;
+            }
+
             string pawnName = pawn != null ? (pawn.Name != null ? pawn.Name.ToStringShort : pawn.def.label) : "";
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(0, 0, inRect.width, 30f), "RAV_Layout_Title".Translate(pawnName));

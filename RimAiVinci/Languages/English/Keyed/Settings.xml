@@ -68,6 +68,7 @@
 	<RAV_Combat_Drafted>Whenever drafted (includes guard duty)</RAV_Combat_Drafted>
 	<RAV_Layout_OpenButton>Adjust Layout</RAV_Layout_OpenButton>
 	<RAV_Layout_Title>Portrait Layout - {0}</RAV_Layout_Title>
+	<RAV_Layout_EntryHint>Portrait layout is available in-game after selecting a pawn.</RAV_Layout_EntryHint>
 	<RAV_Layout_Hint>Drag the portrait to move it, scroll to scale. The grey line marks the pane bottom.</RAV_Layout_Hint>
 	<RAV_Layout_OffsetX>Horizontal Offset: {0}</RAV_Layout_OffsetX>
 	<RAV_Layout_OffsetY>Vertical Offset: {0}</RAV_Layout_OffsetY>

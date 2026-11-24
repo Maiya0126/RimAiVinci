@@ -269,10 +269,18 @@ namespace RimAiVinci
                 {
                     listing.Label("RAV_Label_PortraitScale".Translate(settings.portraitScale.ToString("P0")));
                     settings.portraitScale = listing.Slider(settings.portraitScale, 0.2f, 2.0f);
-                    Pawn layoutPawn = Find.Selector.SingleSelectedThing as Pawn;
-                    if (layoutPawn != null && listing.ButtonText("RAV_Layout_OpenButton".Translate()))
+                    // Find.Selector 只在游戏内可用；主菜单下 UIRoot 是 UIRoot_Entry，直接访问会抛 InvalidCastException
+                    if (Current.ProgramState == ProgramState.Playing)
                     {
-                        Find.WindowStack.Add(new Window_PortraitLayout(layoutPawn));
+                        Pawn layoutPawn = Find.Selector.SingleSelectedThing as Pawn;
+                        if (layoutPawn != null && listing.ButtonText("RAV_Layout_OpenButton".Translate()))
+                        {
+                            Find.WindowStack.Add(new Window_PortraitLayout(layoutPawn));
+                        }
+                    }
+                    else
+                    {
+                        listing.Label("<color=grey>" + "RAV_Layout_EntryHint".Translate() + "</color>");
                     }
                 }
 

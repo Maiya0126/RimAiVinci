@@ -68,6 +68,7 @@
 	<RAV_Combat_Drafted>征召即切换（含站岗）</RAV_Combat_Drafted>
 	<RAV_Layout_OpenButton>立绘排版</RAV_Layout_OpenButton>
 	<RAV_Layout_Title>立绘排版 - {0}</RAV_Layout_Title>
+	<RAV_Layout_EntryHint>立绘排版需要进入游戏并选中一个角色后使用。</RAV_Layout_EntryHint>
 	<RAV_Layout_Hint>拖动立绘调整位置，滚轮缩放；灰色横线代表信息面板底部</RAV_Layout_Hint>
 	<RAV_Layout_OffsetX>水平偏移: {0}</RAV_Layout_OffsetX>
 	<RAV_Layout_OffsetY>垂直偏移: {0}</RAV_Layout_OffsetY>
