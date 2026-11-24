@@ -130,6 +130,14 @@
 	<RAV_ArtCreator_PastePath>从剪贴板粘贴路径</RAV_ArtCreator_PastePath>
 	<RAV_ArtCreator_PickFile>选择文件</RAV_ArtCreator_PickFile>
 	<RAV_ArtCreator_PortraitCount>已拥有画像: {0} 张</RAV_ArtCreator_PortraitCount>
+	<RAV_Export_ThreeView>导出三视图</RAV_Export_ThreeView>
+	<RAV_Export_CurrentView>导出当前视角</RAV_Export_CurrentView>
+	<RAV_Export_OpenFolder>打开导出文件夹</RAV_Export_OpenFolder>
+	<RAV_Export_ThreeViewTip>导出正、侧、背三视角参考图（白底）。适合拿到游戏外做角色一致性参考；图生图请勿整张使用，建议裁切单格。</RAV_Export_ThreeViewTip>
+	<RAV_Export_CurrentViewTip>导出当前转身角度的干净单图（白底），适合拿到游戏外做图生图底图。</RAV_Export_CurrentViewTip>
+	<RAV_Export_ThreeViewDone>三视图已导出: {0}</RAV_Export_ThreeViewDone>
+	<RAV_Export_CurrentViewDone>当前视角已导出: {0}</RAV_Export_CurrentViewDone>
+	<RAV_Export_Failed>导出失败，请查看日志</RAV_Export_Failed>
 	<RAV_ArtCreator_Cooldown>冷却中 ({0}s)</RAV_ArtCreator_Cooldown>
 	<RAV_ArtCreator_FreeTrial>免费试用\n(Pollinations)</RAV_ArtCreator_FreeTrial>
 	<RAV_ArtCreator_FreeNoImg2Img>免费通道\n不支持图生图</RAV_ArtCreator_FreeNoImg2Img>

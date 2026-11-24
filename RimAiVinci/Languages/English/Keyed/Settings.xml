@@ -130,6 +130,14 @@
 	<RAV_ArtCreator_PastePath>Paste path from clipboard</RAV_ArtCreator_PastePath>
 	<RAV_ArtCreator_PickFile>Select file</RAV_ArtCreator_PickFile>
 	<RAV_ArtCreator_PortraitCount>Portraits owned: {0}</RAV_ArtCreator_PortraitCount>
+	<RAV_Export_ThreeView>Export 3-View Sheet</RAV_Export_ThreeView>
+	<RAV_Export_CurrentView>Export Current View</RAV_Export_CurrentView>
+	<RAV_Export_OpenFolder>Open Export Folder</RAV_Export_OpenFolder>
+	<RAV_Export_ThreeViewTip>Exports a front / side / back reference sheet on a white background. Great for external character consistency; do not feed the whole sheet into Img2Img, crop one panel instead.</RAV_Export_ThreeViewTip>
+	<RAV_Export_CurrentViewTip>Exports the current rotated view as a clean white-background image, ideal as an external Img2Img reference.</RAV_Export_CurrentViewTip>
+	<RAV_Export_ThreeViewDone>3-view sheet exported: {0}</RAV_Export_ThreeViewDone>
+	<RAV_Export_CurrentViewDone>Current view exported: {0}</RAV_Export_CurrentViewDone>
+	<RAV_Export_Failed>Export failed, please check the log</RAV_Export_Failed>
 	<RAV_ArtCreator_Cooldown>Cooldown ({0}s)</RAV_ArtCreator_Cooldown>
 	<RAV_ArtCreator_FreeTrial>Free Trial\n(Pollinations)</RAV_ArtCreator_FreeTrial>
 	<RAV_ArtCreator_FreeNoImg2Img>Free Tier\nNo Img2Img</RAV_ArtCreator_FreeNoImg2Img>

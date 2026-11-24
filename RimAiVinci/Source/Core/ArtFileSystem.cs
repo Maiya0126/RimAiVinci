@@ -12,6 +12,7 @@ namespace RimAiVinci
     {
         private static string BasePath => Path.Combine(GenFilePaths.SaveDataFolderPath, "RimAiVinci/Gallery");
         private static string ImportPath => Path.Combine(GenFilePaths.SaveDataFolderPath, "RimAiVinci/Import");
+        private static string ExportPath => Path.Combine(GenFilePaths.SaveDataFolderPath, "RimAiVinci/Export");
 
         public static string GetActualSaveDir()
         {
@@ -23,6 +24,32 @@ namespace RimAiVinci
         {
             if (!Directory.Exists(ImportPath)) Directory.CreateDirectory(ImportPath);
             return ImportPath;
+        }
+
+        public static string GetExportDir()
+        {
+            if (!Directory.Exists(ExportPath)) Directory.CreateDirectory(ExportPath);
+            return ExportPath;
+        }
+
+        // 导出一张参考图到 Export 目录（白底，供游戏外生图使用）
+        public static string SaveExportTexture(Texture2D tex, Pawn pawn, string suffix)
+        {
+            if (tex == null) return null;
+            try
+            {
+                string dir = GetExportDir();
+                string name = Sanitize(pawn != null ? (pawn.Name != null ? pawn.Name.ToStringShort : pawn.def.label) : "Pawn");
+                string fileName = $"{name}_{suffix}_{DateTime.Now:yyyyMMdd_HHmmssfff}.png";
+                string fullPath = Path.Combine(dir, fileName);
+                File.WriteAllBytes(fullPath, tex.EncodeToPNG());
+                return fullPath;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[Rim AiVinci] Export Error: {ex}");
+                return null;
+            }
         }
 
         private static string GetPawnFolder(Pawn pawn)

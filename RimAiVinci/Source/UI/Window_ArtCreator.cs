@@ -315,6 +315,22 @@ namespace RimAiVinci
             GUI.color = new Color(0.75f, 0.75f, 0.75f);
             Widgets.Label(new Rect(rect.x + 10, y, sw, 22), "RAV_ArtCreator_PortraitCount".Translate(portraitCount));
             GUI.color = Color.white;
+            y += 26;
+
+            if (!IsDeadPawn && targetPawn != null)
+            {
+                float halfW = (sw - 4f) / 2f;
+                Rect threeViewRect = new Rect(rect.x + 10, y, halfW, 26f);
+                Rect currentViewRect = new Rect(rect.x + 10 + halfW + 4f, y, halfW, 26f);
+                if (Widgets.ButtonText(threeViewRect, "RAV_Export_ThreeView".Translate())) ExportThreeViews();
+                TooltipHandler.TipRegion(threeViewRect, "RAV_Export_ThreeViewTip".Translate());
+                if (Widgets.ButtonText(currentViewRect, "RAV_Export_CurrentView".Translate())) ExportCurrentView();
+                TooltipHandler.TipRegion(currentViewRect, "RAV_Export_CurrentViewTip".Translate());
+                y += 30f;
+
+                if (Widgets.ButtonText(new Rect(rect.x + 10, y, sw, 24f), "RAV_Export_OpenFolder".Translate()))
+                    Application.OpenURL(ArtFileSystem.GetExportDir());
+            }
         }
 
         private void DrawRightPanel(Rect rect)
@@ -751,6 +767,90 @@ namespace RimAiVinci
 
         private void SetReferenceImage(Texture2D t) { if (referenceTexture != null && referenceTexture != t) UnityEngine.Object.Destroy(referenceTexture); referenceTexture = t; }
         private Texture2D AdjustRenderTextureToTexture2D(RenderTexture r) { RenderTexture currentActive = RenderTexture.active; RenderTexture.active = r; Texture2D tex = new Texture2D(r.width, r.height, TextureFormat.ARGB32, false); tex.ReadPixels(new Rect(0, 0, r.width, r.height), 0, 0); tex.Apply(); RenderTexture.active = currentActive; return tex; }
+
+        // 抓取指定朝向的游戏内小人视图（透明背景）
+        private Texture2D CapturePawnView(Rot4 rotation, int size)
+        {
+            try
+            {
+                RenderTexture rt = PortraitsCache.Get(targetPawn, new Vector2(size, size), rotation);
+                if (rt == null) return null;
+                return AdjustRenderTextureToTexture2D(rt);
+            }
+            catch { return null; }
+        }
+
+        // 把透明像素压到白底上，避免外部工具把透明区显示成黑色
+        private static Color32[] FlattenOnWhite(Color32[] src)
+        {
+            Color32[] dst = new Color32[src.Length];
+            for (int i = 0; i < src.Length; i++)
+            {
+                float a = src[i].a / 255f;
+                dst[i] = new Color32(
+                    (byte)Mathf.RoundToInt(src[i].r * a + 255f * (1f - a)),
+                    (byte)Mathf.RoundToInt(src[i].g * a + 255f * (1f - a)),
+                    (byte)Mathf.RoundToInt(src[i].b * a + 255f * (1f - a)),
+                    255);
+            }
+            return dst;
+        }
+
+        private void ExportThreeViews()
+        {
+            if (targetPawn == null) return;
+            const int cell = 1024;
+            Rot4[] rotations = { Rot4.South, Rot4.East, Rot4.North };
+            Texture2D sheet = new Texture2D(cell * rotations.Length, cell, TextureFormat.ARGB32, false);
+
+            try
+            {
+                for (int i = 0; i < rotations.Length; i++)
+                {
+                    Texture2D view = CapturePawnView(rotations[i], cell);
+                    if (view == null) continue;
+                    sheet.SetPixels32(i * cell, 0, cell, cell, FlattenOnWhite(view.GetPixels32()));
+                    UnityEngine.Object.Destroy(view);
+                }
+                sheet.Apply();
+
+                string path = ArtFileSystem.SaveExportTexture(sheet, targetPawn, "3views");
+                if (!string.IsNullOrEmpty(path))
+                    Messages.Message("RAV_Export_ThreeViewDone".Translate(path), MessageTypeDefOf.TaskCompletion, false);
+                else
+                    Messages.Message("RAV_Export_Failed".Translate(), MessageTypeDefOf.RejectInput, false);
+            }
+            finally
+            {
+                UnityEngine.Object.Destroy(sheet);
+            }
+        }
+
+        private void ExportCurrentView()
+        {
+            if (targetPawn == null) return;
+            Texture2D view = CapturePawnView(currentRotation, 1024);
+            if (view == null)
+            {
+                Messages.Message("RAV_Export_Failed".Translate(), MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            try
+            {
+                view.SetPixels32(FlattenOnWhite(view.GetPixels32()));
+                view.Apply();
+                string path = ArtFileSystem.SaveExportTexture(view, targetPawn, "view");
+                if (!string.IsNullOrEmpty(path))
+                    Messages.Message("RAV_Export_CurrentViewDone".Translate(path), MessageTypeDefOf.TaskCompletion, false);
+                else
+                    Messages.Message("RAV_Export_Failed".Translate(), MessageTypeDefOf.RejectInput, false);
+            }
+            finally
+            {
+                UnityEngine.Object.Destroy(view);
+            }
+        }
 
         private Texture2D PadToSquare1024(Texture2D source)
         {
