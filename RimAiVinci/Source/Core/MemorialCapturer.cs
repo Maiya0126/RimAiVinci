@@ -13,6 +13,7 @@ namespace RimAiVinci
             try
             {
                 if (pawn == null || pawn.RaceProps == null || !pawn.RaceProps.Humanlike) return;
+                if (RimAiVinciMod.settings != null && !RimAiVinciMod.settings.autoCaptureMemorial) return;
                 if (Find.World == null) return;
 
                 Texture2D tex = CapturePortrait(pawn);

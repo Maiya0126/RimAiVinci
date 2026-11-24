@@ -17,6 +17,7 @@ namespace RimAiVinci
                 if (__instance == null) return;
                 if (__instance.RaceProps == null || !__instance.RaceProps.Humanlike) return;
                 if (__instance.Faction != Faction.OfPlayer) return;
+                if (RimAiVinciMod.settings != null && !RimAiVinciMod.settings.autoCaptureMemorial) return;
                 if (Find.World == null) return;
                 LongEventHandler.ExecuteWhenFinished(() => MemorialCapturer.CaptureAndSave(__instance));
             }

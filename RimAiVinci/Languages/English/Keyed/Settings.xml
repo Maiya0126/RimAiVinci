@@ -82,6 +82,8 @@
 	<RAV_Layout_GlobalSaved>Saved as the global default layout.</RAV_Layout_GlobalSaved>
 	<RAV_Layout_ResetDone>Reverted to the global default layout.</RAV_Layout_ResetDone>
 	<RAV_Check_ShowTab>Show Bottom Gallery Tab (Requires Restart)</RAV_Check_ShowTab>
+	<RAV_Check_AutoMemorial>Auto-Capture Memorial Portraits</RAV_Check_AutoMemorial>
+	<RAV_Desc_AutoMemorial>When disabled, no memorial portrait is captured for newly deceased colonists. Existing portraits are unaffected and can be deleted in the gallery.</RAV_Desc_AutoMemorial>
 
 	<RAV_Btn_OpenGallery>Open Gallery</RAV_Btn_OpenGallery>
 	<RAV_Btn_OpenFolder>Open Import Folder</RAV_Btn_OpenFolder>

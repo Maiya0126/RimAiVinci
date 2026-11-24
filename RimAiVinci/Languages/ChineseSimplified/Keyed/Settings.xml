@@ -82,6 +82,8 @@
 	<RAV_Layout_GlobalSaved>已设为全局默认排版</RAV_Layout_GlobalSaved>
 	<RAV_Layout_ResetDone>已恢复为全局默认排版</RAV_Layout_ResetDone>
 	<RAV_Check_ShowTab>显示底部功能标签 (需重启游戏或重新加载生效)</RAV_Check_ShowTab>
+	<RAV_Check_AutoMemorial>自动保存逝去殖民者纪念像</RAV_Check_AutoMemorial>
+	<RAV_Desc_AutoMemorial>关闭后不再自动为新逝去的殖民者截取纪念像；已保存的画像不受影响，可在画廊中删除。</RAV_Desc_AutoMemorial>
 
 	<RAV_Btn_OpenGallery>打开珍藏画廊</RAV_Btn_OpenGallery>
 	<RAV_Btn_OpenFolder>打开导入文件夹</RAV_Btn_OpenFolder>

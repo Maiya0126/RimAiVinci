@@ -301,6 +301,9 @@ namespace RimAiVinci
                     MainButtonDef def = DefDatabase<MainButtonDef>.GetNamedSilentFail("RAV_GalleryTab");
                     if (def != null) def.buttonVisible = settings.showBottomTab;
                 }
+
+                listing.CheckboxLabeled("RAV_Check_AutoMemorial".Translate(), ref settings.autoCaptureMemorial);
+                listing.Label("<color=grey>" + "RAV_Desc_AutoMemorial".Translate() + "</color>");
             }
             finally
             {
